@@ -140,6 +140,9 @@ $('addShortcut').onclick = () => {
 $('minimize').onclick = () => api.windowAction('minimize');
 $('maximize').onclick = () => api.windowAction('maximize');
 $('close').onclick = () => api.windowAction('close');
+document.querySelectorAll('.window-actions button').forEach(button => {
+  button.addEventListener('dblclick', e => e.preventDefault());
+});
 api.onNotice(message => toast(message));
 api.onState(next => {
   localStorage.setItem('crystalium.openTabs', JSON.stringify(next.tabs.map(t=>t.url).filter(Boolean)));
