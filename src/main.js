@@ -111,6 +111,21 @@ ipcMain.handle('browser:external', (_e, url) => {
   try { const parsed = new URL(url); if (['https:', 'http:'].includes(parsed.protocol)) shell.openExternal(parsed.toString()); } catch {}
 });
 ipcMain.handle('browser:state', () => ({ tabs: tabs.map(publicTab), activeId }));
+ipcMain.handle('browser:window', (_e, action) => {
+  if (!win) return;
+  if (action === 'minimize') win.minimize();
+  if (action === 'maximize') win.isMaximized() ? win.unmaximize() : win.maximize();
+  if (action === 'close') win.close();
+});
+ipcMain.handle('browser:saved-update', (_e, patch) => {
+  const fs = require('node:fs');
+  const file = path.join(app.getPath('userData'), 'crystalium-state.json');
+  let data = {};
+  try { data = JSON.parse(fs.readFileSync(file, 'utf8')); } catch {}
+  for (const key of ['tabs', 'bookmarks', 'history', 'shortcuts', 'settings']) if (patch && patch[key] !== undefined) data[key] = patch[key];
+  try { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, JSON.stringify(data, null, 2)); } catch {}
+  return data;
+});
 app.whenReady().then(() => {
   app.setAppUserModelId('dev.crystalium.browser');
   createWindow();
