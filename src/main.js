@@ -1,5 +1,9 @@
 const { app, BrowserWindow, WebContentsView, ipcMain, shell } = require('electron');
 const path = require('node:path');
+const fs = require('node:fs');
+let savedTabs = []; let savedActiveIndex = 0;
+function loadSession() { try { const d=JSON.parse(fs.readFileSync(path.join(app.getPath('userData'),'crystalium-state.json'),'utf8')); savedTabs=Array.isArray(d.tabs)?d.tabs:[]; savedActiveIndex=d.activeIndex||0; } catch {} }
+function saveSession() { try { fs.mkdirSync(app.getPath('userData'),{recursive:true}); fs.writeFileSync(path.join(app.getPath('userData'),'crystalium-state.json'),JSON.stringify({tabs:tabs.map(t=>t.view.webContents.getURL()).filter(u=>/^https?:/i.test(u)),activeIndex:Math.max(0,tabs.findIndex(t=>t.id===activeId))})); } catch {} }
 
 let win;
 let tabs = [];
@@ -31,7 +35,7 @@ function layoutViews() {
     } else tab.view.setVisible(false);
   }
 }
-function addTab(url = 'https://www.google.com') {
+function addTab(url = '') {
   const id = nextId++;
   const view = new WebContentsView({ webPreferences: {
     nodeIntegration: false,
@@ -58,7 +62,8 @@ function addTab(url = 'https://www.google.com') {
   });
   activeId = id;
   layoutViews();
-  view.webContents.loadURL(safeUrl(url)).catch(() => {});
+  if (url) view.webContents.loadURL(safeUrl(url)).catch(() => {});
+  saveSession();
   sendState();
   return id;
 }
@@ -87,7 +92,7 @@ function createWindow() {
   win.loadFile(path.join(__dirname, 'index.html'));
   win.on('resize', () => { layoutViews(); });
   win.on('closed', () => { tabs = []; win = null; });
-  win.webContents.on('did-finish-load', () => { if (!tabs.length) addTab(); });
+  win.webContents.on('did-finish-load', () => { if (!tabs.length) { if (savedTabs.length) { savedTabs.forEach(u => addTab(u)); activeId = tabs[Math.min(savedActiveIndex, tabs.length-1)]?.id ?? activeId; layoutViews(); sendState(); } else addTab(''); } });
 }
 ipcMain.handle('browser:layout', (_e, rect) => {
   if (!rect || ![rect.x, rect.y, rect.width, rect.height].every(Number.isFinite)) return;
@@ -127,6 +132,7 @@ ipcMain.handle('browser:saved-update', (_e, patch) => {
   return data;
 });
 app.whenReady().then(() => {
+  loadSession();
   app.setAppUserModelId('dev.crystalium.browser');
   createWindow();
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
