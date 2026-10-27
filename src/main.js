@@ -83,7 +83,7 @@ function closeTab(id) {
 function createWindow() {
   win = new BrowserWindow({
     width: 1360, height: 860, minWidth: 900, minHeight: 620,
-    backgroundColor: '#060d19', title: 'Crystalium',
+    backgroundColor: '#060d19', title: 'Crystalium', frame: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false, contextIsolation: true, sandbox: true
@@ -132,6 +132,15 @@ ipcMain.handle('browser:saved-update', (_e, patch) => {
   return data;
 });
 app.whenReady().then(() => {
+  // Lightweight built-in ad/tracker filtering. This is best-effort, not a full ad blocker.
+  const filter = /(^|\\.)((doubleclick\\.net)|(googlesyndication\\.com)|(adservice\\.google\\.com)|(adnxs\\.com)|(ad\\.yahoo\\.com)|(adsystem\\.com)|(taboola\\.com)|(outbrain\\.com)|(scorecardresearch\\.com)|(analytics\\.google\\.com))$/i;
+  const ses = require('electron').session.defaultSession;
+  ses.webRequest.onBeforeRequest({ urls: ['*://*/*'] }, (details, callback) => {
+    try {
+      const host = new URL(details.url).hostname;
+      callback({ cancel: filter.test(host) });
+    } catch { callback({ cancel: false }); }
+  });
   loadSession();
   app.setAppUserModelId('dev.crystalium.browser');
   createWindow();
