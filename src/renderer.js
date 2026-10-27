@@ -7,8 +7,12 @@ const pageBounds = $('pageBounds');
 const sidePanel = $('sidePanel');
 let state = { tabs: [], activeId: null };
 let toastTimer;
-const bookmarks = [];
-const historyItems = [];
+const load = (k,d) => { try { return JSON.parse(localStorage.getItem('crystalium.'+k)) || d; } catch { return d; } };
+const save = (k,v) => localStorage.setItem('crystalium.'+k,JSON.stringify(v));
+const bookmarks = load('bookmarks', []);
+const historyItems = load('history', []);
+const settings = load('settings', { blockTrackers: true, warnInsecure: true });
+const shortcuts = load('shortcuts', []);
 function toast(message) {
   const node = $('toast'); node.textContent = message; node.classList.add('show');
   clearTimeout(toastTimer); toastTimer = setTimeout(() => node.classList.remove('show'), 2400);
@@ -43,6 +47,7 @@ function render(next) {
 api.onState(render);
 api.onError(message => toast(message));
 api.getState().then(render);
+api.onNotice(message => toast(message));
 window.addEventListener('resize', updateLayout);
 $('newTab').onclick = () => api.newTab();
 $('back').onclick = () => api.back();
@@ -55,7 +60,7 @@ $('bookmark').onclick = () => {
   const tab = currentTab();
   if (!tab?.url) return toast('Open a page first to bookmark it.');
   if (bookmarks.some(b => b.url === tab.url)) return toast('Already bookmarked.');
-  bookmarks.push({ title: tab.title, url: tab.url }); toast('Bookmark saved for this session.');
+  bookmarks.push({ title: tab.title, url: tab.url }); save('bookmarks',bookmarks); toast('Bookmark saved on this device.');
 };
 function showPanel(name) {
   sidePanel.classList.remove('hidden');
@@ -65,11 +70,11 @@ function showPanel(name) {
   $('panelEyebrow').textContent = name === 'music' ? 'YOUR SOUNDTRACK' : 'CRYSTALIUM TOOLS';
   if (name === 'music') renderMusic();
   else if (name === 'bookmarks') {
-    addPanelText('Saved bookmarks are kept in memory in this preview. Persistent storage is planned.');
+    addPanelText('Bookmarks are saved on this device.');
     if (!bookmarks.length) addPanelCard('No bookmarks yet','Use the ☆ button while viewing a website.');
     bookmarks.forEach(b => addPanelCard(b.title, b.url, () => { sidePanel.classList.add('hidden'); api.navigate(b.url); }));
   } else if (name === 'history') {
-    addPanelText('Pages visited in this session.');
+    addPanelText('Recent pages are saved on this device.');
     if (!historyItems.length) addPanelCard('Nothing here yet','Start browsing to see recent pages.');
     [...historyItems].reverse().slice(0,30).forEach(h => addPanelCard(h.title, h.url, () => { sidePanel.classList.add('hidden'); api.navigate(h.url); }));
   } else if (name === 'settings') {
@@ -78,6 +83,7 @@ function showPanel(name) {
     addPanelCard('Coming soon','Sleeping tabs, persistent bookmarks, extension support and detailed resource diagnostics.');
   } else addPanelText('Your browser workspace.');
 }
+function addToggle(label,key,description) { const box=document.createElement('div'); box.className='panel-card'; const row=document.createElement('label'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.gap='8px'; const name=document.createElement('strong'); name.textContent=label; const input=document.createElement('input'); input.type='checkbox'; input.checked=!!settings[key]; input.onchange=()=>{settings[key]=input.checked;save('settings',settings);toast('Setting saved. Network filtering applies to future requests.');}; row.append(name,input); const small=document.createElement('small'); small.textContent=description; box.append(row,small); $('panelBody').append(box); }
 function addPanelText(text) { const p = document.createElement('p'); p.className = 'panel-copy'; p.textContent = text; $('panelBody').append(p); }
 function addPanelCard(title, subtitle, action) {
   const card = document.createElement('button'); card.className = 'panel-card'; card.style.width = '100%'; card.style.textAlign = 'left';
@@ -126,17 +132,19 @@ $('addShortcut').onclick = () => {
   const value = prompt('Website address for your shortcut:');
   if (!value) return;
   const url = /^https?:\/\//i.test(value) ? value : 'https://' + value;
-  const btn = document.createElement('button'); btn.className = 'shortcut'; btn.dataset.url = url;
+  const title = new URL(url).hostname; shortcuts.push({title,url}); save('shortcuts',shortcuts); const btn = document.createElement('button'); btn.className = 'shortcut'; btn.dataset.url = url;
   const icon = document.createElement('span'); icon.className = 'shortcut-icon blue'; icon.textContent = '↗';
-  const details = document.createElement('span'); const name = document.createElement('b'); name.textContent = new URL(url).hostname; const small = document.createElement('small'); small.textContent = url; details.append(name, small);
+  const details = document.createElement('span'); const name = document.createElement('b'); name.textContent = title; const small = document.createElement('small'); small.textContent = url; details.append(name, small);
   const arrow = document.createElement('span'); arrow.className = 'shortcut-arrow'; arrow.textContent = '↗'; btn.append(icon, details, arrow); btn.onclick = () => api.navigate(url); $('shortcuts').append(btn);
 };
-$('minimize').onclick = () => toast('Use the window controls to minimize this preview.');
-$('maximize').onclick = () => toast('Window maximize is handled by your operating system.');
-$('close').onclick = () => toast('Close Crystalium using the window close control.');
+$('minimize').onclick = () => api.windowAction('minimize');
+$('maximize').onclick = () => api.windowAction('maximize');
+$('close').onclick = () => api.windowAction('close');
+api.onNotice(message => toast(message));
 api.onState(next => {
+  localStorage.setItem('crystalium.openTabs', JSON.stringify(next.tabs.map(t=>t.url).filter(Boolean)));
   const t = next.tabs.find(x => x.id === next.activeId);
-  if (t?.url && /^https?:/i.test(t.url) && !historyItems.some(h => h.url === t.url)) historyItems.push({ title: t.title, url: t.url });
+  if (t?.url && /^https?:/i.test(t.url) && !historyItems.some(h => h.url === t.url)) { historyItems.push({ title: t.title, url: t.url }); save('history',historyItems); }
 });
 document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l') { e.preventDefault(); address.focus(); address.select(); }
