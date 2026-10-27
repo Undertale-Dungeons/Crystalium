@@ -1,0 +1,34 @@
+{
+  "name": "crystalium",
+  "version": "0.2.0",
+  "description": "A sleek, resource-conscious Chromium desktop browser",
+  "main": "src/main.js",
+  "author": "Undertale-Dungeons",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win nsis --x64",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^35.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "dev.crystalium.browser",
+    "productName": "Crystalium",
+    "directories": { "output": "release" },
+    "files": ["src/**/*", "package.json"],
+    "asar": true,
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "artifactName": "Crystalium-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}
