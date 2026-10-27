@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#060d19"><title>Crystalium</title><link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="chrome">
+  <div class="brand"><div class="brand-mark">◒</div><div><strong>CRYSTALIUM</strong><small>CHROMIUM BROWSER</small></div></div>
+  <div class="tab-strip" id="tabStrip" aria-label="Tabs"></div>
+  <button class="new-tab" id="newTab" title="New tab">＋</button>
+  <div class="window-actions"><button title="Minimize" id="minimize">−</button><button title="Maximize" id="maximize">□</button><button title="Close" id="close">×</button></div>
+</header>
+<div class="toolbar">
+  <div class="nav-buttons"><button id="back" title="Back">←</button><button id="forward" title="Forward">→</button><button id="reload" title="Reload">↻</button></div>
+  <form id="addressForm" class="address-wrap"><span class="secure">◈</span><input id="address" spellcheck="false" autocomplete="off" placeholder="Search or enter a website address"><button type="submit" title="Go">↵</button></form>
+  <button class="tool-button" id="bookmark" title="Bookmark this page">☆</button>
+  <button class="tool-button" id="musicToggle" title="Built-in music player">♫</button>
+  <button class="tool-button" id="menuToggle" title="Browser tools">☰</button>
+</div>
+<div class="workspace">
+  <aside class="rail">
+    <button class="rail-button selected" data-panel="home" title="Home">⌂</button>
+    <button class="rail-button" data-panel="bookmarks" title="Bookmarks">☆</button>
+    <button class="rail-button" data-panel="history" title="History">◷</button>
+    <div class="rail-spacer"></div>
+    <button class="rail-button" data-panel="music" title="Music">♫</button>
+    <button class="rail-button" data-panel="settings" title="Settings">⚙</button>
+  </aside>
+  <section class="start-page" id="startPage">
+    <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+    <div class="start-content">
+      <div class="eyebrow">A QUIETER CORNER OF THE INTERNET</div>
+      <h1>Browse beyond<br><span>the ordinary.</span></h1>
+      <p>A clean Chromium experience with your essentials in one place.</p>
+      <form id="startSearch" class="search-box"><span>⌕</span><input id="searchInput" placeholder="Search the web or enter an address"><button type="submit">Explore ↗</button></form>
+      <div class="section-label">QUICK ACCESS <button id="addShortcut">＋ Add</button></div>
+      <div class="shortcuts" id="shortcuts">
+        <button class="shortcut" data-url="https://www.google.com"><span class="shortcut-icon blue">G</span><span><b>Google</b><small>Search anything</small></span><span class="shortcut-arrow">↗</span></button>
+        <button class="shortcut" data-url="https://www.youtube.com"><span class="shortcut-icon red">▶</span><span><b>YouTube</b><small>Watch & listen</small></span><span class="shortcut-arrow">↗</span></button>
+        <button class="shortcut" data-url="https://github.com"><span class="shortcut-icon violet">⌘</span><span><b>GitHub</b><small>Make something</small></span><span class="shortcut-arrow">↗</span></button>
+        <button class="shortcut" data-url="https://www.wikipedia.org"><span class="shortcut-icon cyan">W</span><span><b>Wikipedia</b><small>Follow curiosity</small></span><span class="shortcut-arrow">↗</span></button>
+      </div>
+      <div class="feature-strip"><div><span>✧</span><b>Focus-first design</b><small>Less visual noise</small></div><div><span>◈</span><b>Resource mindful</b><small>Lean by default</small></div><div><span>♫</span><b>Your music</b><small>Local audio player</small></div></div>
+      <footer>CRYSTALIUM <span>·</span> EARLY PREVIEW <span class="footer-right">Your web, your way ✦</span></footer>
+    </div>
+  </section>
+  <div id="pageBounds" class="page-bounds" aria-label="Web page area"></div>
+  <aside id="sidePanel" class="side-panel hidden">
+    <div class="panel-heading"><div><div class="eyebrow" id="panelEyebrow">YOUR SPACE</div><h2 id="panelTitle">Music</h2></div><button id="panelClose" title="Close panel">×</button></div>
+    <div id="panelBody"></div>
+  </aside>
+</div>
+<div id="toast" class="toast" role="status"></div>
+<script src="renderer.js"></script>
+</body></html>
