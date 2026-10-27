@@ -7,8 +7,8 @@
   "license": "MIT",
   "scripts": {
     "start": "electron .",
-    "dist:win": "electron-builder --win nsis --x64",
-    "dist": "electron-builder"
+    "dist:win": "electron-builder --win nsis --x64 --publish never",
+    "dist": "electron-builder --publish never"
   },
   "devDependencies": {
     "electron": "^35.0.0",
@@ -17,11 +17,23 @@
   "build": {
     "appId": "dev.crystalium.browser",
     "productName": "Crystalium",
-    "directories": { "output": "release" },
-    "files": ["src/**/*", "package.json"],
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
     "asar": true,
     "win": {
-      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "artifactName": "Crystalium-Setup-${version}.${ext}"
     },
     "nsis": {
