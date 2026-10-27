@@ -17,7 +17,7 @@ function currentTab() { return state.tabs.find(t => t.id === state.activeId); }
 function isHome() { const t = currentTab(); return !t || !t.url; }
 function updateLayout() {
   const rect = pageBounds.getBoundingClientRect();
-  api.layout({ x: Math.round(rect.left), y: Math.round(rect.top + 110), width: Math.round(rect.width), height: Math.round(rect.height) });
+  api.layout({ x: Math.round(rect.left), y: Math.round(rect.top), width: Math.round(rect.width), height: Math.round(rect.height) });
 }
 function render(next) {
   state = next;
