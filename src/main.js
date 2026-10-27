@@ -133,7 +133,7 @@ ipcMain.handle('browser:saved-update', (_e, patch) => {
 });
 app.whenReady().then(() => {
   // Lightweight built-in ad/tracker filtering. This is best-effort, not a full ad blocker.
-  const filter = /(^|\\.)((doubleclick\\.net)|(googlesyndication\\.com)|(adservice\\.google\\.com)|(adnxs\\.com)|(ad\\.yahoo\\.com)|(adsystem\\.com)|(taboola\\.com)|(outbrain\\.com)|(scorecardresearch\\.com)|(analytics\\.google\\.com))$/i;
+  const filter = /(^|\.)((doubleclick\.net)|(googlesyndication\.com)|(adservice\.google\.com)|(adnxs\.com)|(ad\.yahoo\.com)|(adsystem\.com)|(taboola\.com)|(outbrain\.com)|(scorecardresearch\.com)|(analytics\.google\.com))$/i;
   const ses = require('electron').session.defaultSession;
   ses.webRequest.onBeforeRequest({ urls: ['*://*/*'] }, (details, callback) => {
     try {
