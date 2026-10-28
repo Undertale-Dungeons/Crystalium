@@ -35,3 +35,34 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 /* Chrome transfer */
 #panelBody .panel-card{cursor:pointer;text-align:left;line-height:1.55}
 #panelBody .panel-card:hover{border-color:var(--accent)}
+
+/* Native web page area must never cover Crystalium's controls: layout is narrowed while panels are open. */
+:root{--muted:#86a2bf;--panel-soft:#0b1a2c;--theme-border:#1c3652;--theme-bg:#060d19}
+body,.workspace,.rail,.start-page,.feature-strip>div,.shortcut,.search-box,.address-wrap,.toolbar,.chrome,.side-panel,.panel-card,.theme-option{transition:background-color .16s,border-color .16s,color .16s}
+body{background:var(--theme-bg);color:var(--text)}
+.workspace,.rail,.chrome,.toolbar{background:var(--side)}
+.side-panel,.panel-card,.theme-option,.feature-strip>div,.shortcut,.search-box,.address-wrap{background:var(--panel-soft);border-color:var(--theme-border)}
+.start-page{background:radial-gradient(ellipse at 75% 10%,color-mix(in srgb,var(--accent) 18%,transparent) 0,transparent 40%),linear-gradient(150deg,var(--side),var(--theme-bg) 75%)}
+.start-content h1 span,.section-label,.eyebrow,.settings-section{color:var(--accent)}
+button:hover{border-color:var(--accent)}
+.chrome{-webkit-app-region:drag;cursor:default}
+.chrome button,.chrome input,.chrome .tab-strip,.chrome .tab,.chrome .tab-title,.chrome .tab-close,.chrome .new-tab,.chrome .window-actions{ -webkit-app-region:no-drag; }
+.brand{ -webkit-app-region:no-drag; }
+.tab-strip{ -webkit-app-region:drag; }
+.tab-strip .tab,.tab-strip button{ -webkit-app-region:no-drag; }
+.tree-egg-overlay{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(2,5,10,.94);color:#d9e5f0;animation:treeFade .25s ease}
+.tree-egg-art{width:min(280px,60vw);filter:drop-shadow(0 0 24px #7b91a122)}
+.tree-egg-art svg{width:100%;height:auto;image-rendering:pixelated}
+.tree-egg-overlay p{font:700 19px monospace;letter-spacing:2px;margin:12px 0}
+.tree-egg-overlay small{font:12px monospace;color:#7d91a5}
+.tree-egg-close{position:absolute;top:22px;right:24px;background:#172330;border:1px solid #394b5d;border-radius:8px;padding:7px 12px;color:#eaf4ff;font-size:20px}
+@keyframes treeFade{from{opacity:0}to{opacity:1}}
+.theme-swatch.xp{background:linear-gradient(135deg,#e8f0fa 50%,#1768cf 50%)}
+.theme-swatch.forest{background:linear-gradient(135deg,#07170f 50%,#8ce6a1 50%)}
+.theme-swatch.rose{background:linear-gradient(135deg,#1b0c17 50%,#ff9fce 50%)}
+.theme-swatch.mono{background:linear-gradient(135deg,#111 50%,#e2e2e2 50%)}
+/* Make the bottom edge feel like an integrated browser status/scroll track. */
+body{scrollbar-color:var(--accent) var(--side);scrollbar-width:thin}
+::-webkit-scrollbar{height:9px;width:9px}
+::-webkit-scrollbar-track{background:var(--side);border-radius:9px}
+::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--accent) 55%,var(--side));border:2px solid var(--side);border-radius:9px}
