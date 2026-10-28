@@ -126,6 +126,14 @@ function showPanel(name) {
     const colorLabel=document.createElement('label');colorLabel.className='color-setting';colorLabel.textContent='UI accent color';
     const color=document.createElement('input');color.type='color';color.value=theme.accent||themePresets[theme.preset]?.accent||'#54bdff';color.oninput=()=>{theme.accent=color.value;save('theme',theme);applyTheme(theme);};colorLabel.append(color);colorBox.append(colorLabel);$('panelBody').append(colorBox);
     const download=document.createElement('button');download.className='panel-card';download.style.width='100%';download.textContent='Download theme settings (.json)';download.onclick=()=>{const blob=new Blob([JSON.stringify(theme,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='crystalium-theme.json';a.click();URL.revokeObjectURL(url);};$('panelBody').append(download);
+    section('Website translation');
+    addPanelText('Try translating the active website in a separate tab. Translation availability depends on Google Translate and the website.');
+    const targetLanguage=document.createElement('select');targetLanguage.className='style-select';targetLanguage.setAttribute('aria-label','Website translation language');
+    [['de','German'],['en','English'],['es','Spanish'],['fr','French'],['it','Italian'],['ja','Japanese'],['pt','Portuguese'],['uk','Ukrainian']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;targetLanguage.append(o);});
+    targetLanguage.value=load('translationLanguage','de');
+    targetLanguage.onchange=()=>save('translationLanguage',targetLanguage.value);
+    $('panelBody').append(targetLanguage);
+    addPanelCard('Translate active website','Open the translated page in a new tab.',()=>{const t=currentTab();if(!t?.url||!/^https?:/i.test(t.url)){toast('Open a website first.');return;}save('translationLanguage',targetLanguage.value);api.newTab('https://translate.google.com/translate?sl=auto&tl='+encodeURIComponent(targetLanguage.value)+'&u='+encodeURIComponent(t.url));});
     section('Interface language');
     const language=document.createElement('select');language.className='style-select';language.setAttribute('aria-label','Interface language');
     [['en','English'],['pirate','Pirate / treasure speak'],['shakespeare','Shakespearean English']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;language.append(o);});language.value=uiLanguage;language.onchange=()=>{applyLanguage(language.value);showPanel('settings');toast('Interface language changed.');};$('panelBody').append(language);
