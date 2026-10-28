@@ -2,7 +2,7 @@ const { app, BrowserWindow, WebContentsView, ipcMain, shell, dialog } = require(
 const path = require('node:path');
 const fs = require('node:fs');
 let savedTabs = []; let savedActiveIndex = 0; let blockTrackers = true;
-function loadSession() { try { const d=JSON.parse(fs.readFileSync(path.join(app.getPath('userData'),'crystalium-state.json'),'utf8')); savedTabs=Array.isArray(d.tabs)?d.tabs:[]; savedActiveIndex=d.activeIndex||0; blockTrackers=d.settings?.blockTrackers !== false; } catch {} }
+function loadSession() { try { const d=JSON.parse(fs.readFileSync(path.join(app.getPath('userData'),'crystalium-state.json'),'utf8')); savedTabs=d.settings?.restoreTabs === false ? [] : (Array.isArray(d.tabs)?d.tabs:[]); savedActiveIndex=d.activeIndex||0; blockTrackers=d.settings?.blockTrackers !== false; } catch {} }
 function saveSession() { try { const file=path.join(app.getPath('userData'),'crystalium-state.json'); fs.mkdirSync(path.dirname(file),{recursive:true}); let data={}; try{data=JSON.parse(fs.readFileSync(file,'utf8'));}catch{} data.tabs=tabs.map(t=>t.view.webContents.getURL()).filter(u=>/^https?:/i.test(u)); data.activeIndex=Math.max(0,tabs.findIndex(t=>t.id===activeId)); fs.writeFileSync(file,JSON.stringify(data,null,2)); } catch {} }
 
 let win;
@@ -20,7 +20,7 @@ function safeUrl(raw) {
   return 'https://www.google.com/search?q=' + encodeURIComponent(value);
 }
 function publicTab(tab) {
-  return { id: tab.id, title: tab.view.webContents.getTitle() || 'New tab', url: tab.view.webContents.getURL() || '', loading: tab.view.webContents.isLoading(), canGoBack: tab.view.webContents.canGoBack(), canGoForward: tab.view.webContents.canGoForward() };
+  return { id: tab.id, title: tab.view.webContents.getTitle() || 'Home', url: tab.view.webContents.getURL() || '', loading: tab.view.webContents.isLoading(), canGoBack: tab.view.webContents.canGoBack(), canGoForward: tab.view.webContents.canGoForward() };
 }
 function sendState() {
   if (!win || win.isDestroyed()) return;
@@ -100,7 +100,7 @@ ipcMain.handle('browser:layout', (_e, rect) => {
   bounds = { x: Math.round(rect.x), y: Math.round(rect.y), width: Math.max(0, Math.round(rect.width)), height: Math.max(0, Math.round(rect.height)) };
   layoutViews();
 });
-ipcMain.handle('browser:new-tab', (_e, url) => addTab(url || 'https://www.google.com'));
+ipcMain.handle('browser:new-tab', (_e, url) => addTab(url || ''));
 ipcMain.handle('browser:activate', (_e, id) => {
   if (tabs.some(t => t.id === id)) { activeId = id; layoutViews(); saveSession(); sendState(); }
 });
