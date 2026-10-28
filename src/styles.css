@@ -130,3 +130,31 @@ body{font-family:var(--font-ui,'DM Sans',sans-serif);background:var(--bg)!import
 .skin-ps3 .start-content h1{font-family:Arial,Helvetica,sans-serif;letter-spacing:-1.6px;text-shadow:0 2px 8px #000}
 .skin-ps3 .panel-card,.skin-ps3 .side-panel{background:linear-gradient(135deg,#1d3447,#0c1723)!important;border:1px solid #45657c!important;border-radius:6px!important}
 .skin-ps3 .brand-mark{border-radius:50%;background:radial-gradient(circle at 35% 25%,#c9faff,#1988c6 60%,#071b37)!important}
+
+/* Game skins: each is a full visual language, not just a recolored accent. */
+.brand-mark svg{width:34px;height:34px;display:block;filter:drop-shadow(0 2px 7px color-mix(in srgb,var(--accent) 55%,transparent))}
+.skin-minecraft body{font-family:Verdana,Geneva,sans-serif}
+.skin-minecraft .chrome,.skin-minecraft .toolbar{background:#293e26!important;border-bottom:2px solid #78965b}
+.skin-minecraft .start-page{background:linear-gradient(180deg,#72b9e9 0%,#b4d9ee 42%,#668d42 42%,#36592c 68%,#182719 100%)!important}
+.skin-minecraft .start-content{background:linear-gradient(180deg,#263d25e8,#172719ed);padding:30px;border:3px solid #7c9a58;box-shadow:0 5px 0 #101c13;border-radius:0}
+.skin-minecraft .start-content h1{font-family:Verdana,sans-serif;text-shadow:3px 3px #162416;letter-spacing:-1px}
+.skin-minecraft .panel-card,.skin-minecraft .side-panel,.skin-minecraft .tab,.skin-minecraft .shortcut,.skin-minecraft .tool-button{border-radius:0!important;border:2px solid #708d4e!important;box-shadow:inset 2px 2px #ffffff22,inset -2px -2px #0004}
+.skin-minecraft .brand-mark{border-radius:0!important}
+.skin-dmc body{font-family:Georgia,'Times New Roman',serif}
+.skin-dmc .chrome,.skin-dmc .toolbar{background:linear-gradient(100deg,#140d17,#351421,#140d17)!important;border-bottom:1px solid #9b3d58}
+.skin-dmc .start-page{background:radial-gradient(ellipse at 72% 18%,#5b2639 0,transparent 38%),linear-gradient(145deg,#21101e,#09070d 76%)!important}
+.skin-dmc .start-content h1{font-family:Georgia,serif;font-style:italic;letter-spacing:-1.8px;text-shadow:0 4px 24px #d1255344}
+.skin-dmc .panel-card,.skin-dmc .side-panel,.skin-dmc .tab{background:linear-gradient(135deg,#321c2b,#150e18)!important;border:1px solid #81405a!important;border-radius:2px!important}
+.skin-dmc .brand-mark{filter:drop-shadow(0 0 12px #ef4268)}
+.skin-cyberpunk body{font-family:Arial,sans-serif}
+.skin-cyberpunk .chrome,.skin-cyberpunk .toolbar{background:linear-gradient(90deg,#161127,#29203b)!important;border-bottom:2px solid #f7ec54}
+.skin-cyberpunk .start-page{background:linear-gradient(130deg,#171329,#332044 55%,#171329)!important}
+.skin-cyberpunk .start-content h1{text-transform:uppercase;letter-spacing:-2px;text-shadow:3px 3px #9d3eb2}
+.skin-cyberpunk .panel-card,.skin-cyberpunk .side-panel,.skin-cyberpunk .tab{border-radius:0!important;border:1px solid #a64ec0!important}
+.skin-retro body,.skin-gameboy body{font-family:monospace}
+.skin-retro .start-page{background:repeating-linear-gradient(0deg,#151523 0 3px,#1a1a2c 3px 6px)!important}
+.skin-retro .panel-card,.skin-retro .tab,.skin-retro .shortcut{border-radius:0!important;border:2px solid var(--accent)!important}
+.skin-gameboy .chrome,.skin-gameboy .toolbar,.skin-gameboy .side-panel{background:#8bac0f!important;color:#0f380f!important}
+.skin-gameboy .start-page{background:linear-gradient(135deg,#9bbc0f,#8bac0f 55%,#306230)!important;color:#0f380f!important}
+.skin-gameboy .start-content h1,.skin-gameboy .start-content p,.skin-gameboy .eyebrow,.skin-gameboy .section-label{color:#0f380f!important}
+.skin-gameboy .panel-card,.skin-gameboy .tab,.skin-gameboy .shortcut{border-radius:0!important;border:2px solid #0f380f!important}
