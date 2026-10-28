@@ -13,3 +13,21 @@
 .tab-close{font-size:15px;opacity:.65}
 .tab-close:hover{opacity:1}
 .new-tab{margin-left:2px}
+
+/* Settings and theme controls */
+:root{--accent:var(--blue)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.settings-section{font:800 11px Manrope,sans-serif;letter-spacing:1.1px;text-transform:uppercase;color:var(--cyan);margin:22px 0 9px}
+.theme-option{width:100%;display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:10px;text-align:left;padding:11px;margin:7px 0;background:#0d2237;border:1px solid var(--line);border-radius:11px}
+.theme-option:hover{border-color:var(--accent)}
+.theme-option small{font-size:9px;color:#86a2bf}
+.theme-swatch{width:25px;height:25px;border-radius:8px;border:1px solid #ffffff30}
+.theme-swatch.midnight{background:linear-gradient(135deg,#060d19 50%,#54bdff 50%)}
+.theme-swatch.ocean{background:linear-gradient(135deg,#061820 50%,#42e0d0 50%)}
+.theme-swatch.violet{background:linear-gradient(135deg,#100b20 50%,#bd9aff 50%)}
+.theme-swatch.ember{background:linear-gradient(135deg,#1a100d 50%,#ffb36b 50%)}
+.color-setting{display:flex;align-items:center;justify-content:space-between;font-size:11px}
+.color-setting input{width:48px;height:32px;border:0;background:transparent;padding:0;cursor:pointer}
+.style-select{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#0d2237;color:var(--text);margin:7px 0}
+.music-controls{flex-wrap:wrap}
+.music-controls button{font-size:10px}
