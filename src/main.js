@@ -3,7 +3,7 @@ const path = require('node:path');
 const fs = require('node:fs');
 let savedTabs = []; let savedActiveIndex = 0;
 function loadSession() { try { const d=JSON.parse(fs.readFileSync(path.join(app.getPath('userData'),'crystalium-state.json'),'utf8')); savedTabs=Array.isArray(d.tabs)?d.tabs:[]; savedActiveIndex=d.activeIndex||0; } catch {} }
-function saveSession() { try { fs.mkdirSync(app.getPath('userData'),{recursive:true}); fs.writeFileSync(path.join(app.getPath('userData'),'crystalium-state.json'),JSON.stringify({tabs:tabs.map(t=>t.view.webContents.getURL()).filter(u=>/^https?:/i.test(u)),activeIndex:Math.max(0,tabs.findIndex(t=>t.id===activeId))})); } catch {} }
+function saveSession() { try { const file=path.join(app.getPath('userData'),'crystalium-state.json'); fs.mkdirSync(path.dirname(file),{recursive:true}); let data={}; try{data=JSON.parse(fs.readFileSync(file,'utf8'));}catch{} data.tabs=tabs.map(t=>t.view.webContents.getURL()).filter(u=>/^https?:/i.test(u)); data.activeIndex=Math.max(0,tabs.findIndex(t=>t.id===activeId)); fs.writeFileSync(file,JSON.stringify(data,null,2)); } catch {} }
 
 let win;
 let tabs = [];
@@ -52,9 +52,9 @@ function addTab(url = '') {
     try { addTab(safeUrl(url)); } catch { /* reject unsafe schemes */ }
     return { action: 'deny' };
   });
-  view.webContents.on('page-title-updated', sendState);
-  view.webContents.on('did-navigate', sendState);
-  view.webContents.on('did-navigate-in-page', sendState);
+  view.webContents.on('page-title-updated', () => { saveSession(); sendState(); });
+  view.webContents.on('did-navigate', () => { saveSession(); sendState(); });
+  view.webContents.on('did-navigate-in-page', () => { saveSession(); sendState(); });
   view.webContents.on('did-start-loading', sendState);
   view.webContents.on('did-stop-loading', sendState);
   view.webContents.on('render-process-gone', () => {
@@ -78,6 +78,7 @@ function closeTab(id) {
     if (!activeId) addTab();
   }
   layoutViews();
+  saveSession();
   sendState();
 }
 function createWindow() {
@@ -101,7 +102,7 @@ ipcMain.handle('browser:layout', (_e, rect) => {
 });
 ipcMain.handle('browser:new-tab', (_e, url) => addTab(url || 'https://www.google.com'));
 ipcMain.handle('browser:activate', (_e, id) => {
-  if (tabs.some(t => t.id === id)) { activeId = id; layoutViews(); sendState(); }
+  if (tabs.some(t => t.id === id)) { activeId = id; layoutViews(); saveSession(); sendState(); }
 });
 ipcMain.handle('browser:close-tab', (_e, id) => closeTab(id));
 ipcMain.handle('browser:navigate', async (_e, raw) => {
@@ -112,6 +113,21 @@ ipcMain.handle('browser:navigate', async (_e, raw) => {
 ipcMain.handle('browser:back', () => { const t = activeTab(); if (t?.view.webContents.canGoBack()) t.view.webContents.goBack(); });
 ipcMain.handle('browser:forward', () => { const t = activeTab(); if (t?.view.webContents.canGoForward()) t.view.webContents.goForward(); });
 ipcMain.handle('browser:reload', () => { const t = activeTab(); if (t) t.view.webContents.reload(); });
+ipcMain.handle('browser:media-control', async (_e, action) => {
+  const t = activeTab(); if (!t) return {ok:false};
+  try {
+    const script = action === 'pause'
+      ? 'document.querySelectorAll("audio,video").forEach(m=>m.pause());'
+      : action === 'play'
+      ? 'Promise.all([...document.querySelectorAll("audio,video")].map(m=>m.play().catch(()=>{})));'
+      : action === 'mute'
+      ? 'document.querySelectorAll("audio,video").forEach(m=>m.muted=true);'
+      : action === 'unmute'
+      ? 'document.querySelectorAll("audio,video").forEach(m=>m.muted=false);'
+      : '({count:document.querySelectorAll("audio,video").length, paused:[...document.querySelectorAll("audio,video")].every(m=>m.paused)})';
+    return await t.view.webContents.executeJavaScript(script, true);
+  } catch { return {ok:false}; }
+});
 ipcMain.handle('browser:external', (_e, url) => {
   try { const parsed = new URL(url); if (['https:', 'http:'].includes(parsed.protocol)) shell.openExternal(parsed.toString()); } catch {}
 });
