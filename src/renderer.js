@@ -103,6 +103,8 @@ function isHome() { const t = currentTab(); return !t || !t.url; }
 function updateLayout() {
   // WebContentsView is a native layer above the renderer. Keep it strictly inside
   // the page viewport and fully collapsed whenever the home screen is visible.
+  const art = startPage.querySelector('.theme-art');
+  if (art) art.className = 'theme-art';
   const home = isHome();
   const rect = pageBounds.getBoundingClientRect();
   if (home || pageBounds.style.display === 'none' || rect.width <= 0 || rect.height <= 0) {
@@ -118,6 +120,7 @@ function updateLayout() {
     height: Math.max(0, Math.round(rect.height))
   });
 }
+const themeArt = document.createElement('div'); themeArt.className = 'theme-art'; themeArt.setAttribute('aria-hidden','true'); startPage.prepend(themeArt);
 function render(next) {
   state = next;
   strip.replaceChildren();
