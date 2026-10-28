@@ -103,3 +103,30 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .hide-features .feature-strip{display:none!important}
 .hide-shortcuts .shortcuts{display:none!important}
 .tree-egg-overlay{z-index:99999}
+
+/* Complete palette override: no hard-coded browser-chrome blues should survive theme changes. */
+body{font-family:var(--font-ui,'DM Sans',sans-serif);background:var(--bg)!important;color:var(--text)!important}
+.chrome,.toolbar,.rail,.workspace,.side-panel,.panel-heading,.panel-card,.theme-option,.address-wrap,.search-box,.shortcut,.feature-strip>div,.tab,.new-tab,.window-actions button,.nav-buttons button,.tool-button,.rail-button,.music-controls button,.style-select,select,input:not([type=checkbox]):not([type=color]),textarea{background-color:var(--side)!important;color:var(--text)!important;border-color:var(--line)!important}
+.start-page{background:radial-gradient(ellipse at 75% 10%,color-mix(in srgb,var(--accent) 18%,var(--bg)) 0,transparent 45%),linear-gradient(150deg,var(--side),var(--bg) 75%)!important}
+.tab.active,.rail-button.selected,.rail-button:hover{background:color-mix(in srgb,var(--accent) 24%,var(--side))!important;border-color:var(--accent)!important;color:var(--text)!important;box-shadow:inset 0 2px var(--accent)}
+.brand-mark,.search-box button,.panel-card:hover,.theme-option:hover{border-color:var(--accent)!important}
+.brand-mark{background:linear-gradient(145deg,color-mix(in srgb,var(--accent) 35%,white),var(--accent))!important}
+.start-content h1 span,.eyebrow,.section-label,.secure,.address-wrap button,.shortcut-arrow,.feature-strip>div>span,.brand small{color:var(--accent)!important}
+.start-content>p,.shortcut small,.feature-strip small,.tab-dot{color:var(--accent)!important}
+.address-wrap:focus-within,.search-box:focus-within{border-color:var(--accent)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 18%,transparent)!important}
+.skin-ps2 body{font-family:Tahoma,Verdana,sans-serif}
+.skin-ps2 .chrome{background:linear-gradient(180deg,#292d5d,#11142d)!important;border-bottom:2px solid #7779b8}
+.skin-ps2 .toolbar{background:linear-gradient(180deg,#252952,#11142a)!important}
+.skin-ps2 .tab,.skin-ps2 .tool-button,.skin-ps2 .nav-buttons button{border-radius:3px!important;background:linear-gradient(180deg,#34396b,#171a3b)!important}
+.skin-ps2 .start-page{background:radial-gradient(ellipse at 50% 35%,#34396b 0,#171a3b 42%,#080a17 100%)!important}
+.skin-ps2 .start-content h1{font-family:Tahoma,Verdana,sans-serif;letter-spacing:-1px;text-shadow:0 2px #000}
+.skin-ps2 .panel-card,.skin-ps2 .side-panel{background:linear-gradient(135deg,#272b55,#101329)!important;border:1px solid #6e74a9!important;border-radius:4px!important}
+.skin-ps2 .brand-mark{border-radius:50%;background:radial-gradient(circle at 35% 30%,#e7f0ff,#4774d8 65%,#111b4b)!important}
+.skin-ps3 body{font-family:Arial,Helvetica,sans-serif}
+.skin-ps3 .chrome{background:linear-gradient(180deg,#253748,#0a111b)!important;border-bottom:1px solid #5b7b91}
+.skin-ps3 .toolbar{background:linear-gradient(180deg,#1b2b3a,#0b121c)!important}
+.skin-ps3 .tab,.skin-ps3 .tool-button,.skin-ps3 .nav-buttons button{border-radius:5px!important;background:linear-gradient(180deg,#203b50,#0b1825)!important}
+.skin-ps3 .start-page{background:radial-gradient(ellipse at 50% 0%,#244c69 0, #0b1b2a 45%,#05090f 100%)!important}
+.skin-ps3 .start-content h1{font-family:Arial,Helvetica,sans-serif;letter-spacing:-1.6px;text-shadow:0 2px 8px #000}
+.skin-ps3 .panel-card,.skin-ps3 .side-panel{background:linear-gradient(135deg,#1d3447,#0c1723)!important;border:1px solid #45657c!important;border-radius:6px!important}
+.skin-ps3 .brand-mark{border-radius:50%;background:radial-gradient(circle at 35% 25%,#c9faff,#1988c6 60%,#071b37)!important}
