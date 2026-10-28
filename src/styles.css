@@ -212,3 +212,35 @@ button,input,select,textarea{font-family:var(--font-ui,'DM Sans',sans-serif)}
 :root.theme-queenCyber .start-page{background:radial-gradient(ellipse at 80% 10%,#277d98 0,transparent 42%),linear-gradient(145deg,#0d2b3b,#071a24 80%)}
 :root.theme-metalGear .start-page{background:radial-gradient(ellipse at 80% 12%,#536b6b 0,transparent 42%),linear-gradient(145deg,#1b2729,#101719 80%)}
 :root.theme-mgrr .start-page{background:radial-gradient(ellipse at 78% 12%,#d62942 0,transparent 40%),linear-gradient(145deg,#2a1017,#17090d 80%)}
+
+
+/* Animated theme artwork: CSS-rendered so it works offline without external image hosts. */
+.start-page{isolation:isolate}
+.theme-art{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;opacity:.9}
+.theme-art::before,.theme-art::after{content:"";position:absolute;inset:-20%;pointer-events:none}
+.theme-art::before{opacity:.65}.theme-art::after{opacity:.5}
+.theme-ps3 .start-page{background:radial-gradient(ellipse at 50% 120%,#174d7b 0,transparent 55%),linear-gradient(145deg,#080f20,#030711 78%)}
+.theme-ps3 .theme-art::before{inset:-30% -10%;background:repeating-radial-gradient(ellipse at 50% 115%,transparent 0 28px,#5bd5ff25 30px 32px,transparent 34px 56px);transform:perspective(360px) rotateX(58deg);animation:ps3-waves 12s ease-in-out infinite alternate}
+.theme-ps3 .theme-art::after{background:linear-gradient(112deg,transparent 25%,#b7f3ff15 43%,#4ba7ff10 48%,transparent 65%);animation:ps3-glint 9s ease-in-out infinite alternate}
+.theme-ps2 .theme-art::before{background:repeating-linear-gradient(115deg,transparent 0 70px,#7db8ff0b 71px 73px,transparent 74px 120px);animation:slow-drift 20s linear infinite}
+.theme-minecraft .theme-art::before{inset:0;background:linear-gradient(90deg,#8bca4820 1px,transparent 1px),linear-gradient(#8bca4820 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(transparent,#000 20%,#000 75%,transparent);animation:grid-float 16s linear infinite}
+.theme-cyberpunk .theme-art::before,.theme-cyberCity .theme-art::before{background:repeating-linear-gradient(0deg,transparent 0 38px,#2ffcff18 39px 40px),repeating-linear-gradient(90deg,transparent 0 54px,#ff4fd814 55px 56px);transform:perspective(420px) rotateX(55deg) scale(1.5);transform-origin:bottom;mask-image:linear-gradient(transparent,#000);animation:grid-float 15s linear infinite}
+.theme-gameboy .theme-art::before,.theme-matrix .theme-art::before,.theme-terminal .theme-art::before{background:repeating-linear-gradient(0deg,transparent 0 3px,#00000010 4px 5px);animation:scanlines 8s linear infinite}
+.theme-deltarune .theme-art::before,.theme-darkFountain .theme-art::before{background:radial-gradient(ellipse at 50% 35%,#725dff35 0,transparent 32%),radial-gradient(ellipse at 20% 70%,#2448ff28 0,transparent 28%),radial-gradient(ellipse at 85% 65%,#7c35d628 0,transparent 26%);animation:fountain-pulse 7s ease-in-out infinite alternate}
+.theme-cardCastle .theme-art::before{background:linear-gradient(135deg,transparent 40%,#f2c35e0b 40% 41%,transparent 41%),repeating-linear-gradient(45deg,transparent 0 48px,#f2c35e0c 49px 50px);animation:slow-drift 24s linear infinite}
+.theme-roaringKnight .theme-art::before,.theme-mgrr .theme-art::before{background:linear-gradient(115deg,transparent 35%,#ff315d12 36% 37%,transparent 38% 55%,#ff315d15 56% 57%,transparent 58%),radial-gradient(ellipse at 80% 20%,#ff174430,transparent 35%);animation:danger-pulse 4s ease-in-out infinite alternate}
+.theme-blackKnight .theme-art::before,.theme-titan .theme-art::before{background:radial-gradient(ellipse at 50% 115%,#b8c8d922 0,transparent 45%),linear-gradient(120deg,transparent 47%,#ffffff08 48% 49%,transparent 50%);animation:slow-drift 22s linear infinite}
+.theme-metalGear .theme-art::before{background:repeating-linear-gradient(0deg,transparent 0 46px,#b6d3c80d 47px 48px),linear-gradient(115deg,transparent 30%,#b6d3c810 45%,transparent 58%);animation:slow-drift 25s linear infinite}
+.theme-aurora .theme-art::before{background:linear-gradient(120deg,transparent 20%,#7fffd41c 32%,#4fc7ff22 43%,transparent 58%),linear-gradient(70deg,transparent 35%,#a78bfa1c 48%,transparent 64%);filter:blur(18px);animation:aurora-dance 12s ease-in-out infinite alternate}
+.theme-synthwave .theme-art::before,.theme-vapor .theme-art::before{background:repeating-linear-gradient(0deg,transparent 0 25px,#ff76df20 26px 28px);transform:perspective(380px) rotateX(55deg) scale(1.6);transform-origin:bottom;mask-image:linear-gradient(transparent,#000);animation:grid-float 12s linear infinite}
+.theme-sunset .theme-art::before{background:radial-gradient(ellipse at 75% 30%,#ffb36b30 0,transparent 22%),linear-gradient(165deg,transparent 45%,#ffb36b12 46%,transparent 70%);animation:fountain-pulse 9s ease-in-out infinite alternate}
+.theme-ocean .theme-art::before,.theme-oceanic .theme-art::before{background:repeating-radial-gradient(ellipse at 80% 100%,transparent 0 28px,#53c8ff15 30px 32px,transparent 34px 58px);animation:ps3-waves 18s ease-in-out infinite alternate}
+@keyframes ps3-waves{from{transform:perspective(360px) rotateX(58deg) translateY(-2%)}to{transform:perspective(360px) rotateX(58deg) translateY(3%) translateX(2%)}}
+@keyframes ps3-glint{from{transform:translateX(-12%) rotate(-4deg)}to{transform:translateX(12%) rotate(4deg)}}
+@keyframes slow-drift{from{transform:translate3d(-1%,0,0)}to{transform:translate3d(1%,1%,0)}}
+@keyframes grid-float{from{background-position:0 0}to{background-position:0 84px}}
+@keyframes scanlines{from{background-position:0 0}to{background-position:0 100px}}
+@keyframes fountain-pulse{from{transform:scale(.96);opacity:.45}to{transform:scale(1.06);opacity:.9}}
+@keyframes danger-pulse{from{opacity:.35;transform:translateX(-1%)}to{opacity:.8;transform:translateX(1%)}}
+@keyframes aurora-dance{from{transform:translateX(-5%) skewX(-5deg)}to{transform:translateX(5%) skewX(5deg)}}
+@media(prefers-reduced-motion:reduce){.theme-art::before,.theme-art::after{animation:none!important}}
