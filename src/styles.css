@@ -89,3 +89,9 @@ button:disabled{opacity:.45;cursor:not-allowed}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 .reduce-motion *, .reduce-motion *::before,.reduce-motion *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 .hide-shortcuts .shortcuts,.hide-shortcuts .feature-strip{display:none!important}
+
+/* Panel visibility and toolbar hit targets */
+.side-panel.hidden{display:none!important}
+.side-panel{z-index:20;max-height:100%;overflow:auto}
+.panel-close{position:relative;z-index:2;cursor:pointer}
+.rail-button[aria-pressed="true"],.rail-button.selected{border-color:var(--accent);color:var(--accent)}
