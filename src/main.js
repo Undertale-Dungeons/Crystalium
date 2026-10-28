@@ -28,11 +28,16 @@ function sendState() {
 }
 function activeTab() { return tabs.find(t => t.id === activeId); }
 function layoutViews() {
+  const pageVisible = bounds.width > 0 && bounds.height > 0;
   for (const tab of tabs) {
-    if (tab.id === activeId) {
+    if (tab.id === activeId && pageVisible) {
       tab.view.setBounds(bounds);
       tab.view.setVisible(true);
-    } else tab.view.setVisible(false);
+    } else {
+      // Native WebContentsViews sit above all HTML. Hide them entirely on the
+      // home page; zero-sized bounds alone are not reliable across platforms.
+      tab.view.setVisible(false);
+    }
   }
 }
 function addTab(url = '') {
