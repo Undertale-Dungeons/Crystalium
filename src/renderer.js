@@ -97,8 +97,21 @@ $('startSearch').addEventListener('submit', e => { e.preventDefault(); api.navig
 document.querySelectorAll('.shortcut').forEach(button => button.addEventListener('click', () => api.navigate(button.dataset.url)));
 shortcuts.forEach(item=>{if(!item?.url||document.querySelector('.shortcut[data-url="'+CSS.escape(item.url)+'"]'))return;const b=document.createElement('button');b.className='shortcut';b.dataset.url=item.url;b.innerHTML='<span class="shortcut-icon blue">↗</span><span><b></b><small></small></span><span class="shortcut-arrow">↗</span>';b.querySelector('b').textContent=item.title||item.url;b.querySelector('small').textContent=item.url;b.onclick=()=>api.navigate(item.url);$('shortcuts').append(b);});
 
+let openPanelName = null;
+function hidePanel() {
+  sidePanel.classList.add('hidden');
+  openPanelName = null;
+  document.querySelectorAll('.rail-button').forEach(b=>b.classList.remove('selected'));
+  requestAnimationFrame(updateLayout);
+}
+function togglePanel(name) {
+  if (!sidePanel.classList.contains('hidden') && openPanelName === name) { hidePanel(); return; }
+  showPanel(name);
+}
 function showPanel(name) {
+  openPanelName = name;
   sidePanel.classList.remove('hidden');
+  document.querySelectorAll('.rail-button').forEach(b=>b.classList.toggle('selected',b.dataset.panel===name));
   requestAnimationFrame(updateLayout);
   $('panelBody').replaceChildren();
   const titleMap = {music:'Music player',bookmarks:'Bookmarks',history:'Recent history',settings:'Browser settings',home:'Your space'};
@@ -170,7 +183,7 @@ function renderMusic() {
   addPanelText('Play local audio files here, or open a music website in its own browser tab. Website audio controls only work with the active tab.');
   addPanelCard('Open YouTube Music in a separate tab','Browse and play music without embedding the player in this panel.',()=>api.newTab('https://music.youtube.com'));
   addPanelCard('Open Bandcamp in a separate tab','Discover and stream music from artists.',()=>api.newTab('https://bandcamp.com'));
-  addPanelCard('Translate active website…','Open a translated version of the current website in a separate tab.',()=>{const t=currentTab();if(!t?.url||!/^https?:/i.test(t.url)){toast('Open a website first.');return;}api.newTab('https://translate.google.com/translate?sl=auto&tl=en&u='+encodeURIComponent(t.url));});
+  
   const webControls=document.createElement('div');webControls.className='music-controls';
   [['play','▶ Play website audio'],['pause','Ⅱ Pause website audio'],['mute','Mute website audio'],['unmute','Unmute website audio']].forEach(([action,label])=>{const b=document.createElement('button');b.textContent=label;b.onclick=async()=>{await api.mediaControl(action);toast('Sent '+label.toLowerCase()+' command to the active page.');};webControls.append(b);});$('panelBody').append(webControls);
   const pick = document.createElement('label'); pick.className = 'file-button'; pick.textContent = 'Choose audio files';
@@ -203,11 +216,11 @@ function renderMusic() {
 }
 $('bookmarksToggle').onclick = () => showPanel('bookmarks');
 $('musicToggle').onclick = () => showPanel('music');
-$('menuToggle').onclick = () => showPanel('settings');
-$('panelClose').onclick = () => { sidePanel.classList.add('hidden'); requestAnimationFrame(updateLayout); };
+$('menuToggle').onclick = () => togglePanel('settings');
+$('panelClose').onclick = hidePanel;
 document.querySelectorAll('.rail-button').forEach(button => button.addEventListener('click', () => {
   document.querySelectorAll('.rail-button').forEach(b => b.classList.remove('selected')); button.classList.add('selected');
-  showPanel(button.dataset.panel);
+  togglePanel(button.dataset.panel);
 }));
 $('addShortcut').onclick = () => {
   const value = prompt('Website address for your shortcut:');
