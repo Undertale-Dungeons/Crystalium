@@ -11,7 +11,7 @@ const load = (k,d) => { try { return JSON.parse(localStorage.getItem('crystalium
 const save = (k,v) => localStorage.setItem('crystalium.'+k,JSON.stringify(v));
 const bookmarks = load('bookmarks', []);
 const historyItems = load('history', []);
-const settings = load('settings', { blockTrackers: true, warnInsecure: true });
+const settings = { blockTrackers:true, warnInsecure:true, restoreTabs:true, reduceMotion:false, showShortcuts:true, showMusicControls:true, confirmCloseTabs:true, treeEggEnabled:true, ...load('settings', {}) };
 const shortcuts = load('shortcuts', []);
 const theme = load('theme', {accent:'#54bdff', preset:'midnight'});
 const voiceStyle = load('voiceStyle','normal');
@@ -64,7 +64,7 @@ function render(next) {
     node.className = 'tab' + (tab.id === state.activeId ? ' active' : '');
     const dot = document.createElement('span'); dot.className = 'tab-dot';
     const title = document.createElement('button'); title.className = 'tab-title'; title.textContent = (!tab.url || tab.url === 'about:blank') ? 'Home' : (tab.title || tab.url || 'Home'); title.title = tab.url || 'Home'; title.onclick = () => api.activateTab(tab.id);
-    const close = document.createElement('button'); close.className = 'tab-close'; close.textContent = '×'; close.title = 'Close tab'; close.onclick = e => { e.stopPropagation(); api.closeTab(tab.id); };
+    const close = document.createElement('button'); close.className = 'tab-close'; close.textContent = '×'; close.title = 'Close tab'; close.onclick = e => { e.stopPropagation(); if(settings.confirmCloseTabs && state.tabs.length>1 && !confirm('Close this tab?')) return; api.closeTab(tab.id); };
     node.append(dot, title, close); strip.append(node);
   }
   const previousActiveId = window.__crystaliumLastActiveId;
@@ -159,12 +159,12 @@ function showPanel(name) {
     const preview=document.createElement('button');preview.className='panel-card';preview.style.width='100%';preview.textContent='Preview speaking style';preview.onclick=()=>{const s=style.value;toast(({normal:'Settings saved.',pirate:'Arrr, treasure ahoy! Fair winds to yer browsing!',shakespeare:'Good morrow! May thy browsing be swift and fortunes bright.',tree:'Roots remember what the branches forget… seek the quiet path.'})[s]);};$('panelBody').append(preview);
     section('Browser');
     addToggle('Block common ad/tracker domains','blockTrackers','Best-effort filtering; some ads and trackers will still get through.');
-    addToggle('Warn about insecure HTTP pages','warnInsecure','Preference saved. Full warning enforcement is not yet implemented.');
+    addToggle('Warn about insecure HTTP pages','warnInsecure','Show a warning before navigating to plain HTTP sites.');
     addToggle('Restore tabs when Crystalium starts','restoreTabs','Save and restore the last browsing session where supported.');
     addToggle('Reduce motion','reduceMotion','Use fewer interface animations.');
     addToggle('Show home-page shortcuts','showShortcuts','Show your pinned sites on the start page.');
     addToggle('Show music controls','showMusicControls','Keep website audio controls available in the music panel.');
-    addToggle('Ask before closing multiple tabs','confirmCloseTabs','Preference saved; close confirmation is not wired up yet.');
+    addToggle('Ask before closing tabs','confirmCloseTabs','Ask before closing a tab when multiple tabs are open.');
     addToggle('Enable mysterious tree encounter','treeEggEnabled','A rare 10% chance when switching tabs.');
     addPanelCard('Privacy note','Theme files contain appearance settings only; they do not install code or extensions.');
     if(settings.reduceMotion) document.documentElement.classList.add('reduce-motion'); else document.documentElement.classList.remove('reduce-motion');
