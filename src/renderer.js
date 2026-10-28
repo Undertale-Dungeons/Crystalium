@@ -37,7 +37,7 @@ applyTheme(theme);
 function showTreeEgg(){
   if(document.getElementById('treeEggOverlay'))return;
   const overlay=document.createElement('div');overlay.id='treeEggOverlay';overlay.className='tree-egg-overlay';
-  overlay.innerHTML='<button class="tree-egg-close" aria-label="Close">×</button><div class="tree-egg-art"><svg viewBox="0 0 240 260" role="img" aria-label="Mysterious dark pixel-art tree"><rect width="240" height="260" fill="#05070b"/><g fill="#11151b" stroke="#46505b" stroke-width="3" stroke-linejoin="round"><path d="M112 245L119 187L102 161L118 140L107 110L124 87L117 51L132 32L146 49L145 82L166 104L155 130L175 158L154 184L163 245Z"/><path d="M123 103L91 84L73 93L53 72L65 49L91 55L108 35L130 47L151 26L175 48L198 43L214 64L199 87L178 82L155 113Z"/><path d="M123 147L87 130L69 141L53 122L66 105L92 112L112 127Z"/><path d="M151 147L179 126L197 136L211 119L199 103L178 111L159 128Z"/></g><g fill="#cbd3dc"><rect x="91" y="66" width="6" height="6"/><rect x="157" y="59" width="6" height="6"/><rect x="182" y="68" width="5" height="5"/></g><path d="M122 243L91 255M157 243L190 255M133 221L115 256" stroke="#46505b" stroke-width="4" fill="none"/></svg></div><p>…A tree in the dark.</p><small>Something familiar stands between the branches.</small>';
+  overlay.innerHTML='<button class="tree-egg-close" aria-label="Close">×</button><div class="tree-egg-art"><svg viewBox="0 0 240 260" role="img" aria-label="Mysterious dark pixel-art tree"><rect width="240" height="260" fill="#05070b"/><g fill="#11151b" stroke="#46505b" stroke-width="3" stroke-linejoin="round"><path d="M112 245L119 187L102 161L118 140L107 110L124 87L117 51L132 32L146 49L145 82L166 104L155 130L175 158L154 184L163 245Z"/><path d="M123 103L91 84L73 93L53 72L65 49L91 55L108 35L130 47L151 26L175 48L198 43L214 64L199 87L178 82L155 113Z"/><path d="M123 147L87 130L69 141L53 122L66 105L92 112L112 127Z"/><path d="M151 147L179 126L197 136L211 119L199 103L178 111L159 128Z"/></g><g fill="#cbd3dc"><rect x="91" y="66" width="6" height="6"/><rect x="157" y="59" width="6" height="6"/><rect x="182" y="68" width="5" height="5"/></g><path d="M122 243L91 255M157 243L190 255M133 221L115 256" stroke="#46505b" stroke-width="4" fill="none"/></svg></div><p>A man is behind the tree</p><small>Something familiar stands between the branches.</small>';
   overlay.querySelector('button').onclick=()=>overlay.remove();document.body.append(overlay);setTimeout(()=>overlay.remove(),7000);
 }
 function toast(message) {
@@ -60,7 +60,7 @@ function render(next) {
     const node = document.createElement('div');
     node.className = 'tab' + (tab.id === state.activeId ? ' active' : '');
     const dot = document.createElement('span'); dot.className = 'tab-dot';
-    const title = document.createElement('button'); title.className = 'tab-title'; title.textContent = tab.title || 'New tab'; title.title = tab.url || tab.title; title.onclick = () => api.activateTab(tab.id);
+    const title = document.createElement('button'); title.className = 'tab-title'; title.textContent = (!tab.url || tab.url === 'about:blank') ? 'Home' : (tab.title || tab.url || 'Home'); title.title = tab.url || 'Home'; title.onclick = () => api.activateTab(tab.id);
     const close = document.createElement('button'); close.className = 'tab-close'; close.textContent = '×'; close.title = 'Close tab'; close.onclick = e => { e.stopPropagation(); api.closeTab(tab.id); };
     node.append(dot, title, close); strip.append(node);
   }
@@ -156,7 +156,10 @@ function addPanelCard(title, subtitle, action) {
   card.append(strong, small); if (action) card.onclick = action; $('panelBody').append(card);
 }
 function renderMusic() {
-  addPanelText('Control music playing in the active website, or play audio files from your device. Website controls depend on the page exposing audio/video elements.');
+  addPanelText('Play local audio files here, or open a music website in its own browser tab. Website audio controls only work with the active tab.');
+  addPanelCard('Open YouTube Music in a separate tab','Browse and play music without embedding the player in this panel.',()=>api.newTab('https://music.youtube.com'));
+  addPanelCard('Open Bandcamp in a separate tab','Discover and stream music from artists.',()=>api.newTab('https://bandcamp.com'));
+  addPanelCard('Translate active website…','Open a translated version of the current website in a separate tab.',()=>{const t=currentTab();if(!t?.url||!/^https?:/i.test(t.url)){toast('Open a website first.');return;}api.newTab('https://translate.google.com/translate?sl=auto&tl=en&u='+encodeURIComponent(t.url));});
   const webControls=document.createElement('div');webControls.className='music-controls';
   [['play','▶ Play website audio'],['pause','Ⅱ Pause website audio'],['mute','Mute website audio'],['unmute','Unmute website audio']].forEach(([action,label])=>{const b=document.createElement('button');b.textContent=label;b.onclick=async()=>{await api.mediaControl(action);toast('Sent '+label.toLowerCase()+' command to the active page.');};webControls.append(b);});$('panelBody').append(webControls);
   const pick = document.createElement('label'); pick.className = 'file-button'; pick.textContent = 'Choose audio files';
