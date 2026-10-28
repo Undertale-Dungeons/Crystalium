@@ -38,12 +38,21 @@ document.documentElement.classList.toggle('reduce-motion',!!settings.reduceMotio
 document.documentElement.classList.toggle('hide-shortcuts',settings.showShortcuts===false);
 if(settings.showMusicControls===false)$('musicToggle').style.display='none';
 function showTreeEgg(){
-  document.getElementById('treeEggOverlay')?.remove();
+  if(document.getElementById('treeEggOverlay'))return;
   if(window.__crystaliumTreeEggTimer)clearTimeout(window.__crystaliumTreeEggTimer);
   const overlay=document.createElement('div');overlay.id='treeEggOverlay';overlay.className='tree-egg-overlay';
-  overlay.innerHTML='<button class="tree-egg-close" aria-label="Close">×</button><div class="tree-egg-art"><svg viewBox="0 0 240 260" role="img" aria-label="Mysterious dark pixel-art tree"><rect width="240" height="260" fill="#05070b"/><g fill="#11151b" stroke="#46505b" stroke-width="3" stroke-linejoin="round"><path d="M112 245L119 187L102 161L118 140L107 110L124 87L117 51L132 32L146 49L145 82L166 104L155 130L175 158L154 184L163 245Z"/><path d="M123 103L91 84L73 93L53 72L65 49L91 55L108 35L130 47L151 26L175 48L198 43L214 64L199 87L178 82L155 113Z"/><path d="M123 147L87 130L69 141L53 122L66 105L92 112L112 127Z"/><path d="M151 147L179 126L197 136L211 119L199 103L178 111L159 128Z"/></g><g fill="#cbd3dc"><rect x="91" y="66" width="6" height="6"/><rect x="157" y="59" width="6" height="6"/><rect x="182" y="68" width="5" height="5"/></g><path d="M122 243L91 255M157 243L190 255M133 221L115 256" stroke="#46505b" stroke-width="4" fill="none"/></svg></div><p>A man is behind the tree</p><small>Something familiar stands between the branches.</small>';
-  overlay.querySelector('button').onclick=()=>{overlay.remove();if(window.__crystaliumTreeEggTimer)clearTimeout(window.__crystaliumTreeEggTimer);};document.body.append(overlay);window.__crystaliumTreeEggTimer=setTimeout(()=>{overlay.remove();window.__crystaliumTreeEggTimer=null;},7000);
+  overlay.innerHTML='<button class="tree-egg-close" aria-label="Close">×</button><div class="tree-egg-art"><svg viewBox="0 0 240 240" role="img" aria-label="Mysterious pixel-art tree"><rect width="240" height="240" fill="#000"/><path fill="#542b58" d="M35 92H78V64H103V51H129V42H154V35H181V53H205V75H215V178H180V207H151V231H93V207H65V178H35Z"/><path fill="#ec174c" d="M102 51H130V43H155V35H181V53H205V74H192V87H174V97H150V111H131V126H116V111H101V98H78V79H96V64H102Z"/><path fill="#c90080" d="M78 64H102V79H124V91H151V102H180V91H201V105H178V117H148V126H130V112H105V99H78Z"/><path fill="#ff3155" d="M133 43H155V35H181V53H205V70H184V64H162V76H142V64H119V52H133Z"/><path d="M122 160l8-20 13-5 6-10m-27 35-15 5-8 10m28-12 10 12 17-3m-34-9-3 20-12 4m18-22 15-7 12-8" stroke="#e30088" stroke-width="3" fill="none"/></svg></div><p>A man is behind the tree</p><small>…</small>';
+  overlay.querySelector('button').onclick=()=>{overlay.remove();clearTimeout(window.__crystaliumTreeEggTimer);window.__crystaliumTreeEggTimer=null;};
+  document.body.append(overlay);
+  window.__crystaliumTreeEggTimer=setTimeout(()=>{overlay.remove();window.__crystaliumTreeEggTimer=null;},7000);
 }
+function showGameEgg(){
+  if(document.getElementById('gameEggOverlay'))return;
+  const overlay=document.createElement('div');overlay.id='gameEggOverlay';overlay.className='tree-egg-overlay game-egg-overlay';
+  overlay.innerHTML='<button class="tree-egg-close" aria-label="Close">×</button><div class="game-egg-art" aria-hidden="true"><svg viewBox="0 0 160 160"><rect width="160" height="160" fill="#101810"/><g fill="#58a64a"><rect x="32" y="16" width="96" height="24"/><rect x="16" y="40" width="128" height="64"/><rect x="32" y="104" width="96" height="24"/><rect x="48" y="128" width="64" height="16"/></g><g fill="#101810"><rect x="40" y="48" width="24" height="24"/><rect x="96" y="48" width="24" height="24"/><rect x="64" y="72" width="32" height="16"/><rect x="56" y="88" width="48" height="24"/><rect x="48" y="112" width="16" height="16"/><rect x="96" y="112" width="16" height="16"/></g></svg></div><p>Secret found: green things go hiss.</p><small>A tiny block-world easter egg.</small>';
+  overlay.querySelector('button').onclick=()=>overlay.remove();document.body.append(overlay);setTimeout(()=>overlay.remove(),5000);
+}
+
 function toast(message) {
   const node = $('toast'); node.textContent = message; node.classList.add('show');
   clearTimeout(toastTimer); toastTimer = setTimeout(() => node.classList.remove('show'), 2400);
@@ -70,7 +79,7 @@ function render(next) {
   }
   const previousActiveId = window.__crystaliumLastActiveId;
   const tab = currentTab();
-  if (tab && previousActiveId !== undefined && previousActiveId !== state.activeId && load('treeEggEnabled',true) && Math.random() < 0.10) showTreeEgg();
+  if (tab && previousActiveId !== undefined && previousActiveId !== state.activeId) { if(load('treeEggEnabled',true) && Math.random()<0.10) showTreeEgg(); else if(settings.gameEggs && Math.random()<0.025) showGameEgg(); }
   window.__crystaliumLastActiveId = state.activeId;
   const home = !tab || !tab.url || tab.url === 'about:blank';
   startPage.style.display = home ? 'block' : 'none';
@@ -95,7 +104,7 @@ $('back').onclick = () => api.back();
 $('forward').onclick = () => api.forward();
 $('reload').onclick = () => api.reload();
 $('addressForm').addEventListener('submit', e => { e.preventDefault(); api.navigate(address.value); });
-$('startSearch').addEventListener('submit', e => { e.preventDefault(); api.navigate($('searchInput').value); });
+$('startSearch').addEventListener('submit', e => { e.preventDefault(); const q=$('searchInput').value.trim(); if(settings.gameEggs && /^(\/)?(creeper|minecraft|block world)(\s*)$/i.test(q)){showGameEgg();return;} if(/^(\/)?(tree|man behind the tree)(\s*)$/i.test(q)){showTreeEgg();return;} api.navigate(q); });
 document.querySelectorAll('.shortcut').forEach(button => button.addEventListener('click', () => api.navigate(button.dataset.url)));
 shortcuts.forEach(item=>{if(!item?.url||document.querySelector('.shortcut[data-url="'+CSS.escape(item.url)+'"]'))return;const b=document.createElement('button');b.className='shortcut';b.dataset.url=item.url;b.innerHTML='<span class="shortcut-icon blue">↗</span><span><b></b><small></small></span><span class="shortcut-arrow">↗</span>';b.querySelector('b').textContent=item.title||item.url;b.querySelector('small').textContent=item.url;b.onclick=()=>api.navigate(item.url);$('shortcuts').append(b);});
 
@@ -167,7 +176,7 @@ function showPanel(name) {
     addToggle('Reduce motion','reduceMotion','Use fewer interface animations.');
     addToggle('Show home-page shortcuts','showShortcuts','Show your pinned sites on the start page.');
     addToggle('Show music controls','showMusicControls','Keep website audio controls available in the music panel.');
-    addToggle('Ask before closing tabs','confirmCloseTabs','Kept for compatibility; tab closing is immediate.');
+    
     addToggle('Enable mysterious tree encounter','treeEggEnabled','A rare 10% chance when switching tabs.');
     section('More controls');
     addToggle('Show tab activity dots','showTabDots','Show small activity indicators on tabs.');
