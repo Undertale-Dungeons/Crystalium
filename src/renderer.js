@@ -159,7 +159,7 @@ function showPanel(name) {
     const preview=document.createElement('button');preview.className='panel-card';preview.style.width='100%';preview.textContent='Preview speaking style';preview.onclick=()=>{const s=style.value;toast(({normal:'Settings saved.',pirate:'Arrr, treasure ahoy! Fair winds to yer browsing!',shakespeare:'Good morrow! May thy browsing be swift and fortunes bright.',tree:'Roots remember what the branches forget… seek the quiet path.'})[s]);};$('panelBody').append(preview);
     section('Browser');
     addToggle('Block common ad/tracker domains','blockTrackers','Best-effort filtering; some ads and trackers will still get through.');
-    addToggle('Warn about insecure HTTP pages','warnInsecure','Show a warning before navigating to plain HTTP sites.');
+    addToggle('Warn about insecure HTTP pages','warnInsecure','Preference saved; navigation warning enforcement is not yet implemented.');
     addToggle('Restore tabs when Crystalium starts','restoreTabs','Save and restore the last browsing session where supported.');
     addToggle('Reduce motion','reduceMotion','Use fewer interface animations.');
     addToggle('Show home-page shortcuts','showShortcuts','Show your pinned sites on the start page.');
