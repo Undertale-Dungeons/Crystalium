@@ -11,7 +11,7 @@ const load = (k,d) => { try { return JSON.parse(localStorage.getItem('crystalium
 const save = (k,v) => localStorage.setItem('crystalium.'+k,JSON.stringify(v));
 const bookmarks = load('bookmarks', []);
 const historyItems = load('history', []);
-const settings = { blockTrackers:true, warnInsecure:true, restoreTabs:true, reduceMotion:false, showShortcuts:true, showMusicControls:true, confirmCloseTabs:false, treeEggEnabled:true, ...load('settings', {}) };
+const settings = { blockTrackers:true, warnInsecure:true, restoreTabs:true, reduceMotion:false, showShortcuts:true, showMusicControls:true, confirmCloseTabs:false, treeEggEnabled:true, showTabDots:true, compactTabs:false, showAddressIcon:true, gameEggs:true, showFeatureCards:true, ...load('settings', {}) };
 const shortcuts = load('shortcuts', []);
 const theme = load('theme', {accent:'#54bdff', preset:'midnight'});
 const voiceStyle = load('voiceStyle','normal');
