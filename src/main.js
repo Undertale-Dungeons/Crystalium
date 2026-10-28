@@ -1,8 +1,8 @@
 const { app, BrowserWindow, WebContentsView, ipcMain, shell } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
-let savedTabs = []; let savedActiveIndex = 0;
-function loadSession() { try { const d=JSON.parse(fs.readFileSync(path.join(app.getPath('userData'),'crystalium-state.json'),'utf8')); savedTabs=Array.isArray(d.tabs)?d.tabs:[]; savedActiveIndex=d.activeIndex||0; } catch {} }
+let savedTabs = []; let savedActiveIndex = 0; let blockTrackers = true;
+function loadSession() { try { const d=JSON.parse(fs.readFileSync(path.join(app.getPath('userData'),'crystalium-state.json'),'utf8')); savedTabs=Array.isArray(d.tabs)?d.tabs:[]; savedActiveIndex=d.activeIndex||0; blockTrackers=d.settings?.blockTrackers !== false; } catch {} }
 function saveSession() { try { const file=path.join(app.getPath('userData'),'crystalium-state.json'); fs.mkdirSync(path.dirname(file),{recursive:true}); let data={}; try{data=JSON.parse(fs.readFileSync(file,'utf8'));}catch{} data.tabs=tabs.map(t=>t.view.webContents.getURL()).filter(u=>/^https?:/i.test(u)); data.activeIndex=Math.max(0,tabs.findIndex(t=>t.id===activeId)); fs.writeFileSync(file,JSON.stringify(data,null,2)); } catch {} }
 
 let win;
@@ -144,6 +144,7 @@ ipcMain.handle('browser:saved-update', (_e, patch) => {
   let data = {};
   try { data = JSON.parse(fs.readFileSync(file, 'utf8')); } catch {}
   for (const key of ['tabs', 'bookmarks', 'history', 'shortcuts', 'settings']) if (patch && patch[key] !== undefined) data[key] = patch[key];
+  if (patch?.settings && typeof patch.settings.blockTrackers === 'boolean') blockTrackers = patch.settings.blockTrackers;
   try { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, JSON.stringify(data, null, 2)); } catch {}
   return data;
 });
@@ -154,7 +155,7 @@ app.whenReady().then(() => {
   ses.webRequest.onBeforeRequest({ urls: ['*://*/*'] }, (details, callback) => {
     try {
       const host = new URL(details.url).hostname;
-      callback({ cancel: filter.test(host) });
+      callback({ cancel: blockTrackers && filter.test(host) });
     } catch { callback({ cancel: false }); }
   });
   loadSession();
