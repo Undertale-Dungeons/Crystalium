@@ -70,3 +70,13 @@ body{scrollbar-color:var(--accent) var(--side);scrollbar-width:thin}
 /* Accessibility and optional home-page controls */
 .reduce-motion *, .reduce-motion *::before, .reduce-motion *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 .hide-shortcuts #shortcuts,.hide-shortcuts .shortcuts-section{display:none!important}
+
+/* Theme tokens reach browser chrome, controls, panels and form fields consistently. */
+:root{color-scheme:dark;--control-bg:var(--panel-soft);--control-text:var(--text)}
+input,select,textarea,button{color:var(--text)}
+input:not([type=color]):not([type=checkbox]),select,textarea{background-color:var(--panel-soft);border-color:var(--theme-border)}
+button,.panel-card,.theme-option,.shortcut,.tab,.address-wrap,.search-box{color:var(--text)}
+.toolbar,.chrome,.rail,.workspace{background-color:var(--side)}
+.side-panel{background-color:var(--side);border-color:var(--theme-border)}
+.tab.active{background:color-mix(in srgb,var(--accent) 20%,var(--side));border-color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline-color:var(--accent)}
