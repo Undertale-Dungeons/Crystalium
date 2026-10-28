@@ -245,10 +245,8 @@ button,input,select,textarea{font-family:var(--font-ui,'DM Sans',sans-serif)}
 @keyframes aurora-dance{from{transform:translateX(-5%) skewX(-5deg)}to{transform:translateX(5%) skewX(5deg)}}
 @media(prefers-reduced-motion:reduce){.theme-art::before,.theme-art::after{animation:none!important}}
 
-/* Shared animated artwork for every theme, including palettes without a signature animation. */
-.theme-art::before{background:radial-gradient(circle at 18% 28%,#ffffff12 1px,transparent 2px),radial-gradient(circle at 72% 64%,var(--accent)22 1px,transparent 3px),repeating-linear-gradient(135deg,transparent 0 95px,#ffffff08 96px 97px,transparent 98px 150px),radial-gradient(ellipse at 70% 20%,var(--accent)18,transparent 48%);background-size:100% 100%,100% 100%,200% 200%,100% 100%;animation:universal-theme-drift 18s ease-in-out infinite alternate}
-.theme-art::after{background:linear-gradient(115deg,transparent 20%,#ffffff0c 45%,transparent 65%);animation:universal-theme-glow 11s ease-in-out infinite alternate}
-@keyframes universal-theme-drift{from{background-position:0 0,0 0,0 0,0 0;transform:translate(-.5%,0)}to{background-position:0 0,0 0,60px 80px,0 0;transform:translate(.5%,1%)}}
-@keyframes universal-theme-glow{from{transform:translateX(-8%) rotate(-2deg);opacity:.2}to{transform:translateX(8%) rotate(2deg);opacity:.65}}
+/* A shared ambient layer gives every theme motion without replacing its signature artwork. */
+.theme-art{background:radial-gradient(circle at 18% 28%,#ffffff12 1px,transparent 2px),radial-gradient(circle at 72% 64%,#ffffff0c 1px,transparent 3px),repeating-linear-gradient(135deg,transparent 0 95px,#ffffff06 96px 97px,transparent 98px 150px);background-size:100% 100%,100% 100%,200% 200%;animation:universal-theme-drift 18s ease-in-out infinite alternate}
+@keyframes universal-theme-drift{from{background-position:0 0,0 0,0 0;transform:translate(-.5%,0)}to{background-position:0 0,0 0,60px 80px;transform:translate(.5%,1%)}}
 :root.theme-blackKnight .start-page,:root.theme-roaringKnight .start-page{background:radial-gradient(ellipse at 80% 12%,#9d183c 0,transparent 42%),linear-gradient(145deg,#210b17,#10070d 80%)!important}
 .theme-blackKnight .theme-art::before,.theme-roaringKnight .theme-art::before{background:linear-gradient(115deg,transparent 35%,#ff315d12 36% 37%,transparent 38% 55%,#ff315d15 56% 57%,transparent 58%),radial-gradient(ellipse at 80% 20%,#ff174430,transparent 35%);animation:danger-pulse 4s ease-in-out infinite alternate}
