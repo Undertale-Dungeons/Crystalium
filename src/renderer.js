@@ -168,7 +168,10 @@ function showPanel(name) {
   else if (name === 'bookmarks') {
     addPanelText('Bookmarks are saved on this device.');
     const current=currentTab();
-    if(current?.url && /^https?:/i.test(current.url)) addPanelCard('＋ Save current page',current.title||current.url,()=>{if(!bookmarks.some(b=>b.url===current.url)){bookmarks.push({title:current.title,url:current.url});save('bookmarks',bookmarks);toast('Bookmark saved.');showPanel('bookmarks');}else toast('Already bookmarked.');});
+    if(current?.url && /^https?:/i.test(current.url)) {
+      addPanelCard('＋ Save current page',current.title||current.url,()=>{if(!bookmarks.some(b=>b.url===current.url)){bookmarks.push({title:current.title,url:current.url});save('bookmarks',bookmarks);toast('Bookmark saved.');showPanel('bookmarks');}else toast('Already bookmarked.');});
+      addPanelCard('＋ Pin current website to Home',current.title||current.url,()=>{if(addHomeShortcut(current.url,current.title)){showPanel('bookmarks');}});
+    }
     if (!bookmarks.length) addPanelCard('No bookmarks yet','Open Settings and use the bookmarks panel to save pages.');
     bookmarks.forEach((b,i) => addPanelCard(b.title, b.url, () => { sidePanel.classList.add('hidden'); api.navigate(b.url); }));
   } else if (name === 'history') {
@@ -296,14 +299,29 @@ document.querySelectorAll('.rail-button').forEach(button => button.addEventListe
   document.querySelectorAll('.rail-button').forEach(b => b.classList.remove('selected')); button.classList.add('selected');
   togglePanel(button.dataset.panel);
 }));
+function addHomeShortcut(rawUrl, customTitle) {
+  let parsed;
+  try {
+    const value=String(rawUrl||'').trim();
+    if(!value) return false;
+    parsed=new URL(/^https?:\/\//i.test(value)?value:'https://'+value);
+    if(!['http:','https:'].includes(parsed.protocol)) throw new Error('Only web addresses are supported.');
+  } catch { toast('Enter a valid website address, like example.com.'); return false; }
+  const url=parsed.href;
+  if(shortcuts.some(item=>item.url===url)){toast('That website is already on Home.');return false;}
+  const title=String(customTitle||parsed.hostname).trim().slice(0,80)||parsed.hostname;
+  shortcuts.push({title,url});save('shortcuts',shortcuts);api.updateSaved({shortcuts});
+  const btn=document.createElement('button');btn.className='shortcut';btn.dataset.url=url;
+  const icon=document.createElement('span');icon.className='shortcut-icon blue';icon.textContent='↗';
+  const details=document.createElement('span');const name=document.createElement('b');name.textContent=title;const small=document.createElement('small');small.textContent=url;details.append(name,small);
+  const arrow=document.createElement('span');arrow.className='shortcut-arrow';arrow.textContent='↗';btn.append(icon,details,arrow);btn.onclick=()=>api.navigate(url);$('shortcuts').append(btn);
+  toast('Added to Home.');return true;
+}
 $('addShortcut').onclick = () => {
-  const value = prompt('Website address for your shortcut:');
-  if (!value) return;
-  const url = /^https?:\/\//i.test(value) ? value : 'https://' + value;
-  const title = new URL(url).hostname; shortcuts.push({title,url}); save('shortcuts',shortcuts); api.updateSaved({shortcuts}); const btn = document.createElement('button'); btn.className = 'shortcut'; btn.dataset.url = url;
-  const icon = document.createElement('span'); icon.className = 'shortcut-icon blue'; icon.textContent = '↗';
-  const details = document.createElement('span'); const name = document.createElement('b'); name.textContent = title; const small = document.createElement('small'); small.textContent = url; details.append(name, small);
-  const arrow = document.createElement('span'); arrow.className = 'shortcut-arrow'; arrow.textContent = '↗'; btn.append(icon, details, arrow); btn.onclick = () => api.navigate(url); $('shortcuts').append(btn);
+  const value=prompt('Website address to pin on Home (example.com):');
+  if(!value)return;
+  const title=prompt('Name for this shortcut (optional):','');
+  addHomeShortcut(value,title);
 };
 $('minimize').onclick = () => api.windowAction('minimize');
 $('maximize').onclick = () => api.windowAction('maximize');
