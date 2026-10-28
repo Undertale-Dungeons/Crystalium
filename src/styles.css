@@ -66,3 +66,7 @@ body{scrollbar-color:var(--accent) var(--side);scrollbar-width:thin}
 ::-webkit-scrollbar{height:9px;width:9px}
 ::-webkit-scrollbar-track{background:var(--side);border-radius:9px}
 ::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--accent) 55%,var(--side));border:2px solid var(--side);border-radius:9px}
+
+/* Accessibility and optional home-page controls */
+.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+.hide-shortcuts #shortcuts,.hide-shortcuts .shortcuts-section{display:none!important}
