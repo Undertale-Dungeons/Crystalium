@@ -38,7 +38,25 @@ minecraft:{bg:'#18251a',side:'#263d25',panel:'#344d2d',line:'#6c8b4e',accent:'#8
 dmc:{bg:'#100b13',side:'#20121d',panel:'#2b1827',line:'#69344d',accent:'#e34464',text:'#fff0f3',skin:'dmc'},
 cyberpunk:{bg:'#100e1d',side:'#20172f',panel:'#2a2040',line:'#8b4f9f',accent:'#f7ec54',text:'#f8f5ff',skin:'cyberpunk'},
 retro:{bg:'#101018',side:'#1a1a29',panel:'#27273a',line:'#565679',accent:'#b9b8ff',text:'#f5f4ff',skin:'retro'},
-gameboy:{bg:'#9bbc0f',side:'#8bac0f',panel:'#306230',line:'#0f380f',accent:'#0f380f',text:'#0f380f',skin:'gameboy'}};
+gameboy:{bg:'#9bbc0f',side:'#8bac0f',panel:'#306230',line:'#0f380f',accent:'#0f380f',text:'#0f380f',skin:'gameboy'}
+lofi:{bg:'#111827',side:'#1f2937',panel:'#273449',line:'#475569',accent:'#a7f3d0',text:'#ecfdf5'},
+solar:{bg:'#21140b',side:'#39210e',panel:'#4b2c12',line:'#92551c',accent:'#ffd166',text:'#fff5dc'},
+ arctic:{bg:'#eaf5fb',side:'#c9e5f3',panel:'#f8fcff',line:'#8abbd2',accent:'#087ca7',text:'#17384b'},
+ sakura:{bg:'#241321',side:'#3b1e32',panel:'#512944',line:'#8f4d73',accent:'#ffb7d5',text:'#fff0f7'},
+ matrix:{bg:'#020b05',side:'#06170b',panel:'#0b2411',line:'#1c6530',accent:'#39ff75',text:'#d7ffe1'},
+ vapor:{bg:'#180d2e',side:'#261343',panel:'#34205b',line:'#704eaa',accent:'#ff76df',text:'#f9eaff'},
+ copper:{bg:'#211813',side:'#38251b',panel:'#4a3023',line:'#8a5a3d',accent:'#e6a477',text:'#fff0e4'},
+ terminal:{bg:'#050805',side:'#0c120b',panel:'#111a0f',line:'#35512d',accent:'#a8ff60',text:'#d8f7c5'},
+ lavender:{bg:'#f1edff',side:'#ded5ff',panel:'#faf8ff',line:'#b0a0e8',accent:'#7053c8',text:'#292044'},
+ crimson:{bg:'#18090c',side:'#2b0e15',panel:'#3c111c',line:'#7c2535',accent:'#ff5269',text:'#fff0f1'},
+ synthwave:{bg:'#100b28',side:'#211346',panel:'#30185b',line:'#8a2fba',accent:'#28f0ff',text:'#fff0ff'},
+ paper:{bg:'#f3efe5',side:'#e5ddca',panel:'#fffaf0',line:'#b9ad93',accent:'#8b5e34',text:'#33291f'},
+ aurora:{bg:'#071a22',side:'#0b2b32',panel:'#103a40',line:'#2a6a6b',accent:'#7fffd4',text:'#e8fffa'},
+ sunset:{bg:'#24101d',side:'#3b1b2c',panel:'#51253a',line:'#a94c5b',accent:'#ffb36b',text:'#fff2e8'},
+ slate:{bg:'#171c24',side:'#222b37',panel:'#2b3644',line:'#526273',accent:'#b8c8d9',text:'#f2f6fa'},
+ sakuraLite:{bg:'#fff1f6',side:'#f8dce8',panel:'#fff8fb',line:'#e5abc5',accent:'#b72f72',text:'#54203b'},
+ amber:{bg:'#211b0b',side:'#33280d',panel:'#463713',line:'#80641b',accent:'#ffd84d',text:'#fff8d7'},
+ oceanic:{bg:'#061d2c',side:'#0b3144',panel:'#104158',line:'#2d7088',accent:'#53c8ff',text:'#eaf8ff'}};
 function applyTheme(next){ const root=document.documentElement; const p=themePresets[next.preset]||themePresets.midnight; root.style.setProperty('--bg',p.bg);root.style.setProperty('--side',p.side);root.style.setProperty('--panel',p.panel);root.style.setProperty('--line',p.line);root.style.setProperty('--blue',next.accent||p.accent);root.style.setProperty('--cyan',next.accent||p.accent);root.style.setProperty('--text',p.text);root.style.setProperty('--accent',next.accent||p.accent);root.style.setProperty('--muted',p.text+'aa');root.style.setProperty('--panel-soft',p.panel);root.style.setProperty('--theme-border',p.line);root.style.setProperty('--theme-bg',p.bg);root.classList.remove('skin-ps2','skin-ps3','skin-minecraft','skin-dmc','skin-cyberpunk','skin-retro','skin-gameboy');if(p.skin)root.classList.add('skin-'+p.skin);root.style.setProperty('--font-ui',p.skin==='ps2'?'Tahoma, Verdana, sans-serif':p.skin==='ps3'?'Arial, Helvetica, sans-serif':p.skin==='minecraft'?'Verdana, Geneva, sans-serif':p.skin==='dmc'?'Georgia, serif':p.skin==='gameboy'?'monospace':p.skin==='retro'?'monospace':\"'DM Sans',sans-serif\");}
 applyTheme(theme);
 document.documentElement.classList.toggle('reduce-motion',!!settings.reduceMotion);
@@ -165,7 +183,7 @@ function showPanel(name) {
     const transfer=document.createElement('button');transfer.className='panel-card';transfer.style.width='100%';transfer.textContent='Import Chrome data…';transfer.onclick=async()=>{transfer.disabled=true;transfer.textContent='Choose Chrome data files…';try{const result=await api.chromeTransfer();if(result?.canceled){toast('Import cancelled.');return;}if(!result?.ok){toast('Could not import those files.');return;}let added=0;for(const b of result.bookmarks||[]){if(!bookmarks.some(old=>old.url===b.url)){bookmarks.push(b);added++;}}save('bookmarks',bookmarks);api.updateSaved({bookmarks});toast('Imported '+added+' bookmarks and '+(result.cookies||0)+' cookies.');}catch{toast('Chrome import failed.');}finally{transfer.disabled=false;transfer.textContent='Import Chrome data…';}};$('panelBody').append(transfer);
     section('Appearance');
     const importBox=document.createElement('div');importBox.className='panel-card';const importLabel=document.createElement('label');importLabel.textContent='Import a downloaded theme (.json)';importLabel.className='file-button';const importInput=document.createElement('input');importInput.type='file';importInput.accept='.json,application/json';importInput.hidden=true;importInput.onchange=async()=>{try{const parsed=JSON.parse(await importInput.files[0].text());if(!parsed||!themePresets[parsed.preset]|| (parsed.accent&&!/^#[0-9a-f]{6}$/i.test(parsed.accent)))throw new Error('Invalid theme');theme.preset=parsed.preset;theme.accent=parsed.accent||themePresets[parsed.preset].accent;save('theme',theme);applyTheme(theme);showPanel('settings');toast('Theme imported.');}catch{toast('That theme file is not valid.');}};importLabel.append(importInput);importBox.append(importLabel);$('panelBody').append(importBox);
-    const presets=[['midnight','Midnight'],['ocean','Ocean'],['violet','Violet'],['ember','Ember'],['xp','Windows XP'],['forest','Forest'],['rose','Rose'],['mono','Monochrome'],['ps2','PlayStation 2'],['ps3','PlayStation 3'],['minecraft','Minecraft'],['dmc','Devil May Cry'],['cyberpunk','Neon Cyber'],['retro','Retro Arcade'],['gameboy','Handheld Pixel']];
+    const presets=[['midnight','Midnight'],['ocean','Ocean'],['violet','Violet'],['ember','Ember'],['xp','Windows XP'],['forest','Forest'],['rose','Rose'],['mono','Monochrome'],['ps2','PlayStation 2'],['ps3','PlayStation 3'],['minecraft','Minecraft'],['dmc','Devil May Cry'],['cyberpunk','Neon Cyber'],['retro','Retro Arcade'],['gameboy','Handheld Pixel'],['lofi','Lo-fi Mint'],['solar','Solar Flare'],['arctic','Arctic Glass'],['sakura','Sakura Night'],['matrix','Matrix Green'],['vapor','Vaporwave'],['copper','Copper Atelier'],['terminal','Terminal Green'],['lavender','Lavender Light'],['crimson','Crimson Night'],['synthwave','Synthwave'],['paper','Warm Paper'],['aurora','Aurora Borealis'],['sunset','Sunset Lounge'],['slate','Slate Studio'],['sakuraLite','Sakura Day'],['amber','Amber Glow'],['oceanic','Deep Ocean']];
     presets.forEach(([id,label])=>{const b=document.createElement('button');b.className='theme-option';b.innerHTML='<span class="theme-swatch '+id+'"></span><span>'+label+'</span><small>Complete UI skin</small>';b.onclick=()=>{theme.preset=id;theme.accent=themePresets[id].accent;save('theme',theme);applyTheme(theme);showPanel('settings');toast(label+' theme applied.');};$('panelBody').append(b);});
     const colorBox=document.createElement('div');colorBox.className='panel-card';
     const colorLabel=document.createElement('label');colorLabel.className='color-setting';colorLabel.textContent='UI accent color';
@@ -226,7 +244,17 @@ function addPanelCard(title, subtitle, action) {
   card.append(strong, small); if (action) card.onclick = action; $('panelBody').append(card);
 }
 function renderMusic() {
-  addPanelText('Play local audio files here, or open a music website in its own browser tab. Website audio controls only work with the active tab.');
+  addPanelText('Music source hub: save music websites here, open them in tabs, and control audio on the active tab. Crystalium does not copy or extract protected streams; playback depends on each site’s own player and permissions.');
+  const active=currentTab();
+  if(active?.url && /^https?:/i.test(active.url)) addPanelCard('＋ Save active website as a music source',active.title||active.url,()=>{
+    const sources=load('musicSources',[]);
+    if(sources.some(s=>s.url===active.url)){toast('That music source is already saved.');return;}
+    sources.push({title:active.title||new URL(active.url).hostname,url:active.url});save('musicSources',sources);showPanel('music');toast('Music source saved.');
+  });
+  const sources=load('musicSources',[]);
+  addPanelText('Saved music websites ('+sources.length+')');
+  sources.forEach((source,i)=>addPanelCard(source.title,source.url,()=>api.newTab(source.url)));
+  if(sources.length) addPanelCard('Clear saved music sources','Remove the saved website list from this device.',()=>{save('musicSources',[]);showPanel('music');toast('Music source list cleared.');});
   addPanelCard('Open YouTube Music in a separate tab','Browse and play music without embedding the player in this panel.',()=>api.newTab('https://music.youtube.com'));
   addPanelCard('Open Bandcamp in a separate tab','Discover and stream music from artists.',()=>api.newTab('https://bandcamp.com'));
   
