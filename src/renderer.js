@@ -38,7 +38,7 @@ minecraft:{bg:'#18251a',side:'#263d25',panel:'#344d2d',line:'#6c8b4e',accent:'#8
 dmc:{bg:'#100b13',side:'#20121d',panel:'#2b1827',line:'#69344d',accent:'#e34464',text:'#fff0f3',skin:'dmc'},
 cyberpunk:{bg:'#100e1d',side:'#20172f',panel:'#2a2040',line:'#8b4f9f',accent:'#f7ec54',text:'#f8f5ff',skin:'cyberpunk'},
 retro:{bg:'#101018',side:'#1a1a29',panel:'#27273a',line:'#565679',accent:'#b9b8ff',text:'#f5f4ff',skin:'retro'},
-gameboy:{bg:'#9bbc0f',side:'#8bac0f',panel:'#306230',line:'#0f380f',accent:'#0f380f',text:'#0f380f',skin:'gameboy'}
+gameboy:{bg:'#9bbc0f',side:'#8bac0f',panel:'#306230',line:'#0f380f',accent:'#0f380f',text:'#0f380f',skin:'gameboy'},
 lofi:{bg:'#111827',side:'#1f2937',panel:'#273449',line:'#475569',accent:'#a7f3d0',text:'#ecfdf5'},
 solar:{bg:'#21140b',side:'#39210e',panel:'#4b2c12',line:'#92551c',accent:'#ffd166',text:'#fff5dc'},
  arctic:{bg:'#eaf5fb',side:'#c9e5f3',panel:'#f8fcff',line:'#8abbd2',accent:'#087ca7',text:'#17384b'},
@@ -66,7 +66,14 @@ titan:{bg:'#050509',side:'#101015',panel:'#191920',line:'#41414a',accent:'#f5f5f
 gerson:{bg:'#102019',side:'#1b3026',panel:'#294437',line:'#54745d',accent:'#e5c36a',text:'#f2f8e9'},
 darkFountain:{bg:'#090514',side:'#170b27',panel:'#24113a',line:'#54276f',accent:'#b94cff',text:'#f7eaff'},
 queenCyber:{bg:'#071a24',side:'#0d2b3b',panel:'#143c50',line:'#277d98',accent:'#ff4fd8',text:'#edfbff'}};
-function applyTheme(next){ const root=document.documentElement; const p=themePresets[next.preset]||themePresets.midnight; root.style.setProperty('--bg',p.bg);root.style.setProperty('--side',p.side);root.style.setProperty('--panel',p.panel);root.style.setProperty('--line',p.line);root.style.setProperty('--blue',next.accent||p.accent);root.style.setProperty('--cyan',next.accent||p.accent);root.style.setProperty('--text',p.text);root.style.setProperty('--accent',next.accent||p.accent);root.style.setProperty('--muted',p.text+'aa');root.style.setProperty('--panel-soft',p.panel);root.style.setProperty('--theme-border',p.line);root.style.setProperty('--theme-bg',p.bg);root.classList.remove('skin-ps2','skin-ps3','skin-minecraft','skin-dmc','skin-cyberpunk','skin-retro','skin-gameboy');if(p.skin)root.classList.add('skin-'+p.skin);root.style.setProperty('--font-ui',p.skin==='ps2'?'Tahoma, Verdana, sans-serif':p.skin==='ps3'?'Arial, Helvetica, sans-serif':p.skin==='minecraft'?'Verdana, Geneva, sans-serif':p.skin==='dmc'?'Georgia, serif':p.skin==='gameboy'?'monospace':p.skin==='retro'?'monospace':\"'DM Sans',sans-serif\");}
+function applyTheme(next){
+ const root=document.documentElement,p=themePresets[next.preset]||themePresets.midnight;
+ for(const [key,value] of Object.entries({ '--bg':p.bg,'--side':p.side,'--panel':p.panel,'--line':p.line,'--blue':next.accent||p.accent,'--cyan':next.accent||p.accent,'--text':p.text,'--accent':next.accent||p.accent,'--muted':p.text+'aa','--panel-soft':p.panel,'--theme-border':p.line,'--theme-bg':p.bg})) root.style.setProperty(key,value);
+ root.classList.remove(...Object.keys(themePresets).map(id=>'theme-'+id),'skin-ps2','skin-ps3','skin-minecraft','skin-dmc','skin-cyberpunk','skin-retro','skin-gameboy');
+ root.classList.add('theme-'+next.preset); if(p.skin)root.classList.add('skin-'+p.skin);
+ const fonts={ps2:'Tahoma, Verdana, sans-serif',ps3:'Arial, Helvetica, sans-serif',minecraft:'Verdana, Geneva, sans-serif',dmc:'Georgia, serif',gameboy:'monospace',retro:'monospace',cyberpunk:'Orbitron, sans-serif',deltarune:'Georgia, serif',cardCastle:'Georgia, serif',cyberCity:'Arial, sans-serif',blackKnight:'Georgia, serif',roaringKnight:'Georgia, serif',titan:'Arial, sans-serif',gerson:'Georgia, serif',metalGear:'Arial, sans-serif',mgrr:'Impact, sans-serif',terminal:'monospace',matrix:'monospace',paper:'Georgia, serif',xp:'Tahoma, Verdana, sans-serif',synthwave:'Arial, sans-serif'};
+ const font=fonts[next.preset]||"'DM Sans',sans-serif";root.style.setProperty('--font-ui',font);root.style.setProperty('--font-display',fonts[next.preset]||"'Manrope',sans-serif");
+}
 applyTheme(theme);
 document.documentElement.classList.toggle('reduce-motion',!!settings.reduceMotion);
 document.documentElement.classList.toggle('hide-shortcuts',settings.showShortcuts===false);
