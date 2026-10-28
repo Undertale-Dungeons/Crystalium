@@ -95,3 +95,11 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .side-panel{z-index:20;max-height:100%;overflow:auto}
 .panel-close{position:relative;z-index:2;cursor:pointer}
 .rail-button[aria-pressed="true"],.rail-button.selected{border-color:var(--accent);color:var(--accent)}
+
+/* Additional persistent settings */
+.compact-tabs .tab{max-width:170px;height:34px;padding-inline:7px}
+.hide-tab-dots .tab-dot{display:none!important}
+.hide-address-icon .address-wrap .secure{display:none!important}
+.hide-features .feature-strip{display:none!important}
+.hide-shortcuts .shortcuts{display:none!important}
+.tree-egg-overlay{z-index:99999}
