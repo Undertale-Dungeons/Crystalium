@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('crystalium', {
   back: () => ipcRenderer.invoke('browser:back'),
   forward: () => ipcRenderer.invoke('browser:forward'),
   reload: () => ipcRenderer.invoke('browser:reload'),
+  mediaControl: action => ipcRenderer.invoke('browser:media-control', action),
   openExternal: url => ipcRenderer.invoke('browser:external', url),
   getState: () => ipcRenderer.invoke('browser:state'),
   windowAction: action => ipcRenderer.invoke('browser:window', action),
