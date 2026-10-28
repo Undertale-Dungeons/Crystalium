@@ -11,7 +11,7 @@ const load = (k,d) => { try { return JSON.parse(localStorage.getItem('crystalium
 const save = (k,v) => localStorage.setItem('crystalium.'+k,JSON.stringify(v));
 const bookmarks = load('bookmarks', []);
 const historyItems = load('history', []);
-const settings = { blockTrackers:true, warnInsecure:true, restoreTabs:true, reduceMotion:false, showShortcuts:true, showMusicControls:true, confirmCloseTabs:true, treeEggEnabled:true, ...load('settings', {}) };
+const settings = { blockTrackers:true, warnInsecure:true, restoreTabs:true, reduceMotion:false, showShortcuts:true, showMusicControls:true, confirmCloseTabs:false, treeEggEnabled:true, ...load('settings', {}) };
 const shortcuts = load('shortcuts', []);
 const theme = load('theme', {accent:'#54bdff', preset:'midnight'});
 const voiceStyle = load('voiceStyle','normal');
@@ -38,10 +38,11 @@ document.documentElement.classList.toggle('reduce-motion',!!settings.reduceMotio
 document.documentElement.classList.toggle('hide-shortcuts',settings.showShortcuts===false);
 if(settings.showMusicControls===false)$('musicToggle').style.display='none';
 function showTreeEgg(){
-  if(document.getElementById('treeEggOverlay'))return;
+  document.getElementById('treeEggOverlay')?.remove();
+  if(window.__crystaliumTreeEggTimer)clearTimeout(window.__crystaliumTreeEggTimer);
   const overlay=document.createElement('div');overlay.id='treeEggOverlay';overlay.className='tree-egg-overlay';
   overlay.innerHTML='<button class="tree-egg-close" aria-label="Close">×</button><div class="tree-egg-art"><svg viewBox="0 0 240 260" role="img" aria-label="Mysterious dark pixel-art tree"><rect width="240" height="260" fill="#05070b"/><g fill="#11151b" stroke="#46505b" stroke-width="3" stroke-linejoin="round"><path d="M112 245L119 187L102 161L118 140L107 110L124 87L117 51L132 32L146 49L145 82L166 104L155 130L175 158L154 184L163 245Z"/><path d="M123 103L91 84L73 93L53 72L65 49L91 55L108 35L130 47L151 26L175 48L198 43L214 64L199 87L178 82L155 113Z"/><path d="M123 147L87 130L69 141L53 122L66 105L92 112L112 127Z"/><path d="M151 147L179 126L197 136L211 119L199 103L178 111L159 128Z"/></g><g fill="#cbd3dc"><rect x="91" y="66" width="6" height="6"/><rect x="157" y="59" width="6" height="6"/><rect x="182" y="68" width="5" height="5"/></g><path d="M122 243L91 255M157 243L190 255M133 221L115 256" stroke="#46505b" stroke-width="4" fill="none"/></svg></div><p>A man is behind the tree</p><small>Something familiar stands between the branches.</small>';
-  overlay.querySelector('button').onclick=()=>overlay.remove();document.body.append(overlay);setTimeout(()=>overlay.remove(),7000);
+  overlay.querySelector('button').onclick=()=>{overlay.remove();if(window.__crystaliumTreeEggTimer)clearTimeout(window.__crystaliumTreeEggTimer);};document.body.append(overlay);window.__crystaliumTreeEggTimer=setTimeout(()=>{overlay.remove();window.__crystaliumTreeEggTimer=null;},7000);
 }
 function toast(message) {
   const node = $('toast'); node.textContent = message; node.classList.add('show');
@@ -64,7 +65,7 @@ function render(next) {
     node.className = 'tab' + (tab.id === state.activeId ? ' active' : '');
     const dot = document.createElement('span'); dot.className = 'tab-dot';
     const title = document.createElement('button'); title.className = 'tab-title'; title.textContent = (!tab.url || tab.url === 'about:blank') ? 'Home' : (tab.title || tab.url || 'Home'); title.title = tab.url || 'Home'; title.onclick = () => api.activateTab(tab.id);
-    const close = document.createElement('button'); close.className = 'tab-close'; close.textContent = '×'; close.title = 'Close tab'; close.onclick = e => { e.stopPropagation(); if(settings.confirmCloseTabs && state.tabs.length>1 && !confirm('Close this tab?')) return; api.closeTab(tab.id); };
+    const close = document.createElement('button'); close.className = 'tab-close'; close.textContent = '×'; close.title = 'Close tab'; close.onclick = e => { e.stopPropagation(); api.closeTab(tab.id); };
     node.append(dot, title, close); strip.append(node);
   }
   const previousActiveId = window.__crystaliumLastActiveId;
@@ -84,6 +85,7 @@ api.onState(render);
 api.onError(message => toast(message));
 api.getState().then(render);
 applyLanguage(uiLanguage);
+applySettings();
 const languageObserver=new MutationObserver(records=>{if(records.some(r=>r.addedNodes.length))applyLanguage(uiLanguage);});
 languageObserver.observe(document.body,{childList:true,subtree:true});
 api.onNotice(message => toast(message));
@@ -143,13 +145,14 @@ function showPanel(name) {
     const color=document.createElement('input');color.type='color';color.value=theme.accent||themePresets[theme.preset]?.accent||'#54bdff';color.oninput=()=>{theme.accent=color.value;save('theme',theme);applyTheme(theme);};colorLabel.append(color);colorBox.append(colorLabel);$('panelBody').append(colorBox);
     const download=document.createElement('button');download.className='panel-card';download.style.width='100%';download.textContent='Download theme settings (.json)';download.onclick=()=>{const blob=new Blob([JSON.stringify(theme,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='crystalium-theme.json';a.click();URL.revokeObjectURL(url);};$('panelBody').append(download);
     section('Website translation');
-    addPanelText('Try translating the active website in a separate tab. Translation availability depends on Google Translate and the website.');
+    addPanelText('Choose a target language, then open Google Translate’s website-translation view in a new tab. Some sites block proxy translation; if that happens, use the translation page to paste text instead.');
     const targetLanguage=document.createElement('select');targetLanguage.className='style-select';targetLanguage.setAttribute('aria-label','Website translation language');
     [['de','German'],['en','English'],['es','Spanish'],['fr','French'],['it','Italian'],['ja','Japanese'],['pt','Portuguese'],['uk','Ukrainian']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;targetLanguage.append(o);});
     targetLanguage.value=load('translationLanguage','de');
     targetLanguage.onchange=()=>save('translationLanguage',targetLanguage.value);
     $('panelBody').append(targetLanguage);
-    addPanelCard('Translate active website','Open the translated page in a new tab.',()=>{const t=currentTab();if(!t?.url||!/^https?:/i.test(t.url)){toast('Open a website first.');return;}save('translationLanguage',targetLanguage.value);api.newTab('https://translate.google.com/translate?sl=auto&tl='+encodeURIComponent(targetLanguage.value)+'&u='+encodeURIComponent(t.url));});
+    addPanelCard('Translate active website','Open Google Translate for the current site in a new tab.',()=>{const t=currentTab();if(!t?.url||!/^https?:/i.test(t.url)){toast('Open a website first.');return;}save('translationLanguage',targetLanguage.value);const translated='https://translate.google.com/translate?sl=auto&tl='+encodeURIComponent(targetLanguage.value)+'&u='+encodeURIComponent(t.url);api.newTab(translated);});
+    addPanelCard('Open Google Translate','Use text, documents, or a website link if automatic site translation is blocked.',()=>api.newTab('https://translate.google.com/?sl=auto&tl='+encodeURIComponent(targetLanguage.value)));
     section('Interface language');
     const language=document.createElement('select');language.className='style-select';language.setAttribute('aria-label','Interface language');
     [['en','English'],['pirate','Pirate / treasure speak'],['shakespeare','Shakespearean English']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;language.append(o);});language.value=uiLanguage;language.onchange=()=>{applyLanguage(language.value);showPanel('settings');toast('Interface language changed.');};$('panelBody').append(language);
@@ -164,14 +167,30 @@ function showPanel(name) {
     addToggle('Reduce motion','reduceMotion','Use fewer interface animations.');
     addToggle('Show home-page shortcuts','showShortcuts','Show your pinned sites on the start page.');
     addToggle('Show music controls','showMusicControls','Keep website audio controls available in the music panel.');
-    addToggle('Ask before closing tabs','confirmCloseTabs','Ask before closing a tab when multiple tabs are open.');
+    addToggle('Ask before closing tabs','confirmCloseTabs','Kept for compatibility; tab closing is immediate.');
     addToggle('Enable mysterious tree encounter','treeEggEnabled','A rare 10% chance when switching tabs.');
+    section('More controls');
+    addToggle('Show tab activity dots','showTabDots','Show small activity indicators on tabs.');
+    addToggle('Compact tab bar','compactTabs','Use a tighter tab strip.');
+    addToggle('Show address-bar diamond','showAddressIcon','Show the decorative address-bar icon.');
+    addToggle('Enable game easter eggs','gameEggs','Allow rare Minecraft-inspired and retro game surprises.');
+    addToggle('Show home-page feature cards','showFeatureCards','Show the feature cards below quick access.');
+    addPanelCard('Clear browsing history','Remove Crystalium history stored on this device.',()=>{historyItems.splice(0,historyItems.length);save('history',historyItems);api.updateSaved({history:historyItems});showPanel('settings');toast('Browsing history cleared.');});
+    addPanelCard('Reset all settings','Restore default browser preferences and the Midnight theme.',()=>{Object.assign(settings,{blockTrackers:true,warnInsecure:true,restoreTabs:true,reduceMotion:false,showShortcuts:true,showMusicControls:true,confirmCloseTabs:false,treeEggEnabled:true,showTabDots:true,compactTabs:false,showAddressIcon:true,gameEggs:true,showFeatureCards:true});save('settings',settings);api.updateSaved({settings});theme.preset='midnight';theme.accent=themePresets.midnight.accent;save('theme',theme);applyTheme(theme);applySettings();showPanel('settings');toast('Settings reset to defaults.');});
     addPanelCard('Privacy note','Theme files contain appearance settings only; they do not install code or extensions.');
-    if(settings.reduceMotion) document.documentElement.classList.add('reduce-motion'); else document.documentElement.classList.remove('reduce-motion');
-    document.documentElement.classList.toggle('hide-shortcuts',settings.showShortcuts===false);
+    applySettings();
   } else addPanelText('Your browser workspace.');
 }
-function addToggle(label,key,description) { const box=document.createElement('div'); box.className='panel-card'; const row=document.createElement('label'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.gap='8px'; const name=document.createElement('strong'); name.textContent=label; const input=document.createElement('input'); input.type='checkbox'; input.checked=!!settings[key]; input.onchange=()=>{settings[key]=input.checked;save('settings',settings);api.updateSaved({settings});if(key==='reduceMotion')document.documentElement.classList.toggle('reduce-motion',input.checked);if(key==='showShortcuts')document.documentElement.classList.toggle('hide-shortcuts',!input.checked);if(key==='showMusicControls')$('musicToggle').style.display=input.checked?'':'none';toast('Setting saved.');}; row.append(name,input); const small=document.createElement('small'); small.textContent=description; box.append(row,small); $('panelBody').append(box); }
+function applySettings(){
+  document.documentElement.classList.toggle('reduce-motion',!!settings.reduceMotion);
+  document.documentElement.classList.toggle('hide-shortcuts',settings.showShortcuts===false);
+  document.documentElement.classList.toggle('hide-features',settings.showFeatureCards===false);
+  document.documentElement.classList.toggle('compact-tabs',!!settings.compactTabs);
+  document.documentElement.classList.toggle('hide-tab-dots',settings.showTabDots===false);
+  document.documentElement.classList.toggle('hide-address-icon',settings.showAddressIcon===false);
+  $('musicToggle').style.display=settings.showMusicControls===false?'none':'';
+}
+function addToggle(label,key,description) { const box=document.createElement('div'); box.className='panel-card'; const row=document.createElement('label'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.gap='8px'; const name=document.createElement('strong'); name.textContent=label; const input=document.createElement('input'); input.type='checkbox'; input.checked=!!settings[key]; input.onchange=()=>{settings[key]=input.checked;save('settings',settings);api.updateSaved({settings});if(key==='reduceMotion')document.documentElement.classList.toggle('reduce-motion',input.checked);if(key==='showShortcuts')document.documentElement.classList.toggle('hide-shortcuts',!input.checked);applySettings();toast('Setting saved.');}; row.append(name,input); const small=document.createElement('small'); small.textContent=description; box.append(row,small); $('panelBody').append(box); }
 function addPanelText(text) { const p = document.createElement('p'); p.className = 'panel-copy'; p.textContent = text; $('panelBody').append(p); }
 function addPanelCard(title, subtitle, action) {
   const card = document.createElement('button'); card.className = 'panel-card'; card.style.width = '100%'; card.style.textAlign = 'left';
