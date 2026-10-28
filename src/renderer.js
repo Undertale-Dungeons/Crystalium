@@ -25,8 +25,9 @@ tree:{'Home':'The Clearing','History':'Old Memories','Bookmarks':'Kept Secrets',
 function applyLanguage(lang){
   uiLanguage=uiWords[lang]?lang:'en';save('uiLanguage',uiLanguage);
   const words=uiWords[uiLanguage]||uiWords.en;
-  const translateRoot=root=>{if(!root)return;const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);for(const n of nodes){const raw=n.nodeValue;const trimmed=raw.trim();if(words[trimmed])n.nodeValue=raw.replace(trimmed,words[trimmed]);}
-    root.querySelectorAll('[title],[placeholder],[aria-label]').forEach(el=>{for(const attr of ['title','placeholder','aria-label']){const v=el.getAttribute(attr);if(v&&words[v])el.setAttribute(attr,words[v]);}});
+  const translateRoot=root=>{if(!root)return;const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);const reverse={};for(const dict of Object.values(uiWords))for(const [english,translated] of Object.entries(dict))reverse[translated]=english;
+    for(const n of nodes){const raw=n.nodeValue;const trimmed=raw.trim();const english=reverse[trimmed]||trimmed;if(words[english])n.nodeValue=raw.replace(trimmed,words[english]);}
+    root.querySelectorAll('[title],[placeholder],[aria-label]').forEach(el=>{for(const attr of ['title','placeholder','aria-label']){const v=el.getAttribute(attr);if(v){const english=reverse[v]||v;if(words[english])el.setAttribute(attr,words[english]);}}});
   };
   translateRoot(document.body);
 }
