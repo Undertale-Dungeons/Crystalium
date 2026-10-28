@@ -1,4 +1,4 @@
-const { app, BrowserWindow, WebContentsView, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, WebContentsView, ipcMain, shell, dialog } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
 let savedTabs = []; let savedActiveIndex = 0; let blockTrackers = true;
@@ -131,6 +131,63 @@ ipcMain.handle('browser:media-control', async (_e, action) => {
 ipcMain.handle('browser:external', (_e, url) => {
   try { const parsed = new URL(url); if (['https:', 'http:'].includes(parsed.protocol)) shell.openExternal(parsed.toString()); } catch {}
 });
+
+ipcMain.handle('browser:chrome-transfer', async () => {
+  if (!win) return { ok:false, error:'Browser window is unavailable.' };
+  const picked = await dialog.showOpenDialog(win, {
+    title: 'Choose Chrome data files to import',
+    properties: ['openFile', 'multiSelections'],
+    filters: [
+      { name: 'Chrome bookmarks or exported cookies', extensions: ['json', 'html', 'txt', 'cookies'] },
+      { name: 'All files', extensions: ['*'] }
+    ]
+  });
+  if (picked.canceled || !picked.filePaths.length) return { canceled:true, bookmarks:[], cookies:0 };
+  const importedBookmarks = [];
+  let cookieCount = 0;
+  function walk(nodes) {
+    for (const node of nodes || []) {
+      if (node.type === 'url' && node.url && /^https?:/i.test(node.url)) importedBookmarks.push({title:node.name || node.url,url:node.url});
+      if (node.children) walk(node.children);
+    }
+  }
+  for (const file of picked.filePaths) {
+    try {
+      const raw = fs.readFileSync(file, 'utf8');
+      if (/\.html?$/i.test(file)) {
+        const re = /<A\b[^>]*HREF=["'](https?:[^"']+)["'][^>]*>([\s\S]*?)<\/A>/gi;
+        let m; while ((m = re.exec(raw))) importedBookmarks.push({title:m[2].replace(/<[^>]*>/g,'').trim() || m[1],url:m[1]});
+      } else if (/\.json$/i.test(file)) {
+        const data = JSON.parse(raw);
+        walk(data.roots ? Object.values(data.roots) : data);
+      } else if (/\.(txt|cookies)$/i.test(file)) {
+        for (const line of raw.split(/\r?\n/)) {
+          if (!line || line.startsWith('#') && !line.startsWith('#HttpOnly_')) continue;
+          const cols = line.replace(/^#HttpOnly_/, '').split('\t');
+          if (cols.length < 7) continue;
+          const domain = cols[0].startsWith('.') ? cols[0].slice(1) : cols[0];
+          const pathValue = cols[2] || '/';
+          const secure = cols[3] === 'TRUE';
+          const expires = Number(cols[4]);
+          const name = cols[5], value = cols.slice(6).join('\t');
+          if (!domain || !name) continue;
+          try {
+            await require('electron').session.defaultSession.cookies.set({
+              url: (secure ? 'https://' : 'http://') + domain + pathValue,
+              name, value, domain: cols[0], path: pathValue, secure,
+              httpOnly: line.startsWith('#HttpOnly_'),
+              ...(expires > 0 ? { expirationDate: expires } : {})
+            });
+            cookieCount++;
+          } catch {}
+        }
+      }
+    } catch {}
+  }
+  const unique = [...new Map(importedBookmarks.map(b => [b.url,b])).values()];
+  return { ok:true, bookmarks:unique, cookies:cookieCount, files:picked.filePaths.length };
+});
+
 ipcMain.handle('browser:state', () => ({ tabs: tabs.map(publicTab), activeId }));
 ipcMain.handle('browser:window', (_e, action) => {
   if (!win) return;
