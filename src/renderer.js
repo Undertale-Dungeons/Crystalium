@@ -15,9 +15,15 @@ const settings = load('settings', { blockTrackers: true, warnInsecure: true });
 const shortcuts = load('shortcuts', []);
 const theme = load('theme', {accent:'#54bdff', preset:'midnight'});
 const voiceStyle = load('voiceStyle','normal');
-const themePresets = {midnight:{bg:'#060d19',side:'#081629',panel:'#0b1a2c',line:'#1c3652',accent:'#54bdff',text:'#edf5ff'},ocean:{bg:'#061820',side:'#082530',panel:'#0b2b39',line:'#1c5263',accent:'#42e0d0',text:'#e7fffb'},violet:{bg:'#100b20',side:'#17102b',panel:'#201638',line:'#453269',accent:'#bd9aff',text:'#f5efff'},ember:{bg:'#1a100d',side:'#241510',panel:'#321d16',line:'#63402c',accent:'#ffb36b',text:'#fff4e8'}};
-function applyTheme(next){ const root=document.documentElement; const p=themePresets[next.preset]||themePresets.midnight; root.style.setProperty('--bg',p.bg);root.style.setProperty('--side',p.side);root.style.setProperty('--panel',p.panel);root.style.setProperty('--line',p.line);root.style.setProperty('--blue',next.accent||p.accent);root.style.setProperty('--cyan',next.accent||p.accent);root.style.setProperty('--text',p.text);root.style.setProperty('--accent',next.accent||p.accent); }
+const themePresets = {midnight:{bg:'#060d19',side:'#081629',panel:'#0b1a2c',line:'#1c3652',accent:'#54bdff',text:'#edf5ff'},ocean:{bg:'#061820',side:'#082530',panel:'#0b2b39',line:'#1c5263',accent:'#42e0d0',text:'#e7fffb'},violet:{bg:'#100b20',side:'#17102b',panel:'#201638',line:'#453269',accent:'#bd9aff',text:'#f5efff'},ember:{bg:'#1a100d',side:'#241510',panel:'#321d16',line:'#63402c',accent:'#ffb36b',text:'#fff4e8'},xp:{bg:'#e8f0fa',side:'#c7d9f0',panel:'#f4f8ff',line:'#7e9ec7',accent:'#1768cf',text:'#172b48'},forest:{bg:'#07170f',side:'#0b2116',panel:'#102b1b',line:'#2c5739',accent:'#8ce6a1',text:'#edfff0'},rose:{bg:'#1b0c17',side:'#291022',panel:'#35162c',line:'#663653',accent:'#ff9fce',text:'#fff0f8'},mono:{bg:'#111111',side:'#191919',panel:'#242424',line:'#454545',accent:'#e2e2e2',text:'#f7f7f7'}};
+function applyTheme(next){ const root=document.documentElement; const p=themePresets[next.preset]||themePresets.midnight; root.style.setProperty('--bg',p.bg);root.style.setProperty('--side',p.side);root.style.setProperty('--panel',p.panel);root.style.setProperty('--line',p.line);root.style.setProperty('--blue',next.accent||p.accent);root.style.setProperty('--cyan',next.accent||p.accent);root.style.setProperty('--text',p.text);root.style.setProperty('--accent',next.accent||p.accent);root.style.setProperty('--muted',p.text+'aa');root.style.setProperty('--panel-soft',p.panel);root.style.setProperty('--theme-border',p.line);root.style.setProperty('--theme-bg',p.bg);}
 applyTheme(theme);
+function showTreeEgg(){
+  if(document.getElementById('treeEggOverlay'))return;
+  const overlay=document.createElement('div');overlay.id='treeEggOverlay';overlay.className='tree-egg-overlay';
+  overlay.innerHTML='<button class="tree-egg-close" aria-label="Close">×</button><div class="tree-egg-art"><svg viewBox="0 0 240 250" role="img" aria-label="Mysterious pixel-art tree"><path d="M111 225 L119 157 L103 132 L119 111 L111 82 L130 62 L126 25 L143 8 L157 31 L153 64 L174 83 L161 108 L177 131 L157 154 L163 225Z" fill="#171c24" stroke="#56616b" stroke-width="3"/><path d="M125 83 L91 67 L70 79 L51 56 L67 32 L96 39 L111 20 L137 31 L153 14 L179 35 L201 30 L216 54 L197 76 L175 70 L154 96Z" fill="#10151b" stroke="#56616b" stroke-width="3"/><path d="M124 224 L93 239 M160 224 L190 238 M133 203 L116 238" stroke="#56616b" stroke-width="4" fill="none"/></svg></div><p>…The tree remembers.</p><small>A rare visitor. The branches are quiet today.</small>';
+  overlay.querySelector('button').onclick=()=>overlay.remove();document.body.append(overlay);setTimeout(()=>overlay.remove(),7000);
+}
 function toast(message) {
   const node = $('toast'); node.textContent = message; node.classList.add('show');
   clearTimeout(toastTimer); toastTimer = setTimeout(() => node.classList.remove('show'), 2400);
@@ -26,7 +32,10 @@ function currentTab() { return state.tabs.find(t => t.id === state.activeId); }
 function isHome() { const t = currentTab(); return !t || !t.url; }
 function updateLayout() {
   const rect = pageBounds.getBoundingClientRect();
-  api.layout({ x: Math.round(rect.left), y: Math.round(rect.top), width: Math.round(rect.width), height: Math.round(rect.height) });
+  // Electron's native WebContentsView sits above renderer HTML. Shrink it when the side panel is open so panel controls remain clickable.
+  const panelOpen = !sidePanel.classList.contains('hidden');
+  const panelWidth = panelOpen ? Math.min(sidePanel.getBoundingClientRect().width, rect.width * 0.8) : 0;
+  api.layout({ x: Math.round(rect.left), y: Math.round(rect.top), width: Math.max(0, Math.round(rect.width - panelWidth)), height: Math.round(rect.height) });
 }
 function render(next) {
   state = next;
@@ -39,7 +48,10 @@ function render(next) {
     const close = document.createElement('button'); close.className = 'tab-close'; close.textContent = '×'; close.title = 'Close tab'; close.onclick = e => { e.stopPropagation(); api.closeTab(tab.id); };
     node.append(dot, title, close); strip.append(node);
   }
+  const previousActiveId = window.__crystaliumLastActiveId;
   const tab = currentTab();
+  if (tab && previousActiveId !== undefined && previousActiveId !== state.activeId && load('treeEggEnabled',true) && Math.random() < 0.10) showTreeEgg();
+  window.__crystaliumLastActiveId = state.activeId;
   const home = !tab || !tab.url || tab.url === 'about:blank';
   startPage.style.display = home ? 'block' : 'none';
   pageBounds.style.display = home ? 'none' : 'block';
@@ -65,6 +77,7 @@ shortcuts.forEach(item=>{if(!item?.url||document.querySelector('.shortcut[data-u
 
 function showPanel(name) {
   sidePanel.classList.remove('hidden');
+  requestAnimationFrame(updateLayout);
   $('panelBody').replaceChildren();
   const titleMap = {music:'Music player',bookmarks:'Bookmarks',history:'Recent history',settings:'Browser settings',home:'Your space'};
   $('panelTitle').textContent = titleMap[name] || 'Browser tools';
@@ -88,13 +101,14 @@ function showPanel(name) {
     const transfer=document.createElement('button');transfer.className='panel-card';transfer.style.width='100%';transfer.textContent='Import Chrome data…';transfer.onclick=async()=>{transfer.disabled=true;transfer.textContent='Choose Chrome data files…';try{const result=await api.chromeTransfer();if(result?.canceled){toast('Import cancelled.');return;}if(!result?.ok){toast('Could not import those files.');return;}let added=0;for(const b of result.bookmarks||[]){if(!bookmarks.some(old=>old.url===b.url)){bookmarks.push(b);added++;}}save('bookmarks',bookmarks);api.updateSaved({bookmarks});toast('Imported '+added+' bookmarks and '+(result.cookies||0)+' cookies.');}catch{toast('Chrome import failed.');}finally{transfer.disabled=false;transfer.textContent='Import Chrome data…';}};$('panelBody').append(transfer);
     section('Appearance');
     const importBox=document.createElement('div');importBox.className='panel-card';const importLabel=document.createElement('label');importLabel.textContent='Import a downloaded theme (.json)';importLabel.className='file-button';const importInput=document.createElement('input');importInput.type='file';importInput.accept='.json,application/json';importInput.hidden=true;importInput.onchange=async()=>{try{const parsed=JSON.parse(await importInput.files[0].text());if(!parsed||!themePresets[parsed.preset]|| (parsed.accent&&!/^#[0-9a-f]{6}$/i.test(parsed.accent)))throw new Error('Invalid theme');theme.preset=parsed.preset;theme.accent=parsed.accent||themePresets[parsed.preset].accent;save('theme',theme);applyTheme(theme);showPanel('settings');toast('Theme imported.');}catch{toast('That theme file is not valid.');}};importLabel.append(importInput);importBox.append(importLabel);$('panelBody').append(importBox);
-    const presets=[['midnight','Midnight'],['ocean','Ocean'],['violet','Violet'],['ember','Ember']];
+    const presets=[['midnight','Midnight'],['ocean','Ocean'],['violet','Violet'],['ember','Ember'],['xp','Windows XP'],['forest','Forest'],['rose','Rose'],['mono','Monochrome']];
     presets.forEach(([id,label])=>{const b=document.createElement('button');b.className='theme-option';b.innerHTML='<span class="theme-swatch '+id+'"></span><span>'+label+'</span><small>Free built-in theme</small>';b.onclick=()=>{theme.preset=id;theme.accent=themePresets[id].accent;save('theme',theme);applyTheme(theme);showPanel('settings');toast(label+' theme applied.');};$('panelBody').append(b);});
     const colorBox=document.createElement('div');colorBox.className='panel-card';
     const colorLabel=document.createElement('label');colorLabel.className='color-setting';colorLabel.textContent='UI accent color';
     const color=document.createElement('input');color.type='color';color.value=theme.accent||themePresets[theme.preset]?.accent||'#54bdff';color.oninput=()=>{theme.accent=color.value;save('theme',theme);applyTheme(theme);};colorLabel.append(color);colorBox.append(colorLabel);$('panelBody').append(colorBox);
     const download=document.createElement('button');download.className='panel-card';download.style.width='100%';download.textContent='Download theme settings (.json)';download.onclick=()=>{const blob=new Blob([JSON.stringify(theme,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='crystalium-theme.json';a.click();URL.revokeObjectURL(url);};$('panelBody').append(download);
     section('Speaking style');
+    const treeToggleBox=document.createElement('div');treeToggleBox.className='panel-card';const treeToggleLabel=document.createElement('label');treeToggleLabel.className='color-setting';treeToggleLabel.textContent='Mysterious tree easter egg (10% chance on tab switch)';const treeToggle=document.createElement('input');treeToggle.type='checkbox';treeToggle.checked=load('treeEggEnabled',true);treeToggle.onchange=()=>{save('treeEggEnabled',treeToggle.checked);toast(treeToggle.checked?'The tree may appear…':'Tree easter egg disabled.');};treeToggleLabel.append(treeToggle);treeToggleBox.append(treeToggleLabel);$('panelBody').append(treeToggleBox);
     const style=document.createElement('select');style.className='style-select';[['normal','Standard'],['pirate','Pirate / treasure speak'],['shakespeare','Shakespearean'],['tree','Mysterious forest oracle']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;style.append(o);});style.value=voiceStyle;style.onchange=()=>{localStorage.setItem('crystalium.voiceStyle',style.value);toast(({normal:'Standard style selected.',pirate:'Arrr! Pirate speak be selected.',shakespeare:'A Shakespearean tongue, most noble.',tree:'The old tree whispers in riddles…'})[style.value]);};$('panelBody').append(style);
     const preview=document.createElement('button');preview.className='panel-card';preview.style.width='100%';preview.textContent='Preview speaking style';preview.onclick=()=>{const s=style.value;toast(({normal:'Settings saved.',pirate:'Arrr, treasure ahoy! Fair winds to yer browsing!',shakespeare:'Good morrow! May thy browsing be swift and fortunes bright.',tree:'Roots remember what the branches forget… seek the quiet path.'})[s]);};$('panelBody').append(preview);
     section('Browser');
@@ -146,7 +160,7 @@ function renderMusic() {
 $('bookmarksToggle').onclick = () => showPanel('bookmarks');
 $('musicToggle').onclick = () => showPanel('music');
 $('menuToggle').onclick = () => showPanel('settings');
-$('panelClose').onclick = () => sidePanel.classList.add('hidden');
+$('panelClose').onclick = () => { sidePanel.classList.add('hidden'); requestAnimationFrame(updateLayout); };
 document.querySelectorAll('.rail-button').forEach(button => button.addEventListener('click', () => {
   document.querySelectorAll('.rail-button').forEach(b => b.classList.remove('selected')); button.classList.add('selected');
   showPanel(button.dataset.panel);
