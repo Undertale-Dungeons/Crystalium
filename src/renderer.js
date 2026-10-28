@@ -67,11 +67,22 @@ function toast(message) {
 function currentTab() { return state.tabs.find(t => t.id === state.activeId); }
 function isHome() { const t = currentTab(); return !t || !t.url; }
 function updateLayout() {
+  // WebContentsView is a native layer above the renderer. Keep it strictly inside
+  // the page viewport and fully collapsed whenever the home screen is visible.
+  const home = isHome();
   const rect = pageBounds.getBoundingClientRect();
-  // Electron's native WebContentsView sits above renderer HTML. Shrink it when the side panel is open so panel controls remain clickable.
+  if (home || pageBounds.style.display === 'none' || rect.width <= 0 || rect.height <= 0) {
+    api.layout({ x: 0, y: 0, width: 0, height: 0 });
+    return;
+  }
   const panelOpen = !sidePanel.classList.contains('hidden');
   const panelWidth = panelOpen ? Math.min(sidePanel.getBoundingClientRect().width, rect.width * 0.8) : 0;
-  api.layout({ x: Math.round(rect.left), y: Math.round(rect.top), width: Math.max(0, Math.round(rect.width - panelWidth)), height: Math.round(rect.height) });
+  api.layout({
+    x: Math.round(rect.left),
+    y: Math.round(rect.top),
+    width: Math.max(0, Math.round(rect.width - panelWidth)),
+    height: Math.max(0, Math.round(rect.height))
+  });
 }
 function render(next) {
   state = next;
@@ -276,7 +287,7 @@ api.onNotice(message => toast(message));
 api.onState(next => {
   localStorage.setItem('crystalium.openTabs', JSON.stringify(next.tabs.map(t=>t.url).filter(Boolean)));
   const t = next.tabs.find(x => x.id === next.activeId);
-  if (t?.url && /^https?:/i.test(t.url) && !historyItems.some(h => h.url === t.url)) { historyItems.push({ title: t.title, url: t.url }); save('history',historyItems); api.updateSaved({history}); }
+  if (t?.url && /^https?:/i.test(t.url) && !historyItems.some(h => h.url === t.url)) { historyItems.push({ title: t.title, url: t.url }); save('history',historyItems); api.updateSaved({history:historyItems}); }
   api.updateSaved({bookmarks,history:historyItems,shortcuts,settings});
 });
 document.addEventListener('keydown', e => {
