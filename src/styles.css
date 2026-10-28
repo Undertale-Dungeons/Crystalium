@@ -158,3 +158,57 @@ body{font-family:var(--font-ui,'DM Sans',sans-serif);background:var(--bg)!import
 .skin-gameboy .start-page{background:linear-gradient(135deg,#9bbc0f,#8bac0f 55%,#306230)!important;color:#0f380f!important}
 .skin-gameboy .start-content h1,.skin-gameboy .start-content p,.skin-gameboy .eyebrow,.skin-gameboy .section-label{color:#0f380f!important}
 .skin-gameboy .panel-card,.skin-gameboy .tab,.skin-gameboy .shortcut{border-radius:0!important;border:2px solid #0f380f!important}
+
+
+/* Theme system v2: palettes flow through the browser chrome and each preset gets its own atmosphere. */
+body{font-family:var(--font-ui,'DM Sans',sans-serif);background:var(--bg);color:var(--text)}
+button,input,select,textarea{font-family:var(--font-ui,'DM Sans',sans-serif)}
+.chrome,.toolbar{background:var(--side);border-color:var(--line)}
+.rail{background:var(--side);border-color:var(--line)}
+.tab{background:var(--bg);border-color:var(--line);color:var(--muted)}
+.tab.active{background:var(--panel);border-color:var(--accent);color:var(--text);box-shadow:inset 0 2px var(--accent)}
+.new-tab,.window-actions button,.nav-buttons button,.tool-button{background:var(--panel);border-color:var(--line);color:var(--text)}
+.address-wrap{background:var(--panel);border-color:var(--line)}
+.address-wrap input{color:var(--text)}
+.start-page{background:radial-gradient(ellipse at 78% 10%,color-mix(in srgb,var(--accent) 20%,transparent),transparent 42%),linear-gradient(145deg,var(--side),var(--bg) 76%)}
+.start-content h1{font-family:var(--font-display,var(--font-ui,sans-serif));color:var(--text)}
+.start-content h1 span,.eyebrow,.section-label{color:var(--accent)}
+.feature-strip,.panel-card,.theme-option{border-color:var(--line)}
+.side-panel{background:var(--side);border-color:var(--line);color:var(--text)}
+.panel-card,.theme-option{background:var(--panel);color:var(--text)}
+.theme-option:hover,.panel-card:hover{border-color:var(--accent)}
+.panel-heading{border-color:var(--line)}
+.address-wrap:focus-within{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 15%,transparent)}
+.rail-button:hover,.rail-button.selected{background:var(--panel);border-color:var(--accent);color:var(--accent)}
+/* Individual scene treatments */
+:root.theme-midnight .start-page{background:radial-gradient(ellipse at 78% 12%,#1c4970 0,transparent 43%),linear-gradient(145deg,#081629,#060d19 78%)}
+:root.theme-ocean .start-page,:root.theme-oceanic .start-page{background:radial-gradient(ellipse at 75% 12%,#126c79 0,transparent 43%),linear-gradient(145deg,#082530,#041219 78%)}
+:root.theme-violet .start-page{background:radial-gradient(ellipse at 80% 12%,#6543a0 0,transparent 45%),linear-gradient(145deg,#211638,#100b20 78%)}
+:root.theme-ember .start-page,:root.theme-solar .start-page{background:radial-gradient(ellipse at 78% 10%,#a95727 0,transparent 44%),linear-gradient(145deg,#39210e,#1a100d 78%)}
+:root.theme-xp .start-page{background:linear-gradient(135deg,#b6d8ff,#e8f0fa 52%,#8ab7ed)}
+:root.theme-forest .start-page{background:radial-gradient(ellipse at 80% 12%,#2d7041 0,transparent 44%),linear-gradient(145deg,#0b2116,#07170f 78%)}
+:root.theme-rose .start-page,:root.theme-sakura .start-page{background:radial-gradient(ellipse at 78% 10%,#8f3d70 0,transparent 44%),linear-gradient(145deg,#3b1e32,#170b18 78%)}
+:root.theme-mono .start-page{background:radial-gradient(ellipse at 80% 12%,#3b3b3b 0,transparent 44%),linear-gradient(145deg,#242424,#111 78%)}
+:root.theme-ps2 .start-page,:root.theme-ps3 .start-page{background:radial-gradient(ellipse at 80% 12%,#254d87 0,transparent 44%),linear-gradient(145deg,#15172d,#070b12 78%)}
+:root.theme-minecraft .start-page{background:linear-gradient(135deg,#263d25,#18251a 55%,#101a12);image-rendering:pixelated}
+:root.theme-dmc .start-page,:root.theme-crimson .start-page{background:radial-gradient(ellipse at 80% 12%,#8e243f 0,transparent 44%),linear-gradient(145deg,#30121e,#100b13 78%)}
+:root.theme-cyberpunk .start-page,:root.theme-cyberCity .start-page{background:radial-gradient(ellipse at 78% 10%,#a02f9d 0,transparent 38%),radial-gradient(ellipse at 20% 85%,#145a83 0,transparent 42%),linear-gradient(145deg,#20172f,#080d22 78%)}
+:root.theme-retro .start-page,:root.theme-gameboy .start-page{background:repeating-linear-gradient(0deg,transparent 0 5px,#0000000a 5px 6px),linear-gradient(145deg,var(--side),var(--bg))}
+:root.theme-lofi .start-page,:root.theme-lavender .start-page{background:radial-gradient(ellipse at 78% 12%,#b9a5f4 0,transparent 42%),linear-gradient(145deg,var(--side),var(--bg) 78%)}
+:root.theme-arctic .start-page{background:radial-gradient(ellipse at 78% 10%,#b9eaff 0,transparent 44%),linear-gradient(145deg,#c9e5f3,#eaf5fb 78%)}
+:root.theme-matrix .start-page,:root.theme-terminal .start-page{background:repeating-linear-gradient(0deg,transparent 0 26px,#39ff7510 26px 27px),radial-gradient(ellipse at 80% 10%,#124d26 0,transparent 42%),#020b05}
+:root.theme-vapor .start-page,:root.theme-synthwave .start-page{background:linear-gradient(160deg,#32105d 0%,#180d2e 55%,#100b28 100%)}
+:root.theme-copper .start-page{background:radial-gradient(ellipse at 78% 12%,#8a5a3d 0,transparent 44%),linear-gradient(145deg,#38251b,#211813 78%)}
+:root.theme-paper .start-page,:root.theme-sakuraLite .start-page,:root.theme-xp .start-page,:root.theme-lavender .start-page{color:var(--text)}
+:root.theme-aurora .start-page{background:radial-gradient(ellipse at 78% 10%,#1a8a8c 0,transparent 43%),radial-gradient(ellipse at 20% 80%,#2b5c94 0,transparent 40%),#071a22}
+:root.theme-sunset .start-page{background:radial-gradient(ellipse at 75% 12%,#d56a58 0,transparent 42%),linear-gradient(145deg,#3b1b2c,#24101d 78%)}
+:root.theme-slate .start-page{background:radial-gradient(ellipse at 78% 10%,#46596c 0,transparent 44%),linear-gradient(145deg,#222b37,#171c24 78%)}
+:root.theme-amber .start-page{background:radial-gradient(ellipse at 78% 10%,#8a6b12 0,transparent 44%),linear-gradient(145deg,#33280d,#211b0b 78%)}
+:root.theme-deltarune .start-page,:root.theme-darkFountain .start-page{background:radial-gradient(ellipse at 75% 12%,#3c2b88 0,transparent 42%),linear-gradient(145deg,#11152d,#090514 80%)}
+:root.theme-cardCastle .start-page{background:radial-gradient(ellipse at 80% 12%,#87506b 0,transparent 42%),linear-gradient(145deg,#402231,#1c1018 80%)}
+:root.theme-blackKnight .start-page,:root.theme-titan .start-page{background:radial-gradient(ellipse at 78% 12%,#41414a 0,transparent 40%),linear-gradient(145deg,#15151c,#050509 80%)}
+:root.theme-roaringKnight .start-page{background:radial-gradient(ellipse at 80% 12%,#9d183c 0,transparent 42%),linear-gradient(145deg,#210b17,#10070d 80%)}
+:root.theme-gerson .start-page{background:radial-gradient(ellipse at 78% 12%,#54745d 0,transparent 42%),linear-gradient(145deg,#1b3026,#102019 80%)}
+:root.theme-queenCyber .start-page{background:radial-gradient(ellipse at 80% 10%,#277d98 0,transparent 42%),linear-gradient(145deg,#0d2b3b,#071a24 80%)}
+:root.theme-metalGear .start-page{background:radial-gradient(ellipse at 80% 12%,#536b6b 0,transparent 42%),linear-gradient(145deg,#1b2729,#101719 80%)}
+:root.theme-mgrr .start-page{background:radial-gradient(ellipse at 78% 12%,#d62942 0,transparent 40%),linear-gradient(145deg,#2a1017,#17090d 80%)}
