@@ -139,6 +139,7 @@ function renderMusic() {
   const next = document.createElement('button'); next.textContent = '▶|'; next.title = 'Next track'; next.onclick = () => playTrack(index + 1);
   controls.append(previous, next); $('panelBody').insertBefore(controls, audio);
 }
+$('bookmarksToggle').onclick = () => showPanel('bookmarks');
 $('musicToggle').onclick = () => showPanel('music');
 $('menuToggle').onclick = () => showPanel('settings');
 $('panelClose').onclick = () => sidePanel.classList.add('hidden');
