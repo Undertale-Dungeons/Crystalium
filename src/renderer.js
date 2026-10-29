@@ -408,7 +408,7 @@ window.addEventListener('resize', updateLayout);
 api.onFullscreen(active => {
   window.__crystaliumFullscreen = !!active;
   document.documentElement.classList.toggle('hide-chrome', !!active);
-  requestAnimationFrame(updateLayout);
+  requestAnimationFrame(() => requestAnimationFrame(updateLayout));
 });
 $('newTab').onclick = () => api.newTab();
 $('pictureInPicture').onclick = async () => {
@@ -441,10 +441,20 @@ function showPanel(name) {
   document.querySelectorAll('.rail-button').forEach(b=>b.classList.toggle('selected',b.dataset.panel===name));
   requestAnimationFrame(updateLayout);
   $('panelBody').replaceChildren();
-  const titleMap = {music:'Music player',bookmarks:'Bookmarks',history:'Recent history',settings:'Browser settings',home:'Your space'};
+  const titleMap = {music:'Music player',bookmarks:'Bookmarks',history:'Recent history',settings:'Browser settings',home:'Your space',tools:'Browser tools'};
   $('panelTitle').textContent = titleMap[name] || 'Browser tools';
   $('panelEyebrow').textContent = name === 'music' ? 'YOUR SOUNDTRACK' : 'CRYSTALIUM TOOLS';
   if (name === 'music') renderMusic();
+  else if (name === 'tools') {
+    addPanelText('Quick controls for the active page. Keyboard shortcuts also work while browsing.');
+    addPanelCard('Toggle fullscreen (F11)','Hide or restore the browser bars. Press Escape to leave fullscreen.',()=>api.windowAction('toggle-fullscreen'));
+    addPanelCard('Developer tools (F12)','Inspect the active page and diagnose site issues.',()=>api.windowAction('devtools'));
+    addPanelCard('Zoom in (Ctrl + +)','Make the active website easier to read.',()=>api.windowAction('zoom-in'));
+    addPanelCard('Zoom out (Ctrl + −)','Fit more of the active website on screen.',()=>api.windowAction('zoom-out'));
+    addPanelCard('Reset zoom (Ctrl + 0)','Return the active website to 100%.',()=>api.windowAction('zoom-reset'));
+    addPanelCard('Reload page (F5)','Reload the current tab.',()=>api.reload());
+    addPanelCard('Picture-in-Picture','Pop supported video into a floating mini-player.',async()=>{const result=await api.pictureInPicture();if(result?.ok)toast('Picture-in-Picture opened.');else toast(result?.message||'This page has no video available for Picture-in-Picture.');});
+  }
   else if (name === 'bookmarks') {
     addPanelText('Bookmarks are saved on this device.');
     const current=currentTab();
@@ -640,8 +650,13 @@ api.onState(next => {
   persistSaved({bookmarks,history:historyItems,shortcuts,settings});
 });
 document.addEventListener('keydown', e => {
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l') { e.preventDefault(); address.focus(); address.select(); }
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 't') { e.preventDefault(); api.newTab(); }
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'w') { e.preventDefault(); if (state.activeId) api.closeTab(state.activeId); }
-  if (e.key === 'F5') { e.preventDefault(); api.reload(); }
+  const key=e.key.toLowerCase();
+  if (e.key==='F11') { e.preventDefault(); api.windowAction('toggle-fullscreen'); return; }
+  if (e.key==='F12') { e.preventDefault(); api.windowAction('devtools'); return; }
+  if (e.key==='Escape' && window.__crystaliumFullscreen) { e.preventDefault(); api.windowAction('exit-fullscreen'); return; }
+  if ((e.ctrlKey||e.metaKey)&&key==='l') { e.preventDefault(); address.focus(); address.select(); }
+  if ((e.ctrlKey||e.metaKey)&&key==='t') { e.preventDefault(); api.newTab(); }
+  if ((e.ctrlKey||e.metaKey)&&key==='w') { e.preventDefault(); if(state.activeId)api.closeTab(state.activeId); }
+  if ((e.ctrlKey||e.metaKey)&&['+','=','-','0'].includes(key)) { e.preventDefault(); api.windowAction(key==='0'?'zoom-reset':key==='-'?'zoom-out':'zoom-in'); }
+  if (e.key==='F5') { e.preventDefault(); api.reload(); }
 });
