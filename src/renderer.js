@@ -226,7 +226,38 @@ function drawThemeFrame(now){
 
  // Distinct animated scenes for game presets (not just a shared ring overlay).
  themeCtx.save();
- if(id==='undertale'){
+
+ if(id==='mgrr'||id==='metalGearRising'){
+   // Stylized high-frequency blade silhouette, wrapped in a pulsing red energy aura.
+   const cx=w*.73,cy=h*.43,angle=-.56+Math.sin(now*.0012)*.025;
+   themeCtx.save();themeCtx.translate(cx,cy);themeCtx.rotate(angle);
+   const pulse=.7+.3*(.5+.5*Math.sin(now*.008));
+   themeCtx.globalAlpha=.12*pulse;themeCtx.fillStyle='#ff153d';themeCtx.beginPath();themeCtx.ellipse(0,0,34,Math.min(w,h)*.34,0,0,Math.PI*2);themeCtx.fill();
+   themeCtx.globalAlpha=.26*pulse;themeCtx.strokeStyle='#ff2148';themeCtx.lineWidth=12;themeCtx.beginPath();themeCtx.moveTo(0,-Math.min(w,h)*.31);themeCtx.lineTo(0,Math.min(w,h)*.22);themeCtx.stroke();
+   themeCtx.globalAlpha=.95;themeCtx.fillStyle='#dce9f5';themeCtx.beginPath();themeCtx.moveTo(-4,-Math.min(w,h)*.34);themeCtx.lineTo(4,-Math.min(w,h)*.34);themeCtx.lineTo(2,Math.min(w,h)*.18);themeCtx.lineTo(0,Math.min(w,h)*.24);themeCtx.lineTo(-2,Math.min(w,h)*.18);themeCtx.closePath();themeCtx.fill();
+   themeCtx.fillStyle='#ff274b';themeCtx.fillRect(-10,Math.min(w,h)*.17,20,5);themeCtx.fillStyle='#252c38';themeCtx.fillRect(-3,Math.min(w,h)*.21,6,Math.min(w,h)*.08);
+   themeCtx.globalAlpha=.65;themeCtx.strokeStyle='#ff2148';themeCtx.lineWidth=1.2;
+   for(let i=0;i<16;i++){const y=((i*37+now*.12)%(Math.min(w,h)*.7))-Math.min(w,h)*.35;themeCtx.beginPath();themeCtx.moveTo(-20+(i%4)*9,y);themeCtx.lineTo(12+(i%3)*8,y-5);themeCtx.stroke();}
+   themeCtx.restore();
+ } else if(id==='sakura'||id==='sakuraDay'){
+   // A large flowering sakura tree; night mode has a small grove of extra trees.
+   const night=id==='sakura';
+   function blossomTree(x,base,scale,phase){
+     themeCtx.save();themeCtx.translate(x,base);themeCtx.scale(scale,scale);
+     themeCtx.strokeStyle=night?'#33283b':'#79565b';themeCtx.lineCap='round';themeCtx.lineWidth=12;
+     themeCtx.beginPath();themeCtx.moveTo(0,0);themeCtx.bezierCurveTo(-8,-35,10,-62,0,-108);themeCtx.stroke();
+     themeCtx.lineWidth=6;
+     [[0,-72,-34,-100], [0,-83,34,-111],[-2,-55,-42,-72],[1,-61,42,-82],[-1,-92,-17,-123],[0,-96,22,-128]].forEach(([x1,y1,x2,y2])=>{themeCtx.beginPath();themeCtx.moveTo(x1,y1);themeCtx.quadraticCurveTo(x1+(x2-x1)*.65,y1-8,x2,y2);themeCtx.stroke();});
+     const clusters=[[-36,-103,24],[-14,-126,26],[20,-129,27],[43,-102,24],[-43,-75,20],[40,-81,22],[0,-93,31]];
+     clusters.forEach(([bx,by,rad],i)=>{const sway=Math.sin(now*.0007+phase+i)*3;const grad=themeCtx.createRadialGradient(bx+sway,by,1,bx+sway,by,rad);grad.addColorStop(0,night?'#ffd7f0':'#fff0f5');grad.addColorStop(.55,night?'#e987bd':'#f5a9c8');grad.addColorStop(1,night?'#a94c88':'#db729f');themeCtx.globalAlpha=.88;themeCtx.fillStyle=grad;themeCtx.beginPath();themeCtx.arc(bx+sway,by,rad,0,Math.PI*2);themeCtx.fill();});
+     themeCtx.restore();
+   }
+   const base=h*.94;
+   if(night){blossomTree(w*.22,base,.9,1);blossomTree(w*.53,base+12,.62,3);blossomTree(w*.86,base+8,.78,5);}
+   else blossomTree(w*.76,base,1.18,2);
+   // Falling petals drift across the whole scene.
+   for(let i=0;i<42;i++){const x=(i*79+Math.sin(now*.0007+i)*35+now*.012*(i%3+1))%w;const y=(i*43+now*(.018+(i%4)*.004))%h;themeCtx.save();themeCtx.translate(x,y);themeCtx.rotate(now*.0005+i);themeCtx.globalAlpha=.45;themeCtx.fillStyle=night?'#ffb8df':'#f4a4c3';themeCtx.beginPath();themeCtx.ellipse(0,0,3,1.7,0,0,Math.PI*2);themeCtx.fill();themeCtx.restore();}
+ } else if(id==='undertale'){
    themeCtx.globalAlpha=.45;
    for(let i=0;i<70;i++){const x=((i*97.13)%w),y=((i*53.7)%Math.max(1,h));const tw=.35+.65*(.5+.5*Math.sin(now*.002+i));themeCtx.globalAlpha=tw*.55;themeCtx.fillStyle=i%7===0?'#ff405c':'#e8f0ff';themeCtx.fillRect(x,y,i%7===0?2.5:1.3,i%7===0?2.5:1.3);}
    const hx=w*.76,hy=h*(.22+Math.sin(now*.001)*.018),hs=7+Math.sin(now*.004)*1.8;themeCtx.globalAlpha=.82;themeCtx.fillStyle='#ff405c';themeCtx.beginPath();themeCtx.moveTo(hx,hy+hs);themeCtx.bezierCurveTo(hx-hs*2,hy-hs*.2,hx-hs,hy-hs*1.7,hx,hy-hs*.55);themeCtx.bezierCurveTo(hx+hs,hy-hs*1.7,hx+hs*2,hy-hs*.2,hx,hy+hs);themeCtx.fill();
