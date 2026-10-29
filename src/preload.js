@@ -13,9 +13,11 @@ contextBridge.exposeInMainWorld('crystalium', {
   chromeTransfer: () => ipcRenderer.invoke('browser:chrome-transfer'),
   openExternal: url => ipcRenderer.invoke('browser:external', url),
   getState: () => ipcRenderer.invoke('browser:state'),
+  getSavedState: () => ipcRenderer.invoke('browser:saved-state'),
   windowAction: action => ipcRenderer.invoke('browser:window', action),
   updateSaved: patch => ipcRenderer.invoke('browser:saved-update', patch),
   onNotice: callback => ipcRenderer.on('browser:notice', (_event, message) => callback(message)),
   onState: callback => ipcRenderer.on('browser:state', (_event, state) => callback(state)),
+  onFullscreen: callback => ipcRenderer.on('browser:fullscreen', (_event, active) => callback(!!active)),
   onError: callback => ipcRenderer.on('browser:error', (_event, message) => callback(message))
 });
