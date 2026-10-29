@@ -47,7 +47,8 @@ function addTab(url = '', options = {}) {
     contextIsolation: true,
     sandbox: true,
     backgroundThrottling: true,
-    spellcheck: true
+    spellcheck: true,
+    ...(options.incognito ? { partition: 'crystalium-private-' + id } : {})
   }});
   const tab = { id, view, incognito: !!options.incognito };
   tabs.push(tab);
