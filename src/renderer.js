@@ -97,8 +97,20 @@ Object.assign(themePresets,{
  slateStudio:{bg:'#d8dee9',side:'#cbd3df',panel:'#c0cad7',line:'#a5b1c1',accent:'#536b86',text:'#303b4a',skin:'slate-studio'},
  amberGlow:{bg:'#f2e5c6',side:'#e8d8b2',panel:'#decca0',line:'#c3ad77',accent:'#94702e',text:'#4b3c24',skin:'amber-light'}
 });
+Object.assign(themePresets,{
+  minecraftNight:{bg:'#101a2a',side:'#18283a',panel:'#24384a',line:'#4c7182',accent:'#74c7df',text:'#edfaff',skin:'minecraft-night'},
+  undertaleGold:{bg:'#1c1608',side:'#30240d',panel:'#423314',line:'#84652b',accent:'#ffd45f',text:'#fff6d9',skin:'undertale-gold'},
+  ps2Silver:{bg:'#171925',side:'#242a3b',panel:'#30384b',line:'#56647d',accent:'#c2d0e7',text:'#f4f7ff',skin:'ps2'},
+  ps3Violet:{bg:'#100b20',side:'#17102b',panel:'#201638',line:'#453269',accent:'#bd9aff',text:'#f5efff',skin:'ps3'},
+  dreamcast:{bg:'#20120d',side:'#2d1c14',panel:'#41281c',line:'#7a5136',accent:'#ff9a52',text:'#fff1e4',skin:'dreamcast'},
+  gba:{bg:'#17201b',side:'#222e27',panel:'#303f35',line:'#5a7663',accent:'#b7d6b7',text:'#f1fff1',skin:'gameboy'},
+  n64:{bg:'#101b32',side:'#18294a',panel:'#24385e',line:'#4c6d9d',accent:'#ffcc65',text:'#eff5ff',skin:'retro'},
+  metroid:{bg:'#071c1c',side:'#0c2e2c',panel:'#13413e',line:'#2e8179',accent:'#ff8c54',text:'#eafffc',skin:'metroid'},
+  firewatch:{bg:'#2b1714',side:'#44231b',panel:'#593025',line:'#a85a3b',accent:'#ffbd70',text:'#fff0db',skin:'firewatch'},
+  nightCity:{bg:'#0b0d1c',side:'#15182b',panel:'#202440',line:'#5552a0',accent:'#ff65c3',text:'#f9f1ff',skin:'neon-cyber'}
+});
 const themeCatalog=[
-['system','System Default','System'],['crystaliumDark','Crystalium Dark','System'],['crystaliumLight','Crystalium Light','Light'],
+['system','System Default','System'],['crystaliumDark','Crystalium Dark','System'],['crystaliumLight','Crystalium Light','Light'],['minecraftNight','Minecraft · Moonlit Overworld','Gaming'],['undertaleGold','Undertale · Golden Soul','Gaming'],['ps2Silver','PlayStation 2 · Silver Orb','Gaming'],['ps3Violet','PlayStation 3 · Violet Wave','Gaming'],['dreamcast','Dreamcast · Orange Swirl','Retro'],['gba','Game Boy Advance','Retro'],['n64','Nintendo 64','Retro'],['metroid','Metroid · Phazon Depths','Gaming'],['firewatch','Firewatch · Painted Sunset','Aesthetic'],['nightCity','Night City · Neon Rain','Sci-Fi'],
 ['majora','Majora’s Mask · Dawn of the Final Day','Gaming'],
 ['undertale','Undertale · Soul of Determination','Gaming'],['hollowKnight','Hollow Knight · Hallownest','Gaming'],['zelda','The Legend of Zelda · Hyrule','Gaming'],['sonic','Sonic · Blue Blur','Gaming'],['pokemon','Pokémon · Kanto','Gaming'],['stardew','Stardew Valley · Pelican Town','Gaming'],['terraria','Terraria · World of Wonder','Gaming'],['celeste','Celeste · Mountain Lights','Gaming'],['portal','Portal · Aperture Science','Gaming'],['skyrim','Skyrim · Nordic Ruins','Gaming'],['kingdomHearts','Kingdom Hearts II · Dearly Beloved','Gaming'],['gamecube','Nintendo GameCube','Gaming'],['ps5','PlayStation 5 · DualSense Glass','Gaming'],['xbox360','Xbox 360 · Blades','Gaming'],['ps2','PlayStation 2','Gaming'],['ps3','PlayStation 3','Gaming'],['minecraft','Never Dig Straight Down · Minecraft','Gaming'],['gameboy','Handheld Pixel','Gaming'],['retro','Retro Arcade','Gaming'],['mgrr','Rules of Nature · Metal Gear Rising','Gaming'],
 ['deltarune','DELTARUNE: Dark World','Lore'],['cardCastle','Card Castle','Lore'],['cyberCity','Cyber City','Lore'],['roaringKnight','Black Knight · Roaring Knight','Lore'],['titan','Titan · Chapter 4','Lore'],['gerson','Gerson · Hammer of Justice','Lore'],['darkFountain','Dark Fountain','Lore'],['queenCyber','Queen’s Cyber World','Lore'],
@@ -183,11 +195,28 @@ homeMusicButton.title='Play original generated ambience for this theme';
 startPage.append(homeMusicButton);
 function homeMusicPattern(){
  const id=theme.preset;
- if(['ps3','ps5','gamecube','kingdomHearts'].includes(id))return {notes:[0,7,12,19,14,7,12,5],base:220,wave:'sine',duration:1.45};
- if(['majora','zelda','undertale','deltarune'].includes(id))return {notes:[0,3,7,10,7,3,12,10],base:164.81,wave:'triangle',duration:1.2};
- if(['sakura','sakuraDay','stardew','oceanic','aurora'].includes(id))return {notes:[0,4,7,11,7,4,2,7],base:196,wave:'sine',duration:1.65};
- if(['mgrr','metalGear'].includes(id))return {notes:[0,7,3,10,12,10,3,7],base:110,wave:'sawtooth',duration:.7};
- return {notes:[0,5,9,12,9,5,7,2],base:174.61,wave:'triangle',duration:1.35};
+ const patterns={
+  minecraft:{notes:[0,7,12,19,16,12,7,4],base:130.81,wave:'sine',duration:2.1},
+  undertale:{notes:[0,7,10,14,12,10,7,3],base:196,wave:'triangle',duration:1.05},
+  deltarune:{notes:[0,3,7,12,10,7,5,2],base:174.61,wave:'triangle',duration:1.15},
+  ps2:{notes:[0,5,12,17,12,7,2,5],base:146.83,wave:'sine',duration:1.8},
+  ps3:{notes:[0,7,14,19,14,9,12,5],base:220,wave:'sine',duration:1.45},
+  ps5:{notes:[0,7,12,19,24,19,14,7],base:246.94,wave:'sine',duration:1.5},
+  majora:{notes:[0,3,7,10,7,3,12,10],base:164.81,wave:'triangle',duration:1.2},
+  zelda:{notes:[0,7,12,7,4,9,12,16],base:196,wave:'triangle',duration:1.3},
+  stardew:{notes:[0,4,7,11,7,4,2,7],base:196,wave:'sine',duration:1.65},
+  terraria:{notes:[0,7,9,12,7,4,9,2],base:185,wave:'triangle',duration:1.2},
+  hollowKnight:{notes:[0,5,9,12,7,5,2,9],base:146.83,wave:'sine',duration:1.9},
+  celeste:{notes:[0,7,12,16,14,9,7,4],base:220,wave:'sine',duration:1.1},
+  portal:{notes:[0,2,7,9,12,9,7,2],base:164.81,wave:'sine',duration:1.7},
+  sonic:{notes:[0,7,12,16,19,16,12,7],base:246.94,wave:'square',duration:.62},
+  pokemon:{notes:[0,4,7,12,7,4,2,7],base:220,wave:'triangle',duration:1.0},
+  mgrr:{notes:[0,7,3,10,12,10,3,7],base:110,wave:'sawtooth',duration:.7},
+  sakura:{notes:[0,4,7,11,7,4,2,7],base:196,wave:'sine',duration:1.65},
+  gamecube:{notes:[0,7,12,19,14,7,12,5],base:220,wave:'sine',duration:1.45},
+  kingdomHearts:{notes:[0,5,9,12,16,12,9,5],base:196,wave:'sine',duration:1.6}
+ };
+ return patterns[id]||{notes:[0,5,9,12,9,5,7,2],base:174.61,wave:'triangle',duration:1.35};
 }
 function stopHomeMusic(){
  homeMusicOn=false;if(homeMusicTimer){clearTimeout(homeMusicTimer);homeMusicTimer=0;}
@@ -365,7 +394,7 @@ function render(next) {
     const node = document.createElement('div');
     node.className = 'tab' + (tab.id === state.activeId ? ' active' : '');
     const dot = document.createElement('span'); dot.className = 'tab-dot';
-    const title = document.createElement('button'); title.className = 'tab-title'; title.textContent = (!tab.url || tab.url === 'about:blank') ? 'Home' : (tab.title || tab.url || 'Home'); title.title = tab.url || 'Home'; title.onclick = () => api.activateTab(tab.id);
+    const title = document.createElement('button'); title.className = 'tab-title'; title.textContent = (!tab.url || tab.url === 'about:blank') ? 'Home' : (tab.title || tab.url || 'Home'); title.title = tab.url || 'Home'; title.onclick = () => api.activateTab(tab.id); if(tab.incognito){node.classList.add('incognito-tab');title.textContent='◉ '+title.textContent;title.title='Private tab · '+(tab.url||'Home');}
     const close = document.createElement('button'); close.className = 'tab-close'; close.textContent = '×'; close.title = 'Close tab'; close.onclick = e => { e.stopPropagation(); api.closeTab(tab.id); };
     node.append(dot, title, close); strip.append(node);
   }
@@ -560,6 +589,9 @@ function addPanelCard(title, subtitle, action) {
   card.append(strong, small); if (action) card.onclick = action; $('panelBody').append(card);
 }
 function renderMusic() {
+  const soundtrackThemes={minecraft:'Minecraft soundtrack',undertale:'Undertale official soundtrack',deltarune:'DELTARUNE soundtrack',ps2:'PlayStation 2 startup and menu music',ps3:'PlayStation 3 XMB music',majora:'The Legend of Zelda Majora’s Mask soundtrack',zelda:'The Legend of Zelda soundtrack',sonic:'Sonic the Hedgehog soundtrack',pokemon:'Pokémon game soundtrack',stardew:'Stardew Valley soundtrack',terraria:'Terraria soundtrack',hollowKnight:'Hollow Knight soundtrack',celeste:'Celeste soundtrack',portal:'Portal soundtrack',kingdomHearts:'Kingdom Hearts soundtrack',mgrr:'Metal Gear Rising soundtrack'};
+  const soundtrackQuery=soundtrackThemes[theme.preset];
+  if(soundtrackQuery){addPanelText('For the '+theme.preset+' theme, explore the soundtrack here:');addPanelCard('Find '+soundtrackQuery,'Opens a YouTube search in a new tab; playback and rights stay with the source.',()=>api.newTab('https://www.youtube.com/results?search_query='+encodeURIComponent(soundtrackQuery+' official soundtrack')));}
   addPanelText('Music source hub: save music websites here, open them in tabs, and control audio on the active tab. Crystalium does not copy or extract protected streams; playback depends on each site’s own player and permissions.');
   const active=currentTab();
   if(active?.url && /^https?:/i.test(active.url)) addPanelCard('＋ Save active website as a music source',active.title||active.url,()=>{
@@ -606,6 +638,7 @@ function renderMusic() {
 }
 $('bookmarksToggle').onclick = () => showPanel('bookmarks');
 $('musicToggle').onclick = () => showPanel('music');
+$('incognitoToggle').onclick = () => { api.newIncognitoTab(); toast('Opened a private tab. Its URL will not be saved to Crystalium history or session restore.'); };
 $('menuToggle').onclick = () => togglePanel('settings');
 $('panelClose').onclick = hidePanel;
 document.querySelectorAll('.rail-button').forEach(button => button.addEventListener('click', () => {
@@ -646,7 +679,7 @@ api.onNotice(message => toast(message));
 api.onState(next => {
   localStorage.setItem('crystalium.openTabs', JSON.stringify(next.tabs.map(t=>t.url).filter(Boolean)));
   const t = next.tabs.find(x => x.id === next.activeId);
-  if (t?.url && /^https?:/i.test(t.url) && !historyItems.some(h => h.url === t.url)) { historyItems.push({ title: t.title, url: t.url }); save('history',historyItems); persistSaved({history:historyItems}); }
+  if (t && !t.incognito && t.url && /^https?:/i.test(t.url) && !historyItems.some(h => h.url === t.url)) { historyItems.push({ title: t.title, url: t.url }); save('history',historyItems); persistSaved({history:historyItems}); }
   persistSaved({bookmarks,history:historyItems,shortcuts,settings});
 });
 document.addEventListener('keydown', e => {
@@ -656,6 +689,8 @@ document.addEventListener('keydown', e => {
   if (e.key==='Escape' && window.__crystaliumFullscreen) { e.preventDefault(); api.windowAction('exit-fullscreen'); return; }
   if ((e.ctrlKey||e.metaKey)&&key==='l') { e.preventDefault(); address.focus(); address.select(); }
   if ((e.ctrlKey||e.metaKey)&&key==='t') { e.preventDefault(); api.newTab(); }
+  if ((e.ctrlKey||e.metaKey)&&key==='shift' && e.shiftKey) { /* handled below for private shortcut */ }
+  if ((e.ctrlKey||e.metaKey)&&e.shiftKey&&key==='n') { e.preventDefault(); api.newIncognitoTab(); }
   if ((e.ctrlKey||e.metaKey)&&key==='w') { e.preventDefault(); if(state.activeId)api.closeTab(state.activeId); }
   if ((e.ctrlKey||e.metaKey)&&['+','=','-','0'].includes(key)) { e.preventDefault(); api.windowAction(key==='0'?'zoom-reset':key==='-'?'zoom-out':'zoom-in'); }
   if (e.key==='F5') { e.preventDefault(); api.reload(); }
