@@ -247,7 +247,7 @@ ipcMain.handle('browser:saved-state', () => {
   try {
     const file = path.join(app.getPath('userData'), 'crystalium-state.json');
     const data = JSON.parse(fs.readFileSync(file, 'utf8'));
-    return { settings: data.settings && typeof data.settings === 'object' ? data.settings : {} };
+    return { settings: data.settings && typeof data.settings === 'object' ? data.settings : {}, theme: data.theme && typeof data.theme === 'object' ? data.theme : null, themeCategory: typeof data.themeCategory === 'string' ? data.themeCategory : null };
   } catch { return { settings: {} }; }
 });
 ipcMain.handle('browser:window', (_e, action) => {
