@@ -150,7 +150,7 @@ function applyTheme(next){
  })[next.preset];
  const customArtwork=load('themeArtwork',{});
  const art=customArtwork[next.preset] || defaultArt;
- root.style.setProperty('--theme-art',art?'url("'+String(art).replace(/["\\]/g,'\\ })[next.preset];
+ root.style.setProperty('--theme-art',art?'url("'+String(art).replace(/["\\]/g,'\\$&')+'")':'none');
  root.style.setProperty('--theme-art',art?'url("'+art+'")':'none');')+'")':'none');
  for(const [key,value] of Object.entries({ '--bg':p.bg,'--side':p.side,'--panel':p.panel,'--line':p.line,'--blue':next.accent||p.accent,'--cyan':next.accent||p.accent,'--text':p.text,'--accent':next.accent||p.accent,'--muted':p.text+'aa','--panel-soft':p.panel,'--theme-border':p.line,'--theme-bg':p.bg})) root.style.setProperty(key,value);
  root.classList.remove(...Array.from(root.classList).filter(c=>c.startsWith('theme-')||c.startsWith('skin-')));
