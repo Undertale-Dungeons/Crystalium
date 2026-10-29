@@ -7,8 +7,10 @@ const pageBounds = $('pageBounds');
 const sidePanel = $('sidePanel');
 let state = { tabs: [], activeId: null };
 let toastTimer;
-const load = (k,d) => { try { return JSON.parse(localStorage.getItem('crystalium.'+k)) || d; } catch { return d; } };
-const save = (k,v) => localStorage.setItem('crystalium.'+k,JSON.stringify(v));
+const load = (k,d) => { try { const raw=localStorage.getItem('crystalium.'+k); return raw===null?d:JSON.parse(raw); } catch { return d; } };
+const save = (k,v) => { try { localStorage.setItem('crystalium.'+k,JSON.stringify(v)); return true; } catch { return false; } };
+const hasLocal = k => { try { return localStorage.getItem('crystalium.'+k)!==null; } catch { return false; } };
+function persistSaved(patch){ return api.updateSaved(patch).catch(()=>{toast('Saved on this device; backup sync failed.');return null;}); }
 const bookmarks = load('bookmarks', []);
 const historyItems = load('history', []);
 const settings = { blockTrackers:true, warnInsecure:true, restoreTabs:true, reduceMotion:false, showShortcuts:true, showMusicControls:true, confirmCloseTabs:false, treeEggEnabled:true, showTabDots:true, compactTabs:false, showAddressIcon:true, gameEggs:true, showFeatureCards:true, ...load('settings', {}), ...(load('treeEggEnabled', null) === null ? {} : {treeEggEnabled:load('treeEggEnabled', true)}) };
@@ -65,7 +67,17 @@ roaringKnight:{bg:'#10070d',side:'#210b17',panel:'#321021',line:'#6c183b',accent
 titan:{bg:'#050509',side:'#101015',panel:'#191920',line:'#41414a',accent:'#f5f5f7',text:'#f7f7fa'},
 gerson:{bg:'#102019',side:'#1b3026',panel:'#294437',line:'#54745d',accent:'#e5c36a',text:'#f2f8e9'},
 darkFountain:{bg:'#090514',side:'#170b27',panel:'#24113a',line:'#54276f',accent:'#b94cff',text:'#f7eaff'},
-queenCyber:{bg:'#071a24',side:'#0d2b3b',panel:'#143c50',line:'#277d98',accent:'#ff4fd8',text:'#edfbff'}};
+queenCyber:{bg:'#071a24',side:'#0d2b3b',panel:'#143c50',line:'#277d98',accent:'#ff4fd8',text:'#edfbff'},
+undertale:{bg:'#080d16',side:'#111b2b',panel:'#19283a',line:'#47617a',accent:'#e8f0ff',text:'#f4f6ff',skin:'undertale'},
+hollowKnight:{bg:'#080e1b',side:'#101b30',panel:'#182742',line:'#354f7a',accent:'#8fc8ff',text:'#edf5ff',skin:'hollow-knight'},
+zelda:{bg:'#102017',side:'#193326',panel:'#234634',line:'#4e7d5d',accent:'#d8c36b',text:'#f2f5df',skin:'zelda'},
+sonic:{bg:'#071a37',side:'#0d2a52',panel:'#14396a',line:'#2f68a5',accent:'#4bb7ff',text:'#eff8ff',skin:'sonic'},
+pokemon:{bg:'#211414',side:'#321d1d',panel:'#472929',line:'#8a4a43',accent:'#ffcb62',text:'#fff5e8',skin:'pokemon'},
+stardew:{bg:'#252018',side:'#373024',panel:'#49402f',line:'#8b7650',accent:'#e8c879',text:'#fff5df',skin:'stardew'},
+terraria:{bg:'#0c1d22',side:'#163039',panel:'#20434a',line:'#3d7d76',accent:'#8fe3a0',text:'#ecfff5',skin:'terraria'},
+celeste:{bg:'#151b3c',side:'#202d5a',panel:'#2d4074',line:'#5e79bb',accent:'#ff9cbe',text:'#f4f5ff',skin:'celeste'},
+portal:{bg:'#121923',side:'#1c2938',panel:'#263747',line:'#4e687d',accent:'#ff9b5e',text:'#f1f6fa',skin:'portal'},
+skyrim:{bg:'#171b1b',side:'#242b2a',panel:'#303a37',line:'#59665e',accent:'#c6c5a2',text:'#f1f0e5',skin:'skyrim'}};
 /* Expanded theme registry: warm, low-glare light palettes and dedicated visual themes. */
 Object.assign(themePresets,{
  system:{bg:'#101722',side:'#192330',panel:'#222d3a',line:'#46576b',accent:'#70c9ef',text:'#e6e2da'},
@@ -87,7 +99,8 @@ Object.assign(themePresets,{
 });
 const themeCatalog=[
 ['system','System Default','System'],['crystaliumDark','Crystalium Dark','System'],['crystaliumLight','Crystalium Light','Light'],
-['majora','Majora’s Mask · Dawn of the Final Day','Gaming'],['kingdomHearts','Kingdom Hearts II · Dearly Beloved','Gaming'],['gamecube','Nintendo GameCube','Gaming'],['ps5','PlayStation 5 · DualSense Glass','Gaming'],['xbox360','Xbox 360 · Blades','Gaming'],['ps2','PlayStation 2','Gaming'],['ps3','PlayStation 3','Gaming'],['minecraft','Never Dig Straight Down · Minecraft','Gaming'],['gameboy','Handheld Pixel','Gaming'],['retro','Retro Arcade','Gaming'],['mgrr','Rules of Nature · Metal Gear Rising','Gaming'],
+['majora','Majora’s Mask · Dawn of the Final Day','Gaming'],
+['undertale','Undertale · Soul of Determination','Gaming'],['hollowKnight','Hollow Knight · Hallownest','Gaming'],['zelda','The Legend of Zelda · Hyrule','Gaming'],['sonic','Sonic · Blue Blur','Gaming'],['pokemon','Pokémon · Kanto','Gaming'],['stardew','Stardew Valley · Pelican Town','Gaming'],['terraria','Terraria · World of Wonder','Gaming'],['celeste','Celeste · Mountain Lights','Gaming'],['portal','Portal · Aperture Science','Gaming'],['skyrim','Skyrim · Nordic Ruins','Gaming'],['kingdomHearts','Kingdom Hearts II · Dearly Beloved','Gaming'],['gamecube','Nintendo GameCube','Gaming'],['ps5','PlayStation 5 · DualSense Glass','Gaming'],['xbox360','Xbox 360 · Blades','Gaming'],['ps2','PlayStation 2','Gaming'],['ps3','PlayStation 3','Gaming'],['minecraft','Never Dig Straight Down · Minecraft','Gaming'],['gameboy','Handheld Pixel','Gaming'],['retro','Retro Arcade','Gaming'],['mgrr','Rules of Nature · Metal Gear Rising','Gaming'],
 ['deltarune','DELTARUNE: Dark World','Lore'],['cardCastle','Card Castle','Lore'],['cyberCity','Cyber City','Lore'],['roaringKnight','Black Knight · Roaring Knight','Lore'],['titan','Titan · Chapter 4','Lore'],['gerson','Gerson · Hammer of Justice','Lore'],['darkFountain','Dark Fountain','Lore'],['queenCyber','Queen’s Cyber World','Lore'],
 ['cyberpunk','Cyberpunk','Sci-Fi'],['matrix','Matrix Green','Sci-Fi'],['neonCyber','Neon Cyber','Sci-Fi'],['terminal','Terminal Green','Sci-Fi'],['vapor','Vaporwave','Sci-Fi'],['synthwave','Synthwave','Sci-Fi'],['solar','Solar Flare','Sci-Fi'],
 ['lofi','Lo-fi Mint','Aesthetic'],['sakura','Sakura Night','Aesthetic'],['aurora','Aurora Borealis','Aesthetic'],['sunset','Sunset Lounge','Aesthetic'],['oceanic','Deep Ocean','Aesthetic'],['copper','Copper Atelier','Aesthetic'],
@@ -157,7 +170,7 @@ const themeCanvas=document.createElement('canvas');themeCanvas.className='theme-
 let themeFrame=0,themeLast=0,themeParticles=[],themeCtx=themeCanvas.getContext('2d');
 function resizeThemeCanvas(){const dpr=Math.min(window.devicePixelRatio||1,1.5),r=startPage.getBoundingClientRect();themeCanvas.width=Math.max(1,Math.floor(r.width*dpr));themeCanvas.height=Math.max(1,Math.floor(r.height*dpr));themeCanvas.style.width=r.width+'px';themeCanvas.style.height=r.height+'px';themeCtx?.setTransform(dpr,0,0,dpr,0,0);themeParticles=[];}
 function paletteForTheme(id){
- const palettes={matrix:['#39ff75','#8cffad'],sakura:['#ff9fc8','#ffc5df'],sakuraDay:['#ba6689','#e0a0b6'],majora:['#e9a85f','#c17cff'],kingdomHearts:['#b5e5ff','#7ebeff'],gamecube:['#a98bff','#7657c5'],ps5:['#67baff','#b4ddff'],xbox360:['#83df5b','#b5f58a'],darkFountain:['#b94cff','#6f6cff'],solar:['#ffb04d','#ff6a3d'],oceanic:['#53c8ff','#9eeaff'],aurora:['#7fffd4','#a58cff'],vapor:['#ff76df','#28f0ff'],synthwave:['#ffb36b','#28f0ff'],ps2:['#77baff','#9d8cff'],ps3:['#52d6ff','#b69aff']};
+ const palettes={matrix:['#39ff75','#8cffad'],sakura:['#ff9fc8','#ffc5df'],sakuraDay:['#ba6689','#e0a0b6'],majora:['#e9a85f','#c17cff'],kingdomHearts:['#b5e5ff','#7ebeff'],gamecube:['#a98bff','#7657c5'],ps5:['#67baff','#b4ddff'],xbox360:['#83df5b','#b5f58a'],darkFountain:['#b94cff','#6f6cff'],solar:['#ffb04d','#ff6a3d'],oceanic:['#53c8ff','#9eeaff'],aurora:['#7fffd4','#a58cff'],vapor:['#ff76df','#28f0ff'],synthwave:['#ffb36b','#28f0ff'],ps2:['#77baff','#9d8cff'],ps3:['#52d6ff','#b69aff'],undertale:['#e8f0ff','#ff405c'],hollowKnight:['#8fc8ff','#c6d8ff'],zelda:['#d8c36b','#8fe3a0'],sonic:['#4bb7ff','#ffdf55'],pokemon:['#ffcb62','#ff6b6b'],stardew:['#e8c879','#8fcf8b'],terraria:['#8fe3a0','#54c8ff'],celeste:['#ff9cbe','#8edcff'],portal:['#ff9b5e','#65cfff'],skyrim:['#c6c5a2','#8fa8a5']};
  return palettes[id]||(['crystaliumLight','sakuraDay','warmPaper','lavenderSoft','arcticSoft','slateStudio','amberGlow','xp','paper','arctic','lavender','sakuraLite'].includes(id)?['#788ca4','#b09aaa']:['#54bdff','#9ce8ff']);
 }
 function drawThemeFrame(now){
@@ -227,9 +240,15 @@ api.getState().then(render);
 api.getSavedState().then(saved => {
   if (saved?.settings && typeof saved.settings === 'object') {
     Object.assign(settings, saved.settings);
+    if (hasLocal('settings')) Object.assign(settings, load('settings', {}));
     save('settings', settings);
-    applySettings();
   }
+  if (saved?.theme && !hasLocal('theme') && typeof saved.theme === 'object' && themePresets[saved.theme.preset]) {
+    Object.assign(theme, saved.theme); save('theme', theme); applyTheme(theme);
+  }
+  if (saved?.themeCategory && !hasLocal('themeCategory')) save('themeCategory', saved.themeCategory);
+  applySettings();
+  persistSaved({settings,theme,themeCategory:load('themeCategory','All')});
 }).catch(() => {});
 applyLanguage(uiLanguage);
 applySettings();
@@ -295,17 +314,17 @@ function showPanel(name) {
     const section=(label)=>{const h=document.createElement('h3');h.className='settings-section';h.textContent=label;$('panelBody').append(h);};
     section('Chrome Transfer');
     addPanelText('Import Chrome bookmarks and compatible Netscape-format cookies from files you select. Crystalium cannot directly decrypt Chrome’s protected cookie database or import saved passwords automatically.');
-    const transfer=document.createElement('button');transfer.className='panel-card';transfer.style.width='100%';transfer.textContent='Import Chrome data…';transfer.onclick=async()=>{transfer.disabled=true;transfer.textContent='Choose Chrome data files…';try{const result=await api.chromeTransfer();if(result?.canceled){toast('Import cancelled.');return;}if(!result?.ok){toast('Could not import those files.');return;}let added=0;for(const b of result.bookmarks||[]){if(!bookmarks.some(old=>old.url===b.url)){bookmarks.push(b);added++;}}save('bookmarks',bookmarks);api.updateSaved({bookmarks});toast('Imported '+added+' bookmarks and '+(result.cookies||0)+' cookies.');}catch{toast('Chrome import failed.');}finally{transfer.disabled=false;transfer.textContent='Import Chrome data…';}};$('panelBody').append(transfer);
+    const transfer=document.createElement('button');transfer.className='panel-card';transfer.style.width='100%';transfer.textContent='Import Chrome data…';transfer.onclick=async()=>{transfer.disabled=true;transfer.textContent='Choose Chrome data files…';try{const result=await api.chromeTransfer();if(result?.canceled){toast('Import cancelled.');return;}if(!result?.ok){toast('Could not import those files.');return;}let added=0;for(const b of result.bookmarks||[]){if(!bookmarks.some(old=>old.url===b.url)){bookmarks.push(b);added++;}}save('bookmarks',bookmarks);persistSaved({bookmarks});toast('Imported '+added+' bookmarks and '+(result.cookies||0)+' cookies.');}catch{toast('Chrome import failed.');}finally{transfer.disabled=false;transfer.textContent='Import Chrome data…';}};$('panelBody').append(transfer);
     section('Appearance');
-    const importBox=document.createElement('div');importBox.className='panel-card';const importLabel=document.createElement('label');importLabel.textContent='Import a downloaded theme (.json)';importLabel.className='file-button';const importInput=document.createElement('input');importInput.type='file';importInput.accept='.json,application/json';importInput.hidden=true;importInput.onchange=async()=>{try{const parsed=JSON.parse(await importInput.files[0].text());if(!parsed||!themePresets[parsed.preset]|| (parsed.accent&&!/^#[0-9a-f]{6}$/i.test(parsed.accent)))throw new Error('Invalid theme');theme.preset=parsed.preset;theme.accent=parsed.accent||themePresets[parsed.preset].accent;save('theme',theme);api.updateSaved({theme});applyTheme(theme);showPanel('settings');toast('Theme imported.');}catch{toast('That theme file is not valid.');}};importLabel.append(importInput);importBox.append(importLabel);$('panelBody').append(importBox);
+    const importBox=document.createElement('div');importBox.className='panel-card';const importLabel=document.createElement('label');importLabel.textContent='Import a downloaded theme (.json)';importLabel.className='file-button';const importInput=document.createElement('input');importInput.type='file';importInput.accept='.json,application/json';importInput.hidden=true;importInput.onchange=async()=>{try{const parsed=JSON.parse(await importInput.files[0].text());if(!parsed||!themePresets[parsed.preset]|| (parsed.accent&&!/^#[0-9a-f]{6}$/i.test(parsed.accent)))throw new Error('Invalid theme');theme.preset=parsed.preset;theme.accent=parsed.accent||themePresets[parsed.preset].accent;save('theme',theme);persistSaved({theme});applyTheme(theme);showPanel('settings');toast('Theme imported.');}catch{toast('That theme file is not valid.');}};importLabel.append(importInput);importBox.append(importLabel);$('panelBody').append(importBox);
     const presets=[...new Map(themeCatalog.map(([id,label,category])=>[id,[id,label,category]])).values()];
     const categorySelect=document.createElement('select');categorySelect.className='style-select';categorySelect.setAttribute('aria-label','Theme category');
     [['All','All themes'],...['System','Gaming','Lore','Sci-Fi','Aesthetic','Light','Retro'].map(c=>[c,c])].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;categorySelect.append(o);});
-    categorySelect.value=load('themeCategory','All');categorySelect.onchange=()=>{save('themeCategory',categorySelect.value);api.updateSaved({themeCategory:categorySelect.value});showPanel('settings');};$('panelBody').append(categorySelect);
-    presets.filter(([id,label,category])=>categorySelect.value==='All'||categorySelect.value===category).forEach(([id,label,category])=>{const b=document.createElement('button');b.className='theme-option'+(theme.preset===id?' selected':'');b.title=label;const swatch=document.createElement('span');swatch.className='theme-swatch';swatch.style.background='linear-gradient(135deg,'+(themePresets[id]?.bg||'#060d19')+','+(themePresets[id]?.accent||'#54bdff')+')';const details=document.createElement('span');details.className='theme-option-details';const name=document.createElement('strong');name.textContent=label;const desc=document.createElement('small');desc.textContent=category+' · animated background';details.append(name,desc);const active=document.createElement('small');active.textContent=theme.preset===id?'✓ Active':'Preview';b.append(swatch,details,active);b.onclick=()=>{theme.preset=id;theme.accent=themePresets[id]?.accent||'#54bdff';save('theme',theme);api.updateSaved({theme});applyTheme(theme);showPanel('settings');toast(label+' theme applied.');};$('panelBody').append(b);});
+    categorySelect.value=load('themeCategory','All');categorySelect.onchange=()=>{save('themeCategory',categorySelect.value);persistSaved({themeCategory:categorySelect.value});showPanel('settings');};$('panelBody').append(categorySelect);
+    presets.filter(([id,label,category])=>categorySelect.value==='All'||categorySelect.value===category).forEach(([id,label,category])=>{const b=document.createElement('button');b.className='theme-option'+(theme.preset===id?' selected':'');b.title=label;const swatch=document.createElement('span');swatch.className='theme-swatch';swatch.style.background='linear-gradient(135deg,'+(themePresets[id]?.bg||'#060d19')+','+(themePresets[id]?.accent||'#54bdff')+')';const details=document.createElement('span');details.className='theme-option-details';const name=document.createElement('strong');name.textContent=label;const desc=document.createElement('small');desc.textContent=category+' · animated background';details.append(name,desc);const active=document.createElement('small');active.textContent=theme.preset===id?'✓ Active':'Preview';b.append(swatch,details,active);b.onclick=()=>{theme.preset=id;theme.accent=themePresets[id]?.accent||'#54bdff';save('theme',theme);persistSaved({theme});applyTheme(theme);showPanel('settings');toast(label+' theme applied.');};$('panelBody').append(b);});
     const colorBox=document.createElement('div');colorBox.className='panel-card';
     const colorLabel=document.createElement('label');colorLabel.className='color-setting';colorLabel.textContent='UI accent color';
-    const color=document.createElement('input');color.type='color';color.value=theme.accent||themePresets[theme.preset]?.accent||'#54bdff';color.oninput=()=>{theme.accent=color.value;save('theme',theme);api.updateSaved({theme});applyTheme(theme);};colorLabel.append(color);colorBox.append(colorLabel);$('panelBody').append(colorBox);
+    const color=document.createElement('input');color.type='color';color.value=theme.accent||themePresets[theme.preset]?.accent||'#54bdff';color.oninput=()=>{theme.accent=color.value;save('theme',theme);persistSaved({theme});applyTheme(theme);};colorLabel.append(color);colorBox.append(colorLabel);$('panelBody').append(colorBox);
     const download=document.createElement('button');download.className='panel-card';download.style.width='100%';download.textContent='Download theme settings (.json)';download.onclick=()=>{const blob=new Blob([JSON.stringify(theme,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='crystalium-theme.json';a.click();URL.revokeObjectURL(url);};$('panelBody').append(download);
     section('Website translation');
     addPanelText('Choose a target language, then open Google Translate’s website-translation view in a new tab. Some sites block proxy translation; if that happens, use the translation page to paste text instead.');
@@ -338,8 +357,8 @@ function showPanel(name) {
     addToggle('Show address-bar diamond','showAddressIcon','Show the decorative address-bar icon.');
     addToggle('Enable game easter eggs','gameEggs','Allow rare Minecraft-inspired and retro game surprises.');
     addToggle('Show home-page feature cards','showFeatureCards','Show the feature cards below quick access.');
-    addPanelCard('Clear browsing history','Remove Crystalium history stored on this device.',()=>{historyItems.splice(0,historyItems.length);save('history',historyItems);api.updateSaved({history:historyItems});showPanel('settings');toast('Browsing history cleared.');});
-    addPanelCard('Reset all settings','Restore default browser preferences and the Midnight theme.',()=>{Object.assign(settings,{blockTrackers:true,warnInsecure:true,restoreTabs:true,reduceMotion:false,showShortcuts:true,showMusicControls:true,confirmCloseTabs:false,treeEggEnabled:true,showTabDots:true,compactTabs:false,showAddressIcon:true,gameEggs:true,showFeatureCards:true});save('settings',settings);api.updateSaved({settings});theme.preset='midnight';theme.accent=themePresets.midnight.accent;save('theme',theme);applyTheme(theme);applySettings();showPanel('settings');toast('Settings reset to defaults.');});
+    addPanelCard('Clear browsing history','Remove Crystalium history stored on this device.',()=>{historyItems.splice(0,historyItems.length);save('history',historyItems);persistSaved({history:historyItems});showPanel('settings');toast('Browsing history cleared.');});
+    addPanelCard('Reset all settings','Restore default browser preferences and the Midnight theme.',()=>{Object.assign(settings,{blockTrackers:true,warnInsecure:true,restoreTabs:true,reduceMotion:false,showShortcuts:true,showMusicControls:true,confirmCloseTabs:false,treeEggEnabled:true,showTabDots:true,compactTabs:false,showAddressIcon:true,gameEggs:true,showFeatureCards:true});save('settings',settings);persistSaved({settings});theme.preset='midnight';theme.accent=themePresets.midnight.accent;save('theme',theme);save('themeCategory','All');persistSaved({settings,theme,themeCategory:'All'});applyTheme(theme);applySettings();showPanel('settings');toast('Settings reset to defaults.');});
     addPanelCard('Privacy note','Theme files contain appearance settings only; they do not install code or extensions.');
     applySettings();
   } else addPanelText('Your browser workspace.');
@@ -367,7 +386,7 @@ function addToggle(label,key,description) {
     if(key==='reduceMotion') document.documentElement.classList.toggle('reduce-motion',input.checked);
     if(key==='showShortcuts') document.documentElement.classList.toggle('hide-shortcuts',!input.checked);
     applySettings();
-    try { await api.updateSaved({settings}); toast('Setting saved.'); }
+    try { await persistSaved({settings}); toast('Setting saved.'); }
     catch { toast('Saved locally; device settings sync failed.'); }
   };
   row.append(name,input);
@@ -397,7 +416,7 @@ function renderMusic() {
   addPanelCard('Open Bandcamp in a separate tab','Discover and stream music from artists.',()=>api.newTab('https://bandcamp.com'));
   
   const webControls=document.createElement('div');webControls.className='music-controls';
-  [['play','▶ Play website audio'],['pause','Ⅱ Pause website audio'],['mute','Mute website audio'],['unmute','Unmute website audio']].forEach(([action,label])=>{const b=document.createElement('button');b.textContent=label;b.onclick=async()=>{await api.mediaControl(action);toast('Sent '+label.toLowerCase()+' command to the active page.');};webControls.append(b);});$('panelBody').append(webControls);
+  [['play','▶ Play website audio'],['pause','Ⅱ Pause website audio'],['mute','Mute website audio'],['unmute','Unmute website audio']].forEach(([action,label])=>{const b=document.createElement('button');b.textContent=label;b.onclick=async()=>{const result=await api.mediaControl(action);if(result?.ok===false)toast('Could not control website audio.');else toast(label+' command sent.');};webControls.append(b);});$('panelBody').append(webControls);
   const pick = document.createElement('label'); pick.className = 'file-button'; pick.textContent = 'Choose audio files';
   const input = document.createElement('input'); input.type = 'file'; input.accept = 'audio/*'; input.multiple = true; input.hidden = true; pick.append(input); $('panelBody').append(pick);
   const list = document.createElement('div'); $('panelBody').append(list);
@@ -445,7 +464,7 @@ function addHomeShortcut(rawUrl, customTitle) {
   const url=parsed.href;
   if(shortcuts.some(item=>item.url===url)){toast('That website is already on Home.');return false;}
   const title=String(customTitle||parsed.hostname).trim().slice(0,80)||parsed.hostname;
-  shortcuts.push({title,url});save('shortcuts',shortcuts);api.updateSaved({shortcuts});
+  shortcuts.push({title,url});save('shortcuts',shortcuts);persistSaved({shortcuts});
   const btn=document.createElement('button');btn.className='shortcut';btn.dataset.url=url;
   const icon=document.createElement('span');icon.className='shortcut-icon blue';icon.textContent='↗';
   const details=document.createElement('span');const name=document.createElement('b');name.textContent=title;const small=document.createElement('small');small.textContent=url;details.append(name,small);
@@ -468,8 +487,8 @@ api.onNotice(message => toast(message));
 api.onState(next => {
   localStorage.setItem('crystalium.openTabs', JSON.stringify(next.tabs.map(t=>t.url).filter(Boolean)));
   const t = next.tabs.find(x => x.id === next.activeId);
-  if (t?.url && /^https?:/i.test(t.url) && !historyItems.some(h => h.url === t.url)) { historyItems.push({ title: t.title, url: t.url }); save('history',historyItems); api.updateSaved({history:historyItems}); }
-  api.updateSaved({bookmarks,history:historyItems,shortcuts,settings});
+  if (t?.url && /^https?:/i.test(t.url) && !historyItems.some(h => h.url === t.url)) { historyItems.push({ title: t.title, url: t.url }); save('history',historyItems); persistSaved({history:historyItems}); }
+  persistSaved({bookmarks,history:historyItems,shortcuts,settings});
 });
 document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l') { e.preventDefault(); address.focus(); address.select(); }
