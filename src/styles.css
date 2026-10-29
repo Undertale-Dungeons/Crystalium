@@ -250,3 +250,16 @@ button,input,select,textarea{font-family:var(--font-ui,'DM Sans',sans-serif)}
 @keyframes universal-theme-drift{from{background-position:0 0,0 0,0 0;transform:translate(-.5%,0)}to{background-position:0 0,0 0,60px 80px;transform:translate(.5%,1%)}}
 :root.theme-blackKnight .start-page,:root.theme-roaringKnight .start-page{background:radial-gradient(ellipse at 80% 12%,#9d183c 0,transparent 42%),linear-gradient(145deg,#210b17,#10070d 80%)!important}
 .theme-blackKnight .theme-art::before,.theme-roaringKnight .theme-art::before{background:linear-gradient(115deg,transparent 35%,#ff315d12 36% 37%,transparent 38% 55%,#ff315d15 56% 57%,transparent 58%),radial-gradient(ellipse at 80% 20%,#ff174430,transparent 35%);animation:danger-pulse 4s ease-in-out infinite alternate}
+
+
+/* Immersive fullscreen for HTML5 video and other fullscreen web content. */
+:root.hide-chrome body { overflow: hidden; }
+:root.hide-chrome .chrome,
+:root.hide-chrome .toolbar,
+:root.hide-chrome .rail,
+:root.hide-chrome .side-panel,
+:root.hide-chrome #toast { display: none !important; }
+:root.hide-chrome .workspace { height: 100vh !important; }
+:root.hide-chrome .page-bounds,
+:root.hide-chrome .start-page { left: 0 !important; }
+:root.hide-chrome .side-panel { visibility: hidden !important; }
