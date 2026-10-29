@@ -7,6 +7,17 @@ const pageBounds = $('pageBounds');
 const sidePanel = $('sidePanel');
 let state = { tabs: [], activeId: null };
 let toastTimer;
+let updateStatusLine = null;
+let updateActionButton = null;
+let latestUpdateStatus = { status:'idle', message:'Updates have not been checked yet.', supported:false };
+function paintUpdateControls(status) {
+  latestUpdateStatus = status || latestUpdateStatus;
+  if (updateStatusLine) updateStatusLine.textContent = latestUpdateStatus.message || 'Update status unavailable.';
+  if (updateActionButton) {
+    updateActionButton.disabled = ['checking','downloading'].includes(latestUpdateStatus.status);
+    updateActionButton.textContent = latestUpdateStatus.status === 'downloaded' ? 'Restart and install update' : latestUpdateStatus.status === 'downloading' ? 'Downloading… ' + (latestUpdateStatus.percent || 0) + '%' : latestUpdateStatus.status === 'checking' ? 'Checking…' : 'Check for updates';
+  }
+}
 const load = (k,d) => { try { const raw=localStorage.getItem('crystalium.'+k); return raw===null?d:JSON.parse(raw); } catch { return d; } };
 const save = (k,v) => { try { localStorage.setItem('crystalium.'+k,JSON.stringify(v)); return true; } catch { return false; } };
 const hasLocal = k => { try { return localStorage.getItem('crystalium.'+k)!==null; } catch { return false; } };
@@ -490,6 +501,7 @@ applySettings();
 const languageObserver=new MutationObserver(records=>{if(records.some(r=>r.addedNodes.length))applyLanguage(uiLanguage);});
 languageObserver.observe(document.body,{childList:true,subtree:true});
 api.onNotice(message => toast(message));
+api.onUpdateStatus(status => paintUpdateControls(status));
 window.addEventListener('resize', updateLayout);
 api.onFullscreen(active => {
   window.__crystaliumFullscreen = !!active;
@@ -557,6 +569,13 @@ function showPanel(name) {
   } else if (name === 'settings') {
     addPanelText('Make Crystalium feel like yours. Your choices are saved on this device.');
     const section=(label)=>{const h=document.createElement('h3');h.className='settings-section';h.textContent=label;$('panelBody').append(h);};
+    section('Updates');
+    const updateBox=document.createElement('div');updateBox.className='panel-card update-controls';
+    const updateHeading=document.createElement('strong');updateHeading.textContent='Crystalium updater';
+    updateStatusLine=document.createElement('p');updateStatusLine.className='panel-copy';updateStatusLine.textContent=latestUpdateStatus.message||'Checking update status…';
+    updateActionButton=document.createElement('button');updateActionButton.className='panel-card';updateActionButton.style.width='100%';
+    updateActionButton.onclick=async()=>{updateActionButton.disabled=true;try{if(latestUpdateStatus.status==='downloaded'){await api.installUpdate();}else{const result=await api.checkForUpdates();paintUpdateControls(result);if(result.status==='unsupported')toast('Updater is available in installed release builds.');}}catch{toast('Could not check for updates.');}finally{if(updateActionButton&&latestUpdateStatus.status!=='checking'&&latestUpdateStatus.status!=='downloading')updateActionButton.disabled=false;}};
+    updateBox.append(updateHeading,updateStatusLine,updateActionButton);$('panelBody').append(updateBox);paintUpdateControls(latestUpdateStatus);api.getUpdateStatus().then(paintUpdateControls).catch(()=>{});
     section('Chrome Transfer');
     addPanelText('Import Chrome bookmarks and compatible Netscape-format cookies from files you select. Crystalium cannot directly decrypt Chrome’s protected cookie database or import saved passwords automatically.');
     const transfer=document.createElement('button');transfer.className='panel-card';transfer.style.width='100%';transfer.textContent='Import Chrome data…';transfer.onclick=async()=>{transfer.disabled=true;transfer.textContent='Choose Chrome data files…';try{const result=await api.chromeTransfer();if(result?.canceled){toast('Import cancelled.');return;}if(!result?.ok){toast('Could not import those files.');return;}let added=0;for(const b of result.bookmarks||[]){if(!bookmarks.some(old=>old.url===b.url)){bookmarks.push(b);added++;}}save('bookmarks',bookmarks);persistSaved({bookmarks});toast('Imported '+added+' bookmarks and '+(result.cookies||0)+' cookies.');}catch{toast('Chrome import failed.');}finally{transfer.disabled=false;transfer.textContent='Import Chrome data…';}};$('panelBody').append(transfer);
