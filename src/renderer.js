@@ -677,7 +677,7 @@ document.querySelectorAll('.window-actions button').forEach(button => {
 });
 api.onNotice(message => toast(message));
 api.onState(next => {
-  localStorage.setItem('crystalium.openTabs', JSON.stringify(next.tabs.map(t=>t.url).filter(Boolean)));
+  localStorage.setItem('crystalium.openTabs', JSON.stringify(next.tabs.filter(t=>!t.incognito).map(t=>t.url).filter(Boolean)));
   const t = next.tabs.find(x => x.id === next.activeId);
   if (t && !t.incognito && t.url && /^https?:/i.test(t.url) && !historyItems.some(h => h.url === t.url)) { historyItems.push({ title: t.title, url: t.url }); save('history',historyItems); persistSaved({history:historyItems}); }
   persistSaved({bookmarks,history:historyItems,shortcuts,settings});
@@ -689,7 +689,6 @@ document.addEventListener('keydown', e => {
   if (e.key==='Escape' && window.__crystaliumFullscreen) { e.preventDefault(); api.windowAction('exit-fullscreen'); return; }
   if ((e.ctrlKey||e.metaKey)&&key==='l') { e.preventDefault(); address.focus(); address.select(); }
   if ((e.ctrlKey||e.metaKey)&&key==='t') { e.preventDefault(); api.newTab(); }
-  if ((e.ctrlKey||e.metaKey)&&key==='shift' && e.shiftKey) { /* handled below for private shortcut */ }
   if ((e.ctrlKey||e.metaKey)&&e.shiftKey&&key==='n') { e.preventDefault(); api.newIncognitoTab(); }
   if ((e.ctrlKey||e.metaKey)&&key==='w') { e.preventDefault(); if(state.activeId)api.closeTab(state.activeId); }
   if ((e.ctrlKey||e.metaKey)&&['+','=','-','0'].includes(key)) { e.preventDefault(); api.windowAction(key==='0'?'zoom-reset':key==='-'?'zoom-out':'zoom-in'); }
