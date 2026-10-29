@@ -57,6 +57,18 @@ function addTab(url = '') {
     try { addTab(safeUrl(url)); } catch { /* reject unsafe schemes */ }
     return { action: 'deny' };
   });
+  view.webContents.on('before-input-event', (event, input) => {
+    if (input.type !== 'keyDown') return;
+    const key = String(input.key || '').toLowerCase();
+    if (key === 'f11') { event.preventDefault(); if (win && !win.isDestroyed()) win.setFullScreen(!win.isFullScreen()); return; }
+    if (key === 'escape' && win && !win.isDestroyed() && win.isFullScreen()) { event.preventDefault(); win.setFullScreen(false); return; }
+    if (key === 'f12') { event.preventDefault(); if (view.webContents.isDevToolsOpened()) view.webContents.closeDevTools(); else view.webContents.openDevTools({mode:'detach'}); return; }
+    if ((input.control || input.meta) && ['+', '=', '-', '0'].includes(key)) {
+      event.preventDefault(); const current=view.webContents.getZoomFactor();
+      if (key === '0') view.webContents.setZoomFactor(1);
+      else view.webContents.setZoomFactor(Math.max(0.5,Math.min(2,current+(key==='-'?-0.1:0.1))));
+    }
+  });
   view.webContents.on('enter-html-full-screen', () => {
     if (win && !win.isDestroyed()) {
       // Native video/player fullscreen should also remove Crystalium's own chrome.
@@ -255,6 +267,10 @@ ipcMain.handle('browser:window', (_e, action) => {
   if (action === 'minimize') win.minimize();
   if (action === 'maximize') win.isMaximized() ? win.unmaximize() : win.maximize();
   if (action === 'close') win.close();
+  if (action === 'toggle-fullscreen') win.setFullScreen(!win.isFullScreen());
+  if (action === 'exit-fullscreen') win.setFullScreen(false);
+  if (action === 'devtools') { const view=activeTab()?.view; if(view&&!view.webContents.isDestroyed()) view.webContents.isDevToolsOpened()?view.webContents.closeDevTools():view.webContents.openDevTools({mode:'detach'}); }
+  if (['zoom-in','zoom-out','zoom-reset'].includes(action)) { const wc=activeTab()?.view.webContents; if(wc&&!wc.isDestroyed()){const z=wc.getZoomFactor();wc.setZoomFactor(action==='zoom-reset'?1:Math.max(0.5,Math.min(2,z+(action==='zoom-in'?0.1:-0.1))));} }
 });
 ipcMain.handle('browser:saved-update', (_e, patch) => {
   const fs = require('node:fs');
