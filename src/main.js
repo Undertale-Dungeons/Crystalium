@@ -139,12 +139,21 @@ function createWindow() {
     }
   });
   win.loadFile(path.join(__dirname, 'index.html'));
-  const notifyFullscreen = active => {
-    if (win && !win.isDestroyed()) win.webContents.send('browser:fullscreen', !!active);
-    if (win && !win.isDestroyed()) setTimeout(() => { layoutViews(); win.webContents.send('browser:fullscreen', !!active); }, 80);
+  const notifyFullscreen = () => {
+    // Read the current state when the delayed callback runs, rather than replaying
+    // an old event value after a quick enter/exit sequence.
+    const sync = () => {
+      if (!win || win.isDestroyed()) return;
+      const active = win.isFullScreen();
+      win.webContents.send('browser:fullscreen', active);
+      layoutViews();
+    };
+    sync();
+    setTimeout(sync, 80);
+    setTimeout(sync, 250);
   };
-  win.on('enter-full-screen', () => notifyFullscreen(true));
-  win.on('leave-full-screen', () => notifyFullscreen(false));
+  win.on('enter-full-screen', notifyFullscreen);
+  win.on('leave-full-screen', notifyFullscreen);
   const notifyPageVisibility = visible => {
     for (const tab of tabs) {
       if (tab.view.webContents.isDestroyed()) continue;
@@ -296,6 +305,12 @@ ipcMain.handle('browser:saved-state', () => {
 });
 ipcMain.handle('browser:window', (_e, action) => {
   if (!win) return;
+  if (action === 'sync-fullscreen') {
+    const active = win.isFullScreen();
+    win.webContents.send('browser:fullscreen', active);
+    layoutViews();
+    return active;
+  }
   if (action === 'minimize') win.minimize();
   if (action === 'maximize') win.isMaximized() ? win.unmaximize() : win.maximize();
   if (action === 'close') win.close();
