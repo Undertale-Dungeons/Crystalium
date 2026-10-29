@@ -508,9 +508,8 @@ function syncFullscreenChrome(active) {
   document.documentElement.classList.toggle('hide-chrome', !!active);
   requestAnimationFrame(() => requestAnimationFrame(() => {
     updateLayout();
-    // Force a second layout after the chrome has been shown/hidden so the
-    // embedded page gets the correct bounds without restarting the app.
-    if (!window.__crystaliumFullscreen) api.layout({x:0,y:0,width:window.innerWidth,height:window.innerHeight});
+    // Re-measure once the chrome visibility change has been painted.
+    requestAnimationFrame(updateLayout);
   }));
 }
 api.onFullscreen(syncFullscreenChrome);
