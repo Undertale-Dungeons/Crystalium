@@ -384,3 +384,21 @@ button,input,select,textarea{font-family:var(--font-ui,'DM Sans',sans-serif)}
 @media(prefers-reduced-motion:reduce){
  .theme-art::before,.theme-art::after{animation:none!important}
 }
+
+
+/* Home-only original theme soundtrack toggle */
+.home-theme-music{
+ position:absolute;right:clamp(18px,3vw,42px);bottom:18px;z-index:5;
+ display:inline-flex;align-items:center;gap:9px;padding:10px 14px;
+ border:1px solid color-mix(in srgb,var(--accent,#54bdff) 42%,transparent);
+ border-radius:999px;background:color-mix(in srgb,var(--panel,#0b1a2c) 84%,transparent);
+ color:var(--text,#edf5ff);font-size:11px;font-weight:700;letter-spacing:.15px;
+ box-shadow:0 8px 28px #0003;backdrop-filter:blur(14px);
+ transition:transform .2s ease,border-color .2s ease,background .2s ease;
+}
+.home-theme-music span{color:var(--accent,#54bdff);font-size:16px}
+.home-theme-music:hover{transform:translateY(-2px);border-color:var(--accent,#54bdff)}
+.home-theme-music.playing{background:color-mix(in srgb,var(--accent,#54bdff) 16%,var(--panel,#0b1a2c))}
+.theme-ps3 .home-theme-music{border-color:#4abaff66}
+.theme-mgrr .home-theme-music{border-color:#ff274b77}
+@media(max-width:600px){.home-theme-music{right:12px;bottom:12px;padding:9px 11px}}
