@@ -115,6 +115,16 @@ function createWindow() {
   };
   win.on('enter-full-screen', () => notifyFullscreen(true));
   win.on('leave-full-screen', () => notifyFullscreen(false));
+  const notifyPageVisibility = visible => {
+    for (const tab of tabs) {
+      if (tab.view.webContents.isDestroyed()) continue;
+      tab.view.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('crystalium-visibility', {detail:{visible:${visible}}})); if(!${visible}) document.querySelectorAll('video').forEach(v=>{if(!v.paused)v.pause();});`).catch(()=>{});
+    }
+  };
+  win.on('minimize', () => notifyPageVisibility(false));
+  win.on('restore', () => notifyPageVisibility(true));
+  win.on('blur', () => notifyPageVisibility(false));
+  win.on('focus', () => notifyPageVisibility(true));
   win.on('resize', () => { layoutViews(); });
   win.on('closed', () => { tabs = []; win = null; });
   win.webContents.on('did-finish-load', () => { if (!tabs.length) { if (savedTabs.length) { savedTabs.forEach(u => addTab(u)); activeId = tabs[Math.min(savedActiveIndex, tabs.length-1)]?.id ?? activeId; layoutViews(); sendState(); } else addTab(''); } });
