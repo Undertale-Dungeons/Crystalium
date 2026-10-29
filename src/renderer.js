@@ -196,7 +196,7 @@ function drawThemeFrame(now){
    for(let i=0;i<24;i++){const y=((i*47+now*.12)%(h+100))-50;themeCtx.strokeStyle=i%3?colors[0]:colors[1];themeCtx.beginPath();themeCtx.moveTo((Math.sin(i*7)*.5+.5)*w,y);themeCtx.lineTo(Math.min(w,(Math.sin(i*7)*.5+.5)*w+45+(i%5)*24),y-3);themeCtx.stroke();}
  } else if(['celeste','hollowKnight','skyrim','arctic','arcticSoft'].includes(id)){
    // Slow drifting snow and distant mountain silhouettes.
-   themeCtx.globalAlpha=light?.10:.24;themeCtx.fillStyle=colors[0];
+   themeCtx.globalAlpha=light ? 0.10 : 0.24;themeCtx.fillStyle=colors[0];
    themeCtx.beginPath();themeCtx.moveTo(0,h*.68);for(let x=0;x<=w+40;x+=40)themeCtx.lineTo(x,h*(.52+Math.abs(Math.sin(x*.011+(id==='celeste'?0:2)))*.19));themeCtx.lineTo(w,h);themeCtx.lineTo(0,h);themeCtx.closePath();themeCtx.fill();
    themeCtx.globalAlpha=.65;themeCtx.fillStyle=colors[1];
    for(let i=0;i<36;i++){const x=((i*83+Math.sin(now*.0002+i)*24)%w+w)%w;const y=((i*61+now*(.012+i%3*.006))%(h+12));themeCtx.beginPath();themeCtx.arc(x,y,1+(i%3)*.55,0,Math.PI*2);themeCtx.fill();}
@@ -217,7 +217,7 @@ function drawThemeFrame(now){
    themeCtx.globalAlpha=.22;themeCtx.fillStyle=colors[0];for(let i=0;i<18;i++){const x=(i*97+Math.sin(now*.0002+i)*35)%w,y=(i*67+now*.018)%(h+30);themeCtx.save();themeCtx.translate(x,y);themeCtx.rotate(now*.0003+i);themeCtx.beginPath();themeCtx.ellipse(0,0,4,2,0,0,Math.PI*2);themeCtx.fill();themeCtx.restore();}
  } else {
    // Aurora-like ribbons for all remaining palettes.
-   themeCtx.globalAlpha=light?.12:.2;themeCtx.lineWidth=1.5;
+   themeCtx.globalAlpha=light ? 0.12 : 0.20;themeCtx.lineWidth=1.5;
    for(let ribbon=0;ribbon<6;ribbon++){themeCtx.beginPath();for(let x=0;x<=w;x+=10){const y=h*(.22+ribbon*.105)+Math.sin(x*.006+now*.00035+ribbon)*18+Math.sin(x*.002-now*.0002)*15;if(x===0)themeCtx.moveTo(x,y);else themeCtx.lineTo(x,y);}themeCtx.strokeStyle=ribbon%2?colors[0]:colors[1];themeCtx.stroke();}
  }
  themeCtx.restore();
@@ -225,7 +225,7 @@ function drawThemeFrame(now){
  if(themeParticles.length!==count)themeParticles=Array.from({length:count},()=>({x:Math.random()*w,y:Math.random()*h,r:1+Math.random()*2.4,v:.18+Math.random()*.7,phase:Math.random()*Math.PI*2,kind:Math.random()}));
  for(const p of themeParticles){
    const falling=['sakura','sakuraDay','celeste','hollowKnight','skyrim'].includes(id);
-   p.y+=(id==='matrix'?p.v*2:falling?p.v*.75:p.v*.18);p.x+=Math.sin(now*.0003+p.phase)*(falling?.6:.25);
+   p.y+=(id==='matrix'?p.v*2:falling?p.v*.75:p.v*.18);p.x+=Math.sin(now*.0003+p.phase)*(falling ? 0.6 : 0.25);
    if(p.y>h+8){p.y=-8;p.x=Math.random()*w;}if(p.x>w+8)p.x=-8;
    themeCtx.globalAlpha=.22+p.kind*.5;themeCtx.fillStyle=colors[p.kind>.5?1:0];
    if(id==='matrix'){themeCtx.font='12px monospace';themeCtx.fillText(['ｱ','ﾊ','ﾐ','0','1','∑'][Math.floor(p.phase*10)%6],p.x,p.y);}
