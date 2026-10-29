@@ -303,7 +303,7 @@ button,input,select,textarea{font-family:var(--font-ui,'DM Sans',sans-serif)}
 
 /* Make animated theme art reliably visible above the home backdrop. */
 .start-page{position:relative;isolation:isolate;overflow:hidden}
-.start-page>.theme-art{position:absolute;inset:0;z-index:0;opacity:1;pointer-events:none}
+.start-page>.theme-art{position:absolute;inset:0;z-index:1;opacity:1;pointer-events:none}
 .start-page>.theme-art>.theme-canvas{position:absolute;inset:0;z-index:1;display:block;opacity:1}
 .start-page>.start-content{position:relative;z-index:2}
 .start-page>.ambient{z-index:0}
