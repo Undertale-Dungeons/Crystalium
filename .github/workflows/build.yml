@@ -21,8 +21,14 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install
-      - name: Build Windows installer
+      - name: Build Windows installer (without publishing)
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         run: npm run dist:win
+      - name: Build and publish tagged release with updater metadata
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: npx electron-builder --win nsis --x64 --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
         with:
