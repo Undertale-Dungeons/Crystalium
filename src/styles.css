@@ -290,3 +290,13 @@ button,input,select,textarea{font-family:var(--font-ui,'DM Sans',sans-serif)}
 :root.skin-slate-studio .theme-art::after{background:linear-gradient(135deg,transparent 45%,#536b8610 45% 46%,transparent 46%)}
 :root.skin-amber-light .theme-art::before{background:radial-gradient(ellipse at 80% 10%,#c79a3a30,transparent 52%)}
 @media(prefers-reduced-motion:reduce){.theme-art::before{animation:none!important}}
+
+@keyframes theme-clockwork{to{transform:rotate(360deg)}}
+:root.skin-majora .theme-art::after{animation:theme-clockwork 90s linear infinite}
+:root.skin-gamecube .theme-art::after{animation:theme-clockwork 75s linear infinite}
+:root.skin-ps2 .theme-art::before{background:linear-gradient(0deg,#8b9bca12,transparent 40%),radial-gradient(ellipse at 50% 100%,#7e9dc526,transparent 55%)}
+:root.skin-ps3 .theme-art::before{background:radial-gradient(ellipse at 50% 65%,#5d48a522,transparent 60%),linear-gradient(140deg,transparent 40%,#52d6ff08 70%,transparent)}
+:root.skin-minecraft .theme-art::after{background-image:radial-gradient(#8ad64f24 1px,transparent 1px);background-size:19px 19px;mask-image:linear-gradient(transparent,#000)}
+:root.skin-cyberpunk .theme-art::after{background:repeating-linear-gradient(90deg,transparent 0 60px,#f7ec5410 61px 62px),repeating-linear-gradient(0deg,transparent 0 60px,#48f0e710 61px 62px)}
+:root.skin-neon-cyber .theme-art::after{background:linear-gradient(180deg,transparent 60%,#ff76df13),repeating-linear-gradient(0deg,transparent 0 35px,#28f0ff18 36px 37px)}
+:root.skin-xbox360 .theme-art::before{background:radial-gradient(ellipse at 8% 15%,#83df5b2a,transparent 40%)}
