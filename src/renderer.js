@@ -118,10 +118,11 @@ Object.assign(themePresets,{
   n64:{bg:'#101b32',side:'#18294a',panel:'#24385e',line:'#4c6d9d',accent:'#ffcc65',text:'#eff5ff',skin:'retro'},
   metroid:{bg:'#071c1c',side:'#0c2e2c',panel:'#13413e',line:'#2e8179',accent:'#ff8c54',text:'#eafffc',skin:'metroid'},
   firewatch:{bg:'#2b1714',side:'#44231b',panel:'#593025',line:'#a85a3b',accent:'#ffbd70',text:'#fff0db',skin:'firewatch'},
-  nightCity:{bg:'#0b0d1c',side:'#15182b',panel:'#202440',line:'#5552a0',accent:'#ff65c3',text:'#f9f1ff',skin:'neon-cyber'}
+  nightCity:{bg:'#0b0d1c',side:'#15182b',panel:'#202440',line:'#5552a0',accent:'#ff65c3',text:'#f9f1ff',skin:'neon-cyber'},
+  abyssal:{bg:'#03151f',side:'#062432',panel:'#0a3444',line:'#176579',accent:'#4df5d1',text:'#e5fffb',skin:'abyssal'},prismCore:{bg:'#100d24',side:'#1b1740',panel:'#27205a',line:'#5549a0',accent:'#8af7ff',text:'#f4f2ff',skin:'prism-core'},bloodMoon:{bg:'#19070f',side:'#2b0b19',panel:'#401024',line:'#802744',accent:'#ff456d',text:'#fff0f3',skin:'blood-moon'},dreamGarden:{bg:'#101b25',side:'#172b36',panel:'#213d49',line:'#3f776f',accent:'#a4ffd6',text:'#f0fff8',skin:'dream-garden'},voidSignal:{bg:'#070713',side:'#111126',panel:'#1c1c38',line:'#45457c',accent:'#c5a2ff',text:'#f6f1ff',skin:'void-signal'},goldenArchive:{bg:'#20180b',side:'#332713',panel:'#49371b',line:'#8c6a2f',accent:'#ffe09a',text:'#fff7e5',skin:'golden-archive'}
 });
 const themeCatalog=[
-['system','System Default','System'],['crystaliumDark','Crystalium Dark','System'],['crystaliumLight','Crystalium Light','Light'],['minecraftNight','Minecraft · Moonlit Overworld','Gaming'],['undertaleGold','Undertale · Golden Soul','Gaming'],['ps2Silver','PlayStation 2 · Silver Orb','Gaming'],['ps3Violet','PlayStation 3 · Violet Wave','Gaming'],['dreamcast','Dreamcast · Orange Swirl','Retro'],['gba','Game Boy Advance','Retro'],['n64','Nintendo 64','Retro'],['metroid','Metroid · Phazon Depths','Gaming'],['firewatch','Firewatch · Painted Sunset','Aesthetic'],['nightCity','Night City · Neon Rain','Sci-Fi'],
+['system','System Default','System'],['crystaliumDark','Crystalium Dark','System'],['crystaliumLight','Crystalium Light','Light'],['minecraftNight','Minecraft · Moonlit Overworld','Gaming'],['undertaleGold','Undertale · Golden Soul','Gaming'],['ps2Silver','PlayStation 2 · Silver Orb','Gaming'],['ps3Violet','PlayStation 3 · Violet Wave','Gaming'],['dreamcast','Dreamcast · Orange Swirl','Retro'],['gba','Game Boy Advance','Retro'],['n64','Nintendo 64','Retro'],['metroid','Metroid · Phazon Depths','Gaming'],['firewatch','Firewatch · Painted Sunset','Aesthetic'],['nightCity','Night City · Neon Rain','Sci-Fi'],['abyssal','Abyssal Observatory · Deep Sea','Aesthetic'],['prismCore','Prism Core · Refracted Glass','Sci-Fi'],['bloodMoon','Blood Moon Citadel · Eclipse','Lore'],['dreamGarden','Dream Garden · Bioluminescence','Aesthetic'],['voidSignal','Void Signal · Cosmic Static','Sci-Fi'],['goldenArchive','Golden Archive · Ancient Relic','Lore'],
 ['majora','Majora’s Mask · Dawn of the Final Day','Gaming'],
 ['undertale','Undertale · Soul of Determination','Gaming'],['hollowKnight','Hollow Knight · Hallownest','Gaming'],['zelda','The Legend of Zelda · Hyrule','Gaming'],['sonic','Sonic · Blue Blur','Gaming'],['pokemon','Pokémon · Kanto','Gaming'],['stardew','Stardew Valley · Pelican Town','Gaming'],['terraria','Terraria · World of Wonder','Gaming'],['celeste','Celeste · Mountain Lights','Gaming'],['portal','Portal · Aperture Science','Gaming'],['skyrim','Skyrim · Nordic Ruins','Gaming'],['kingdomHearts','Kingdom Hearts II · Dearly Beloved','Gaming'],['gamecube','Nintendo GameCube','Gaming'],['ps5','PlayStation 5 · DualSense Glass','Gaming'],['xbox360','Xbox 360 · Blades','Gaming'],['ps2','PlayStation 2','Gaming'],['ps3','PlayStation 3','Gaming'],['minecraft','Never Dig Straight Down · Minecraft','Gaming'],['gameboy','Handheld Pixel','Gaming'],['retro','Retro Arcade','Gaming'],['mgrr','Rules of Nature · Metal Gear Rising','Gaming'],
 ['deltarune','DELTARUNE: Dark World','Lore'],['cardCastle','Card Castle','Lore'],['cyberCity','Cyber City','Lore'],['roaringKnight','Black Knight · Roaring Knight','Lore'],['titan','Titan · Chapter 4','Lore'],['gerson','Gerson · Hammer of Justice','Lore'],['darkFountain','Dark Fountain','Lore'],['queenCyber','Queen’s Cyber World','Lore'],
@@ -229,7 +230,7 @@ const themeCanvas=document.createElement('canvas');themeCanvas.className='theme-
 let themeFrame=0,themeLast=0,themeParticles=[],themeCtx=themeCanvas.getContext('2d');
 function resizeThemeCanvas(){const dpr=Math.min(window.devicePixelRatio||1,1.5),r=startPage.getBoundingClientRect();themeCanvas.width=Math.max(1,Math.floor(r.width*dpr));themeCanvas.height=Math.max(1,Math.floor(r.height*dpr));themeCanvas.style.width=r.width+'px';themeCanvas.style.height=r.height+'px';themeCtx?.setTransform(dpr,0,0,dpr,0,0);themeParticles=[];}
 function paletteForTheme(id){
- const palettes={matrix:['#39ff75','#8cffad'],sakura:['#ff9fc8','#ffc5df'],sakuraDay:['#ba6689','#e0a0b6'],majora:['#e9a85f','#c17cff'],kingdomHearts:['#b5e5ff','#7ebeff'],gamecube:['#a98bff','#7657c5'],ps5:['#67baff','#b4ddff'],xbox360:['#83df5b','#b5f58a'],darkFountain:['#b94cff','#6f6cff'],solar:['#ffb04d','#ff6a3d'],oceanic:['#53c8ff','#9eeaff'],aurora:['#7fffd4','#a58cff'],vapor:['#ff76df','#28f0ff'],synthwave:['#ffb36b','#28f0ff'],ps2:['#77baff','#9d8cff'],ps3:['#52d6ff','#b69aff'],undertale:['#e8f0ff','#ff405c'],hollowKnight:['#8fc8ff','#c6d8ff'],zelda:['#d8c36b','#8fe3a0'],sonic:['#4bb7ff','#ffdf55'],pokemon:['#ffcb62','#ff6b6b'],stardew:['#e8c879','#8fcf8b'],terraria:['#8fe3a0','#54c8ff'],celeste:['#ff9cbe','#8edcff'],portal:['#ff9b5e','#65cfff'],skyrim:['#c6c5a2','#8fa8a5']};
+ const palettes={abyssal:['#4df5d1','#2085c7'],prismCore:['#8af7ff','#c5a2ff'],bloodMoon:['#ff456d','#8b183c'],dreamGarden:['#a4ffd6','#8b9dff'],voidSignal:['#c5a2ff','#ff5fc8'],goldenArchive:['#ffe09a','#bd8741'],matrix:['#39ff75','#8cffad'],sakura:['#ff9fc8','#ffc5df'],sakuraDay:['#ba6689','#e0a0b6'],majora:['#e9a85f','#c17cff'],kingdomHearts:['#b5e5ff','#7ebeff'],gamecube:['#a98bff','#7657c5'],ps5:['#67baff','#b4ddff'],xbox360:['#83df5b','#b5f58a'],darkFountain:['#b94cff','#6f6cff'],solar:['#ffb04d','#ff6a3d'],oceanic:['#53c8ff','#9eeaff'],aurora:['#7fffd4','#a58cff'],vapor:['#ff76df','#28f0ff'],synthwave:['#ffb36b','#28f0ff'],ps2:['#77baff','#9d8cff'],ps3:['#52d6ff','#b69aff'],undertale:['#e8f0ff','#ff405c'],hollowKnight:['#8fc8ff','#c6d8ff'],zelda:['#d8c36b','#8fe3a0'],sonic:['#4bb7ff','#ffdf55'],pokemon:['#ffcb62','#ff6b6b'],stardew:['#e8c879','#8fcf8b'],terraria:['#8fe3a0','#54c8ff'],celeste:['#ff9cbe','#8edcff'],portal:['#ff9b5e','#65cfff'],skyrim:['#c6c5a2','#8fa8a5']};
  return palettes[id]||(['crystaliumLight','sakuraDay','warmPaper','lavenderSoft','arcticSoft','slateStudio','amberGlow','xp','paper','arctic','lavender','sakuraLite'].includes(id)?['#788ca4','#b09aaa']:['#54bdff','#9ce8ff']);
 }
 
@@ -313,6 +314,7 @@ function drawThemeFrame(now){
  const id=theme.preset==='system'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'crystaliumDark':'crystaliumLight'):theme.preset;
  const light=['crystaliumLight','sakuraDay','warmPaper','lavenderSoft','arcticSoft','slateStudio','amberGlow','xp','paper','arctic','lavender','sakuraLite'].includes(id);
  const palettes={
+  abyssal:['#4df5d1','#2085c7'],prismCore:['#8af7ff','#c5a2ff'],bloodMoon:['#ff456d','#8b183c'],dreamGarden:['#a4ffd6','#8b9dff'],voidSignal:['#c5a2ff','#ff5fc8'],goldenArchive:['#ffe09a','#bd8741'],
   undertale:['#e8f0ff','#ff405c'],hollowKnight:['#8fc8ff','#c6d8ff'],zelda:['#d8c36b','#8fe3a0'],sonic:['#4bb7ff','#ffdf55'],pokemon:['#ffcb62','#ff6b6b'],stardew:['#e8c879','#8fcf8b'],terraria:['#8fe3a0','#54c8ff'],celeste:['#ff9cbe','#8edcff'],portal:['#ff9b5e','#65cfff'],skyrim:['#c6c5a2','#8fa8a5'],
   matrix:['#39ff75','#8cffad'],sakura:['#ff9fc8','#ffc5df'],sakuraDay:['#ba6689','#e0a0b6'],majora:['#e9a85f','#c17cff'],kingdomHearts:['#b5e5ff','#7ebeff'],gamecube:['#a98bff','#7657c5'],ps5:['#67baff','#b4ddff'],xbox360:['#83df5b','#b5f58a'],darkFountain:['#b94cff','#6f6cff'],solar:['#ffb04d','#ff6a3d'],oceanic:['#53c8ff','#9eeaff'],aurora:['#7fffd4','#a58cff'],vapor:['#ff76df','#28f0ff'],synthwave:['#ffb36b','#28f0ff'],ps2:['#77baff','#9d8cff'],ps3:['#52d6ff','#b69aff']
  };
@@ -323,7 +325,7 @@ function drawThemeFrame(now){
  const glow=themeCtx.createRadialGradient(w*.72,h*.24,1,w*.72,h*.24,Math.max(80,Math.min(w,h)*.55));
  glow.addColorStop(0,colors[0]+(light?'20':'32'));glow.addColorStop(1,colors[0]+'00');
  themeCtx.fillStyle=glow;themeCtx.fillRect(0,0,w,h);
- if(['sonic','cyberpunk','cyberCity','mgrr'].includes(id)){
+ if(['voidSignal','sonic','cyberpunk','cyberCity','mgrr'].includes(id)){
    themeCtx.globalAlpha=.3;themeCtx.lineWidth=2;
    for(let i=0;i<24;i++){const y=((i*47+now*.12)%(h+100))-50;themeCtx.strokeStyle=i%3?colors[0]:colors[1];themeCtx.beginPath();themeCtx.moveTo((Math.sin(i*7)*.5+.5)*w,y);themeCtx.lineTo(Math.min(w,(Math.sin(i*7)*.5+.5)*w+45+(i%5)*24),y-3);themeCtx.stroke();}
  } else if(['celeste','hollowKnight','skyrim','arctic','arcticSoft'].includes(id)){
@@ -346,14 +348,14 @@ function drawThemeFrame(now){
  } else if(['portal','gamecube'].includes(id)){
    themeCtx.globalAlpha=.28;themeCtx.lineWidth=3;
    for(let i=0;i<4;i++){const rx=45+i*34+Math.sin(now*.0006+i)*8;themeCtx.beginPath();themeCtx.ellipse(w*.78,h*.55,rx,rx*1.45,now*.00012*(i%2?1:-1),0,Math.PI*2);themeCtx.strokeStyle=i%2?colors[0]:colors[1];themeCtx.stroke();}
- } else if(['zelda','stardew','pokemon','undertale','deltarune','kingdomHearts','majora'].includes(id)){
+ } else if(['abyssal','dreamGarden','goldenArchive','prismCore','bloodMoon','zelda','stardew','pokemon','undertale','deltarune','kingdomHearts','majora'].includes(id)){
    // Floating magical motes and constellation links.
    const points=[];for(let i=0;i<12;i++){const x=w*(.12+((i*37)%83)/100)+Math.sin(now*.0003+i)*12;const y=h*(.14+((i*29)%72)/100)+Math.cos(now*.00025+i*1.7)*10;points.push([x,y]);}
    themeCtx.globalAlpha=.18;themeCtx.strokeStyle=colors[0];themeCtx.lineWidth=1;
    for(let i=0;i<points.length-1;i+=2){themeCtx.beginPath();themeCtx.moveTo(...points[i]);themeCtx.lineTo(...points[i+1]);themeCtx.stroke();}
    themeCtx.globalAlpha=.72;
-   for(let i=0;i<points.length;i++){const [x,y]=points[i],radius=2.2+1.5*(.5+.5*Math.sin(now*.002+i));themeCtx.fillStyle=i%3===0?colors[1]:colors[0];themeCtx.beginPath();themeCtx.arc(x,y,radius,0,Math.PI*2);themeCtx.fill();if(id==='undertale'&&i===0){themeCtx.fillStyle='#ff405c';themeCtx.fillRect(x-3,y-5,6,10);themeCtx.fillRect(x-5,y-3,10,6);}}
- } else if(['sakura','sakuraDay'].includes(id)){
+   for(let i=0;i<points.length;i++){const [x,y]=points[i],radius=2.2+1.5*(.5+.5*Math.sin(now*.002+i));themeCtx.fillStyle=i%3===0?colors[1]:colors[0];themeCtx.beginPath();themeCtx.arc(x,y,radius,0,Math.PI*2);themeCtx.fill();if(id==='abyssal'){themeCtx.globalAlpha=.24;themeCtx.strokeStyle=colors[0];themeCtx.beginPath();themeCtx.arc(x,y,12+radius*2,0,Math.PI*2);themeCtx.stroke();}if(id==='goldenArchive'){themeCtx.globalAlpha=.65;themeCtx.fillRect(x-1,y-1,2,2);}if(id==='bloodMoon'&&i===0){themeCtx.fillStyle='#ff456d';themeCtx.beginPath();themeCtx.arc(x,y,9,0,Math.PI*2);themeCtx.fill();}if(id==='undertale'&&i===0){themeCtx.fillStyle='#ff405c';themeCtx.fillRect(x-3,y-5,6,10);themeCtx.fillRect(x-5,y-3,10,6);}}
+ } else if(['sakura','sakuraDay','dreamGarden'].includes(id)){
    themeCtx.globalAlpha=.22;themeCtx.fillStyle=colors[0];for(let i=0;i<18;i++){const x=(i*97+Math.sin(now*.0002+i)*35)%w,y=(i*67+now*.018)%(h+30);themeCtx.save();themeCtx.translate(x,y);themeCtx.rotate(now*.0003+i);themeCtx.beginPath();themeCtx.ellipse(0,0,4,2,0,0,Math.PI*2);themeCtx.fill();themeCtx.restore();}
  } else {
    // Aurora-like ribbons for all remaining palettes.
@@ -361,7 +363,7 @@ function drawThemeFrame(now){
    for(let ribbon=0;ribbon<6;ribbon++){themeCtx.beginPath();for(let x=0;x<=w;x+=10){const y=h*(.22+ribbon*.105)+Math.sin(x*.006+now*.00035+ribbon)*18+Math.sin(x*.002-now*.0002)*15;if(x===0)themeCtx.moveTo(x,y);else themeCtx.lineTo(x,y);}themeCtx.strokeStyle=ribbon%2?colors[0]:colors[1];themeCtx.stroke();}
  }
  themeCtx.restore();
- const count=id==='matrix'?70:['sakura','sakuraDay'].includes(id)?42:['pokemon','zelda','stardew','undertale'].includes(id)?32:24;
+ const count=['abyssal','dreamGarden'].includes(id)?52:id==='voidSignal'?64:id==='matrix'?70:['sakura','sakuraDay'].includes(id)?42:['pokemon','zelda','stardew','undertale'].includes(id)?32:24;
  if(themeParticles.length!==count)themeParticles=Array.from({length:count},()=>({x:Math.random()*w,y:Math.random()*h,r:1+Math.random()*2.4,v:.18+Math.random()*.7,phase:Math.random()*Math.PI*2,kind:Math.random()}));
 
  // Distinct animated scenes for game presets (not just a shared ring overlay).
@@ -474,6 +476,8 @@ function render(next) {
   startPage.style.display = home ? 'block' : 'none';
   pageBounds.style.display = home ? 'none' : 'block';
   if (tab && tab.url && !tab.url.startsWith('about:')) address.value = tab.url;
+  document.documentElement.classList.toggle('private-mode',!!tab?.incognito);
+  const privateBadge=$('privateModeBadge'); if(privateBadge) privateBadge.hidden=!tab?.incognito;
   else address.value = '';
   $('back').disabled = !tab?.canGoBack;
   $('forward').disabled = !tab?.canGoForward;
@@ -552,12 +556,16 @@ function showPanel(name) {
   if (name === 'music') renderMusic();
   else if (name === 'tools') {
     addPanelText('Quick controls for the active page. Keyboard shortcuts also work while browsing.');
+    addPanelCard('Private browsing / Incognito','Open an isolated temporary tab that is not saved to history or session restore.',()=>{api.newIncognitoTab();toast('Private tab opened.');});
     addPanelCard('Toggle fullscreen (F11)','Hide or restore the browser bars. Press Escape to leave fullscreen.',()=>api.windowAction('toggle-fullscreen'));
     addPanelCard('Developer tools (F12)','Inspect the active page and diagnose site issues.',()=>api.windowAction('devtools'));
     addPanelCard('Zoom in (Ctrl + +)','Make the active website easier to read.',()=>api.windowAction('zoom-in'));
     addPanelCard('Zoom out (Ctrl + −)','Fit more of the active website on screen.',()=>api.windowAction('zoom-out'));
     addPanelCard('Reset zoom (Ctrl + 0)','Return the active website to 100%.',()=>api.windowAction('zoom-reset'));
     addPanelCard('Reload page (F5)','Reload the current tab.',()=>api.reload());
+    addPanelCard('Find on page (Ctrl + F)','Search text in the active website.',async()=>{const query=window.prompt('Find text on this page:');if(query){const result=await api.findInPage(query);toast(result?.ok?'Searching page…':(result?.message||'Find is unavailable.'));}});
+    addPanelCard('Print page','Open the system print dialog for the active website.',async()=>{const result=await api.printPage();toast(result?.ok?'Print dialog opened.':(result?.message||'Could not print this page.'));});
+    addPanelCard('Save page as PDF','Export the current website to a PDF file.',async()=>{const result=await api.savePagePdf();toast(result?.ok?'PDF saved.':(result?.message||'PDF export cancelled.'));});
     addPanelCard('Picture-in-Picture','Pop supported video into a floating mini-player.',async()=>{const result=await api.pictureInPicture();if(result?.ok)toast('Picture-in-Picture opened.');else toast(result?.message||'This page has no video available for Picture-in-Picture.');});
   }
   else if (name === 'bookmarks') {
