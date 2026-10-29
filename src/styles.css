@@ -300,3 +300,12 @@ button,input,select,textarea{font-family:var(--font-ui,'DM Sans',sans-serif)}
 :root.skin-cyberpunk .theme-art::after{background:repeating-linear-gradient(90deg,transparent 0 60px,#f7ec5410 61px 62px),repeating-linear-gradient(0deg,transparent 0 60px,#48f0e710 61px 62px)}
 :root.skin-neon-cyber .theme-art::after{background:linear-gradient(180deg,transparent 60%,#ff76df13),repeating-linear-gradient(0deg,transparent 0 35px,#28f0ff18 36px 37px)}
 :root.skin-xbox360 .theme-art::before{background:radial-gradient(ellipse at 8% 15%,#83df5b2a,transparent 40%)}
+
+/* Make animated theme art reliably visible above the home backdrop. */
+.start-page{position:relative;isolation:isolate;overflow:hidden}
+.start-page>.theme-art{position:absolute;inset:0;z-index:0;opacity:1;pointer-events:none}
+.start-page>.theme-art>.theme-canvas{position:absolute;inset:0;z-index:1;display:block;opacity:1}
+.start-page>.start-content{position:relative;z-index:2}
+.start-page>.ambient{z-index:0}
+#pictureInPicture{font-size:15px;line-height:1;color:var(--text);border-color:var(--theme-border);background:color-mix(in srgb,var(--panel) 88%,transparent)}
+#pictureInPicture:hover{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 15%,transparent)}
