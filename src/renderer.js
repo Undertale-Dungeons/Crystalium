@@ -223,6 +223,36 @@ function drawThemeFrame(now){
  themeCtx.restore();
  const count=id==='matrix'?70:['sakura','sakuraDay'].includes(id)?42:['pokemon','zelda','stardew','undertale'].includes(id)?32:24;
  if(themeParticles.length!==count)themeParticles=Array.from({length:count},()=>({x:Math.random()*w,y:Math.random()*h,r:1+Math.random()*2.4,v:.18+Math.random()*.7,phase:Math.random()*Math.PI*2,kind:Math.random()}));
+
+ // Distinct animated scenes for game presets (not just a shared ring overlay).
+ themeCtx.save();
+ if(id==='undertale'){
+   themeCtx.globalAlpha=.45;
+   for(let i=0;i<70;i++){const x=((i*97.13)%w),y=((i*53.7)%Math.max(1,h));const tw=.35+.65*(.5+.5*Math.sin(now*.002+i));themeCtx.globalAlpha=tw*.55;themeCtx.fillStyle=i%7===0?'#ff405c':'#e8f0ff';themeCtx.fillRect(x,y,i%7===0?2.5:1.3,i%7===0?2.5:1.3);}
+   const hx=w*.76,hy=h*(.22+Math.sin(now*.001)*.018),hs=7+Math.sin(now*.004)*1.8;themeCtx.globalAlpha=.82;themeCtx.fillStyle='#ff405c';themeCtx.beginPath();themeCtx.moveTo(hx,hy+hs);themeCtx.bezierCurveTo(hx-hs*2,hy-hs*.2,hx-hs,hy-hs*1.7,hx,hy-hs*.55);themeCtx.bezierCurveTo(hx+hs,hy-hs*1.7,hx+hs*2,hy-hs*.2,hx,hy+hs);themeCtx.fill();
+ } else if(id==='hollowKnight'){
+   themeCtx.globalAlpha=.15;themeCtx.fillStyle='#8fc8ff';for(let i=0;i<9;i++){const x=(i/8)*w+Math.sin(now*.0002+i)*24;themeCtx.beginPath();themeCtx.moveTo(x-18,0);themeCtx.lineTo(x+12,0);themeCtx.lineTo(x+Math.sin(now*.0004+i)*34,h*.72);themeCtx.lineTo(x-35,h*.72);themeCtx.closePath();themeCtx.fill();}
+   themeCtx.globalAlpha=.65;for(let i=0;i<22;i++){const x=(i*137.7+Math.sin(now*.0004+i)*28)%w,y=(h-((now*.018+i*43)%(h+20)));themeCtx.beginPath();themeCtx.arc(x,y,1.2+(i%3),0,Math.PI*2);themeCtx.fillStyle=i%2?'#c6d8ff':'#8fc8ff';themeCtx.fill();}
+ } else if(id==='skyrim'){
+   themeCtx.globalAlpha=.6;themeCtx.fillStyle='#e6f0f1';for(let i=0;i<110;i++){const x=(i*71.9+Math.sin(now*.0005+i)*22+now*.012*(i%3+1))%w;const y=(i*47.3+now*(.012+(i%5)*.006))%h;themeCtx.beginPath();themeCtx.arc(x,y,.7+(i%3)*.45,0,Math.PI*2);themeCtx.fill();}
+   themeCtx.globalAlpha=.12;themeCtx.strokeStyle='#c6c5a2';themeCtx.lineWidth=1;for(let i=0;i<5;i++){const y=h*.28+i*18+Math.sin(now*.0003+i)*5;themeCtx.beginPath();themeCtx.moveTo(0,y);themeCtx.lineTo(w*.42,y+18);themeCtx.lineTo(w*.8,y-12);themeCtx.lineTo(w,y+4);themeCtx.stroke();}
+ } else if(id==='minecraft'||id==='terraria'){
+   const block=24;themeCtx.globalAlpha=.24;for(let i=0;i<48;i++){const x=((i*83+now*(i%3+1)*.008)%(w+block))-block;const y=(i*61)%(h*.88);const sz=8+(i%3)*5;themeCtx.fillStyle=['#8ad64f','#4f9b58','#b6d77c','#54c8ff'][i%4];themeCtx.fillRect(x,y,sz,sz);themeCtx.globalAlpha=.4;themeCtx.fillRect(x,y,sz,2);themeCtx.globalAlpha=.24;}
+ } else if(id==='zelda'){
+   themeCtx.globalAlpha=.24;for(let i=0;i<15;i++){const x=(i*109+Math.sin(now*.0003+i)*20)%w,y=(i*73+Math.cos(now*.0004+i)*15)%h;const s=4+(i%3)*2;themeCtx.strokeStyle=i%2?'#d8c36b':'#8fe3a0';themeCtx.beginPath();themeCtx.moveTo(x,y-s);themeCtx.lineTo(x+s,y+s);themeCtx.lineTo(x-s,y+s);themeCtx.closePath();themeCtx.stroke();}
+   const gx=((now*.035)%(w+240))-120;const grad=themeCtx.createLinearGradient(gx,0,gx+180,h);grad.addColorStop(0,'#d8c36b00');grad.addColorStop(.5,'#d8c36b12');grad.addColorStop(1,'#d8c36b00');themeCtx.fillStyle=grad;themeCtx.fillRect(0,0,w,h);
+ } else if(id==='sonic'){
+   themeCtx.globalAlpha=.28;themeCtx.lineWidth=2;for(let i=0;i<24;i++){const y=(i*37+now*.11)%(h+40)-20;const x=(i*131+now*.22)%(w+180)-180;themeCtx.strokeStyle=i%4===0?'#ffdf55':'#4bb7ff';themeCtx.beginPath();themeCtx.moveTo(x,y);themeCtx.lineTo(x+38+(i%5)*15,y-5);themeCtx.stroke();}
+ } else if(id==='pokemon'){
+   themeCtx.globalAlpha=.27;for(let i=0;i<7;i++){const x=w*(.18+i*.105),y=h*(.2+(i%3)*.19),rad=7+(i%3)*3;themeCtx.strokeStyle=i%2?'#ffcb62':'#ff6b6b';themeCtx.lineWidth=1.4;themeCtx.beginPath();themeCtx.arc(x+Math.sin(now*.0005+i)*12,y+Math.cos(now*.0007+i)*10,rad,0,Math.PI*2);themeCtx.moveTo(x-rad,y);themeCtx.lineTo(x+rad,y);themeCtx.stroke();themeCtx.beginPath();themeCtx.arc(x,y,2,0,Math.PI*2);themeCtx.fillStyle='#ffcb62';themeCtx.fill();}
+ } else if(id==='stardew'){
+   for(let i=0;i<28;i++){const x=(i*89+Math.sin(now*.00025+i)*25)%w,y=h*.25+(i*47)%(h*.65)+Math.sin(now*.001+i)*6;const a=.3+.7*(.5+.5*Math.sin(now*.002+i));themeCtx.globalAlpha=a*.5;themeCtx.fillStyle=i%2?'#e8c879':'#8fcf8b';themeCtx.beginPath();themeCtx.arc(x,y,1.5+(i%3),0,Math.PI*2);themeCtx.fill();}
+ } else if(id==='celeste'){
+   themeCtx.globalAlpha=.25;themeCtx.strokeStyle='#8edcff';themeCtx.lineWidth=2;themeCtx.beginPath();for(let x=0;x<=w;x+=8){const y=h*.68-Math.abs(Math.sin(x*.006+now*.00018))*h*.27+Math.sin(x*.017)*9;if(x===0)themeCtx.moveTo(x,y);else themeCtx.lineTo(x,y);}themeCtx.stroke();for(let i=0;i<18;i++){const x=(i*97+now*.014)%w,y=h*.15+(i*59)%(h*.5);themeCtx.fillStyle=i%2?'#ff9cbe':'#8edcff';themeCtx.globalAlpha=.25+.3*(.5+.5*Math.sin(now*.002+i));themeCtx.fillRect(x,y,2,2);}
+ } else if(id==='portal'){
+   themeCtx.globalAlpha=.45;for(let i=0;i<2;i++){const x=w*(i?.78:.22),y=h*(.33+Math.sin(now*.0006+i)*.025),rx=30+Math.sin(now*.001+i)*4;themeCtx.strokeStyle=i?'#ff9b5e':'#65cfff';themeCtx.lineWidth=3;themeCtx.beginPath();themeCtx.ellipse(x,y,rx,rx*1.55,Math.sin(now*.0003+i)*.12,0,Math.PI*2);themeCtx.stroke();themeCtx.globalAlpha=.12;themeCtx.beginPath();themeCtx.ellipse(x,y,rx*1.35,rx*1.9,0,0,Math.PI*2);themeCtx.stroke();themeCtx.globalAlpha=.45;}
+ }
+ themeCtx.restore();
  for(const p of themeParticles){
    const falling=['sakura','sakuraDay','celeste','hollowKnight','skyrim'].includes(id);
    p.y+=(id==='matrix'?p.v*2:falling?p.v*.75:p.v*.18);p.x+=Math.sin(now*.0003+p.phase)*(falling ? 0.6 : 0.25);
