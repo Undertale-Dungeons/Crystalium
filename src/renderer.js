@@ -138,7 +138,16 @@ function applyTheme(next){
   hollowKnight:'https://www.nintendo.com/eu/media/images/10_share_images/games_15/wiiu_download_software_5/H2x1_WiiUDS_HollowKnight_image1600w.jpg',
   stardew:'https://media.springernature.com/lw1200/springer-static/image/art%3A10.1007%2Fs10460-020-10121-w/MediaObjects/10460_2020_10121_Fig1_HTML.jpg'
  };
- const art=themeArt[next.preset];
+ const art=themeArt[next.preset] || ({
+   dreamcast:themeArt.ps2,gamecube:themeArt.ps2,n64:themeArt.ps2,ps5:themeArt.ps3,xbox360:themeArt.ps3,
+   gameboy:themeArt.minecraft,gba:themeArt.minecraft,retro:themeArt.minecraft,sonic:themeArt.minecraft,pokemon:themeArt.minecraft,terraria:themeArt.minecraft,
+   deltarune:themeArt.undertale,cardCastle:themeArt.undertale,cyberCity:themeArt.ps3,roaringKnight:themeArt.majora,titan:themeArt.majora,gerson:themeArt.majora,darkFountain:themeArt.undertale,queenCyber:themeArt.ps3,
+   metroid:themeArt.hollowKnight,celeste:themeArt.hollowKnight,portal:themeArt.ps3,kingdomHearts:themeArt.majora,skyrim:themeArt.majora,mgrr:themeArt.ps3,
+   cyberpunk:themeArt.ps3,matrix:themeArt.ps3,neonCyber:themeArt.ps3,terminal:themeArt.ps3,vapor:themeArt.ps3,synthwave:themeArt.ps3,solar:themeArt.ps3,nightCity:themeArt.ps3,
+   lofi:themeArt.stardew,sakura:themeArt.stardew,aurora:themeArt.stardew,sunset:themeArt.stardew,oceanic:themeArt.stardew,copper:themeArt.stardew,firewatch:themeArt.stardew,
+   sakuraDay:themeArt.stardew,warmPaper:themeArt.stardew,lavenderSoft:themeArt.stardew,arcticSoft:themeArt.ps3,slateStudio:themeArt.ps3,amberGlow:themeArt.stardew,
+   forest:themeArt.stardew,rose:themeArt.stardew,violet:themeArt.ps3,ember:themeArt.majora,mono:themeArt.ps2,ocean:themeArt.stardew,crimson:themeArt.undertale,paper:themeArt.stardew,arctic:themeArt.ps3,lavender:themeArt.stardew,sakuraLite:themeArt.stardew,amber:themeArt.stardew,xp:themeArt.ps2
+ })[next.preset];
  root.style.setProperty('--theme-art',art?'url("'+art+'")':'none');
  for(const [key,value] of Object.entries({ '--bg':p.bg,'--side':p.side,'--panel':p.panel,'--line':p.line,'--blue':next.accent||p.accent,'--cyan':next.accent||p.accent,'--text':p.text,'--accent':next.accent||p.accent,'--muted':p.text+'aa','--panel-soft':p.panel,'--theme-border':p.line,'--theme-bg':p.bg})) root.style.setProperty(key,value);
  root.classList.remove(...Array.from(root.classList).filter(c=>c.startsWith('theme-')||c.startsWith('skin-')));
@@ -627,8 +636,9 @@ function addPanelCard(title, subtitle, action) {
 }
 function renderMusic() {
   const soundtrackThemes={minecraft:'Minecraft soundtrack',minecraftNight:'Minecraft ambient music',undertale:'Undertale official soundtrack',undertaleGold:'Undertale soundtrack',deltarune:'DELTARUNE soundtrack',ps2:'PlayStation 2 startup and menu music',ps2Silver:'PlayStation 2 startup ambience',ps3:'PlayStation 3 XMB music',ps3Violet:'PlayStation 3 menu ambience',majora:'The Legend of Zelda Majora’s Mask soundtrack',zelda:'The Legend of Zelda soundtrack',sonic:'Sonic the Hedgehog soundtrack',pokemon:'Pokémon game soundtrack',stardew:'Stardew Valley soundtrack',terraria:'Terraria soundtrack',hollowKnight:'Hollow Knight soundtrack',celeste:'Celeste soundtrack',portal:'Portal soundtrack',kingdomHearts:'Kingdom Hearts soundtrack',mgrr:'Metal Gear Rising soundtrack',gamecube:'Nintendo GameCube menu music',dreamcast:'Sega Dreamcast startup music',metroid:'Metroid ambient soundtrack',firewatch:'Firewatch soundtrack',nightCity:'Cyberpunk neon ambient music',gba:'Game Boy Advance game music',n64:'Nintendo 64 menu music'};
-  const soundtrackQuery=soundtrackThemes[theme.preset];
-  if(soundtrackQuery){addPanelText('Soundtrack for the '+theme.preset+' theme:');addPanelCard('Search YouTube · '+soundtrackQuery,'Opens YouTube results. Pick a video there, then paste its URL below to play it in this panel.',()=>api.newTab('https://www.youtube.com/results?search_query='+encodeURIComponent(soundtrackQuery+' official')));}
+  const catalogEntry=themeCatalog.find(item=>item[0]===theme.preset);
+  const soundtrackQuery=soundtrackThemes[theme.preset] || ((catalogEntry?.[1]||theme.preset).replace(/[·:]/g,' ').trim()+' theme ambience soundtrack');
+  if(soundtrackQuery){addPanelText('Soundtrack and ambience for '+(catalogEntry?.[1]||theme.preset)+':');addPanelCard('Search YouTube · '+soundtrackQuery,'Browse results, then paste a video URL into the player below. Each theme has its own search query.',()=>api.newTab('https://www.youtube.com/results?search_query='+encodeURIComponent(soundtrackQuery+' official ambience')));}
   const ytWrap=document.createElement('div');ytWrap.className='youtube-ambience';
   const ytLabel=document.createElement('label');ytLabel.textContent='Play a YouTube ambience/video here';
   const ytRow=document.createElement('div');ytRow.className='youtube-ambience-row';
