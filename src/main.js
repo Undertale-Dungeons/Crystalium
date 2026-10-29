@@ -118,7 +118,7 @@ function createWindow() {
   const notifyPageVisibility = visible => {
     for (const tab of tabs) {
       if (tab.view.webContents.isDestroyed()) continue;
-      tab.view.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('crystalium-visibility', {detail:{visible:${visible}}})); if(!${visible}) document.querySelectorAll('video').forEach(v=>{if(!v.paused)v.pause();});`).catch(()=>{});
+      tab.view.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('crystalium-visibility', {detail:{visible:${visible}}}));`).catch(()=>{});
     }
   };
   win.on('minimize', () => notifyPageVisibility(false));
