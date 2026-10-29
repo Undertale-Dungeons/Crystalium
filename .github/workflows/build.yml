@@ -35,8 +35,3 @@ jobs:
           name: Crystalium-Windows-Installer
           path: release/*.exe
           if-no-files-found: error
-      - name: Publish installer on tagged release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: release/*.exe
