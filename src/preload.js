@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('crystalium', {
   layout: rect => ipcRenderer.invoke('browser:layout', rect),
   newTab: url => ipcRenderer.invoke('browser:new-tab', url),
+  newIncognitoTab: url => ipcRenderer.invoke('browser:new-incognito-tab', url),
   activateTab: id => ipcRenderer.invoke('browser:activate', id),
   closeTab: id => ipcRenderer.invoke('browser:close-tab', id),
   navigate: url => ipcRenderer.invoke('browser:navigate', url),
