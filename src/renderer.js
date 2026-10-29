@@ -132,7 +132,11 @@ function applyTheme(next){
   majora:'https://www.zeldadungeon.net/wp-content/uploads/2025/02/majoras-mask-original-art-crop.png',
   zelda:'https://www.zeldadungeon.net/wp-content/uploads/2025/02/majoras-mask-original-art-crop.png',
   ps2:'https://www.copetti.org/images/consoles/ps2/bios/game_splash.f251c2bbc47957aaa37328f26590eee36c7cc48aca5f484b712aee77bf2bbfad.jpg',
-  ps2Silver:'https://www.copetti.org/images/consoles/ps2/bios/game_splash.f251c2bbc47957aaa37328f26590eee36c7cc48aca5f484b712aee77bf2bbfad.jpg'
+  ps2Silver:'https://www.copetti.org/images/consoles/ps2/bios/game_splash.f251c2bbc47957aaa37328f26590eee36c7cc48aca5f484b712aee77bf2bbfad.jpg',
+  ps3:'https://wallpaperset.com/w/full/5/8/c/73320.jpg',
+  ps3Violet:'https://wallpaperset.com/w/full/5/8/c/73320.jpg',
+  hollowKnight:'https://www.nintendo.com/eu/media/images/10_share_images/games_15/wiiu_download_software_5/H2x1_WiiUDS_HollowKnight_image1600w.jpg',
+  stardew:'https://media.springernature.com/lw1200/springer-static/image/art%3A10.1007%2Fs10460-020-10121-w/MediaObjects/10460_2020_10121_Fig1_HTML.jpg'
  };
  const art=themeArt[next.preset];
  root.style.setProperty('--theme-art',art?'url("'+art+'")':'none');
@@ -226,7 +230,20 @@ function homeMusicPattern(){
   mgrr:{notes:[0,7,3,10,12,10,3,7],base:110,wave:'sawtooth',duration:.7},
   sakura:{notes:[0,4,7,11,7,4,2,7],base:196,wave:'sine',duration:1.65},
   gamecube:{notes:[0,7,12,19,14,7,12,5],base:220,wave:'sine',duration:1.45},
-  kingdomHearts:{notes:[0,5,9,12,16,12,9,5],base:196,wave:'sine',duration:1.6}
+  kingdomHearts:{notes:[0,5,9,12,16,12,9,5],base:196,wave:'sine',duration:1.6},
+  minecraftNight:{notes:[0,7,12,16,12,7,4,2],base:110,wave:'sine',duration:2.35},
+  undertaleGold:{notes:[0,3,7,10,14,10,7,5],base:207.65,wave:'triangle',duration:1.15},
+  ps2Silver:{notes:[0,5,12,17,19,12,7,2],base:130.81,wave:'sine',duration:2.0},
+  ps3Violet:{notes:[0,7,14,19,21,14,9,5],base:233.08,wave:'sine',duration:1.55},
+  dreamcast:{notes:[0,4,7,12,16,12,7,4],base:164.81,wave:'sine',duration:1.5},
+  gba:{notes:[0,7,12,7,4,9,12,4],base:220,wave:'square',duration:.8},
+  n64:{notes:[0,5,12,17,12,9,5,2],base:174.61,wave:'triangle',duration:1.35},
+  metroid:{notes:[0,2,7,9,12,9,7,2],base:110,wave:'sine',duration:2.0},
+  firewatch:{notes:[0,4,7,11,9,7,4,2],base:146.83,wave:'triangle',duration:1.8},
+  nightCity:{notes:[0,3,7,10,15,10,7,3],base:138.59,wave:'sawtooth',duration:1.0},
+  hollowKnight:{notes:[0,5,9,12,16,12,9,5],base:130.81,wave:'sine',duration:2.0},
+  ps2Silver:{notes:[0,5,12,17,12,7,2,5],base:130.81,wave:'sine',duration:2.0},
+  ps3Violet:{notes:[0,7,14,19,14,9,12,5],base:220,wave:'sine',duration:1.55}
  };
  return patterns[id]||{notes:[0,5,9,12,9,5,7,2],base:174.61,wave:'triangle',duration:1.35};
 }
