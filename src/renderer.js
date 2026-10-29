@@ -66,11 +66,43 @@ titan:{bg:'#050509',side:'#101015',panel:'#191920',line:'#41414a',accent:'#f5f5f
 gerson:{bg:'#102019',side:'#1b3026',panel:'#294437',line:'#54745d',accent:'#e5c36a',text:'#f2f8e9'},
 darkFountain:{bg:'#090514',side:'#170b27',panel:'#24113a',line:'#54276f',accent:'#b94cff',text:'#f7eaff'},
 queenCyber:{bg:'#071a24',side:'#0d2b3b',panel:'#143c50',line:'#277d98',accent:'#ff4fd8',text:'#edfbff'}};
+/* Expanded theme registry: warm, low-glare light palettes and dedicated visual themes. */
+Object.assign(themePresets,{
+ system:{bg:'#101722',side:'#192330',panel:'#222d3a',line:'#46576b',accent:'#70c9ef',text:'#e6e2da'},
+ crystaliumDark:{bg:'#060d19',side:'#081629',panel:'#0b1a2c',line:'#1c3652',accent:'#54bdff',text:'#edf5ff'},
+ crystaliumLight:{bg:'#f5efe6',side:'#e9dfd2',panel:'#e3d8c9',line:'#c5b8a5',accent:'#527b99',text:'#2d3748',skin:'light'},
+ majora:{bg:'#100f25',side:'#19172f',panel:'#24213d',line:'#51456c',accent:'#c17cff',text:'#f0eaff',skin:'majora'},
+ kingdomHearts:{bg:'#06182f',side:'#0a2545',panel:'#102f52',line:'#2c5c83',accent:'#79caff',text:'#eaf6ff',skin:'kingdom-hearts'},
+ gamecube:{bg:'#241a40',side:'#302253',panel:'#3b2b61',line:'#66508e',accent:'#a98bff',text:'#f2ecff',skin:'gamecube'},
+ ps5:{bg:'#090d17',side:'#111a2a',panel:'#172337',line:'#2c4d77',accent:'#67baff',text:'#eaf3ff',skin:'ps5'},
+ xbox360:{bg:'#10160f',side:'#1b2519',panel:'#252f22',line:'#3d5938',accent:'#83df5b',text:'#f0f8eb',skin:'xbox360'},
+ mgrr:{bg:'#100609',side:'#1e0b12',panel:'#2a111b',line:'#6c183b',accent:'#ff315d',text:'#fff0f4',skin:'mgrr'},
+ neonCyber:{bg:'#100923',side:'#1b1034',panel:'#281648',line:'#6b3b9c',accent:'#ff76df',text:'#f9eaff',skin:'neon-cyber'},
+ sakuraDay:{bg:'#fbf0f2',side:'#f3e3e6',panel:'#ead9de',line:'#d7b9c2',accent:'#b65e82',text:'#49343d',skin:'sakura-day'},
+ warmPaper:{bg:'#f5efe6',side:'#e9dfd0',panel:'#e2d5c3',line:'#c6b39c',accent:'#8c6d58',text:'#493b31',skin:'warm-paper'},
+ lavenderSoft:{bg:'#f0edf9',side:'#e4def1',panel:'#dcd5eb',line:'#c1b6dc',accent:'#7462a8',text:'#39324d',skin:'lavender-light'},
+ arcticSoft:{bg:'#e5e9f0',side:'#d8dfe8',panel:'#cfd8e3',line:'#aebbc9',accent:'#4d7898',text:'#344252',skin:'arctic-light'},
+ slateStudio:{bg:'#d8dee9',side:'#cbd3df',panel:'#c0cad7',line:'#a5b1c1',accent:'#536b86',text:'#303b4a',skin:'slate-studio'},
+ amberGlow:{bg:'#f2e5c6',side:'#e8d8b2',panel:'#decca0',line:'#c3ad77',accent:'#94702e',text:'#4b3c24',skin:'amber-light'}
+});
+const themeCatalog=[
+['system','System Default','System'],['crystaliumDark','Crystalium Dark','System'],['crystaliumLight','Crystalium Light','Light'],
+['majora','Majora’s Mask · Dawn of the Final Day','Gaming'],['kingdomHearts','Kingdom Hearts II · Dearly Beloved','Gaming'],['gamecube','Nintendo GameCube','Gaming'],['ps5','PlayStation 5 · DualSense Glass','Gaming'],['xbox360','Xbox 360 · Blades','Gaming'],['ps2','PlayStation 2','Gaming'],['ps3','PlayStation 3','Gaming'],['minecraft','Never Dig Straight Down · Minecraft','Gaming'],['gameboy','Handheld Pixel','Gaming'],['retro','Retro Arcade','Gaming'],['mgrr','Rules of Nature · Metal Gear Rising','Gaming'],
+['deltarune','DELTARUNE: Dark World','Lore'],['cardCastle','Card Castle','Lore'],['cyberCity','Cyber City','Lore'],['roaringKnight','Black Knight · Roaring Knight','Lore'],['titan','Titan · Chapter 4','Lore'],['gerson','Gerson · Hammer of Justice','Lore'],['darkFountain','Dark Fountain','Lore'],['queenCyber','Queen’s Cyber World','Lore'],
+['cyberpunk','Cyberpunk','Sci-Fi'],['matrix','Matrix Green','Sci-Fi'],['neonCyber','Neon Cyber','Sci-Fi'],['terminal','Terminal Green','Sci-Fi'],['vapor','Vaporwave','Sci-Fi'],['synthwave','Synthwave','Sci-Fi'],['solar','Solar Flare','Sci-Fi'],
+['lofi','Lo-fi Mint','Aesthetic'],['sakura','Sakura Night','Aesthetic'],['aurora','Aurora Borealis','Aesthetic'],['sunset','Sunset Lounge','Aesthetic'],['oceanic','Deep Ocean','Aesthetic'],['copper','Copper Atelier','Aesthetic'],
+['sakuraDay','Sakura Day','Light'],['warmPaper','Warm Paper','Light'],['lavenderSoft','Lavender Light','Light'],['arcticSoft','Arctic Glass','Light'],['slateStudio','Slate Studio','Light'],['amberGlow','Amber Glow','Light'],
+['xp','Windows XP','Retro'],['forest','Forest','Aesthetic'],['rose','Rose','Aesthetic'],['violet','Violet','Aesthetic'],['ember','Ember','Aesthetic'],['mono','Monochrome','Retro'],['ocean','Ocean','Aesthetic'],['crimson','Crimson Night','Lore'],['paper','Parchment','Light'],['arctic','Arctic Glass · Classic','Light'],['lavender','Lavender Light · Classic','Light'],['sakuraLite','Sakura Day · Classic','Light'],['amber','Amber Glow · Classic','Light']
+];
+
 function applyTheme(next){
- const root=document.documentElement,p=themePresets[next.preset]||themePresets.midnight;
+ const root=document.documentElement;
+ if(next.preset==='system'){const dark=window.matchMedia?.('(prefers-color-scheme: dark)').matches??true;next={...next,preset:dark?'crystaliumDark':'crystaliumLight'};root.dataset.systemTheme=dark?'dark':'light';}else delete root.dataset.systemTheme;
+ const p=themePresets[next.preset]||themePresets.midnight;
  for(const [key,value] of Object.entries({ '--bg':p.bg,'--side':p.side,'--panel':p.panel,'--line':p.line,'--blue':next.accent||p.accent,'--cyan':next.accent||p.accent,'--text':p.text,'--accent':next.accent||p.accent,'--muted':p.text+'aa','--panel-soft':p.panel,'--theme-border':p.line,'--theme-bg':p.bg})) root.style.setProperty(key,value);
- root.classList.remove(...Object.keys(themePresets).map(id=>'theme-'+id),'skin-ps2','skin-ps3','skin-minecraft','skin-dmc','skin-cyberpunk','skin-retro','skin-gameboy');
+ root.classList.remove(...Array.from(root.classList).filter(c=>c.startsWith('theme-')||c.startsWith('skin-')));
  root.classList.add('theme-'+next.preset); if(p.skin)root.classList.add('skin-'+p.skin);
+ if(next.preset==='system'&&!window.__crystaliumSystemThemeListener){window.__crystaliumSystemThemeListener=true;window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(theme.preset==='system')applyTheme(theme);});}
  const fonts={ps2:'Tahoma, Verdana, sans-serif',ps3:'Arial, Helvetica, sans-serif',minecraft:'Verdana, Geneva, sans-serif',dmc:'Georgia, serif',gameboy:'monospace',retro:'monospace',cyberpunk:'Orbitron, sans-serif',deltarune:'Georgia, serif',cardCastle:'Georgia, serif',cyberCity:'Arial, sans-serif',blackKnight:'Georgia, serif',roaringKnight:'Georgia, serif',titan:'Arial, sans-serif',gerson:'Georgia, serif',metalGear:'Arial, sans-serif',mgrr:'Impact, sans-serif',terminal:'monospace',matrix:'monospace',paper:'Georgia, serif',xp:'Tahoma, Verdana, sans-serif',synthwave:'Arial, sans-serif'};
  const font=fonts[next.preset]||"'DM Sans',sans-serif";root.style.setProperty('--font-ui',font);root.style.setProperty('--font-display',fonts[next.preset]||"'Manrope',sans-serif");
 }
@@ -218,7 +250,7 @@ function showPanel(name) {
     const transfer=document.createElement('button');transfer.className='panel-card';transfer.style.width='100%';transfer.textContent='Import Chrome data…';transfer.onclick=async()=>{transfer.disabled=true;transfer.textContent='Choose Chrome data files…';try{const result=await api.chromeTransfer();if(result?.canceled){toast('Import cancelled.');return;}if(!result?.ok){toast('Could not import those files.');return;}let added=0;for(const b of result.bookmarks||[]){if(!bookmarks.some(old=>old.url===b.url)){bookmarks.push(b);added++;}}save('bookmarks',bookmarks);api.updateSaved({bookmarks});toast('Imported '+added+' bookmarks and '+(result.cookies||0)+' cookies.');}catch{toast('Chrome import failed.');}finally{transfer.disabled=false;transfer.textContent='Import Chrome data…';}};$('panelBody').append(transfer);
     section('Appearance');
     const importBox=document.createElement('div');importBox.className='panel-card';const importLabel=document.createElement('label');importLabel.textContent='Import a downloaded theme (.json)';importLabel.className='file-button';const importInput=document.createElement('input');importInput.type='file';importInput.accept='.json,application/json';importInput.hidden=true;importInput.onchange=async()=>{try{const parsed=JSON.parse(await importInput.files[0].text());if(!parsed||!themePresets[parsed.preset]|| (parsed.accent&&!/^#[0-9a-f]{6}$/i.test(parsed.accent)))throw new Error('Invalid theme');theme.preset=parsed.preset;theme.accent=parsed.accent||themePresets[parsed.preset].accent;save('theme',theme);api.updateSaved({theme});applyTheme(theme);showPanel('settings');toast('Theme imported.');}catch{toast('That theme file is not valid.');}};importLabel.append(importInput);importBox.append(importLabel);$('panelBody').append(importBox);
-    const presets=[['midnight','Midnight'],['ocean','Ocean'],['violet','Violet'],['ember','Ember'],['xp','Windows XP'],['forest','Forest'],['rose','Rose'],['mono','Monochrome'],['ps2','PlayStation 2'],['ps3','PlayStation 3'],['minecraft','Minecraft'],['dmc','Devil May Cry'],['cyberpunk','Neon Cyber'],['retro','Retro Arcade'],['gameboy','Handheld Pixel'],['lofi','Lo-fi Mint'],['solar','Solar Flare'],['arctic','Arctic Glass'],['sakura','Sakura Night'],['matrix','Matrix Green'],['vapor','Vaporwave'],['copper','Copper Atelier'],['terminal','Terminal Green'],['lavender','Lavender Light'],['crimson','Crimson Night'],['synthwave','Synthwave'],['paper','Warm Paper'],['aurora','Aurora Borealis'],['sunset','Sunset Lounge'],['slate','Slate Studio'],['sakuraLite','Sakura Day'],['amber','Amber Glow'],['oceanic','Deep Ocean'],['deltarune','DELTARUNE Dark World'],['cardCastle','Card Castle'],['cyberCity','Cyber City'],['blackKnight','Black Knight'],['roaringKnight','Roaring Knight'],['titan','Titan (Chapter 4)'],['gerson','Gerson / Hammer of Justice'],['darkFountain','Dark Fountain'],['queenCyber','Queen’s Cyber World']];
+    const presets=[...new Map(themeCatalog.map(([id,label,category])=>[id,[id,label,category]])).values()];
     presets.forEach(([id,label])=>{const b=document.createElement('button');b.className='theme-option';b.innerHTML='<span class="theme-swatch '+id+'"></span><span>'+label+'</span><small>Complete UI skin</small>';b.onclick=()=>{theme.preset=id;theme.accent=themePresets[id]?.accent||'#54bdff';save('theme',theme);api.updateSaved({theme});applyTheme(theme);showPanel('settings');toast(label+' theme applied.');};$('panelBody').append(b);});
     const colorBox=document.createElement('div');colorBox.className='panel-card';
     const colorLabel=document.createElement('label');colorLabel.className='color-setting';colorLabel.textContent='UI accent color';
