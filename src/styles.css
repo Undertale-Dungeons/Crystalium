@@ -263,3 +263,30 @@ button,input,select,textarea{font-family:var(--font-ui,'DM Sans',sans-serif)}
 :root.hide-chrome .page-bounds,
 :root.hide-chrome .start-page { left: 0 !important; }
 :root.hide-chrome .side-panel { visibility: hidden !important; }
+
+/* Canvas-backed theme backgrounds, muted light surfaces, and animated signature motifs. */
+.theme-art{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;opacity:.95}
+.theme-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+.theme-art::before,.theme-art::after{content:"";position:absolute;inset:0;pointer-events:none}
+.theme-art::before{background:radial-gradient(ellipse at 75% 15%,color-mix(in srgb,var(--accent) 14%,transparent),transparent 48%);animation:theme-ambient 18s ease-in-out infinite alternate}
+.theme-art::after{opacity:.1;background:repeating-linear-gradient(0deg,transparent 0 5px,color-mix(in srgb,var(--accent) 10%,transparent) 6px 7px);mix-blend-mode:screen}
+@keyframes theme-ambient{from{transform:translate3d(-2%,0,0) scale(1)}to{transform:translate3d(2%,1%,0) scale(1.08)}}
+.theme-option{grid-template-columns:30px minmax(0,1fr) auto;gap:10px}
+.theme-option .theme-option-details{display:block;min-width:0}
+.theme-option .theme-option-details strong{display:block;font-size:11px;line-height:1.35}
+.theme-option .theme-option-details small{display:block;margin-top:3px;font-size:9px;color:var(--muted)}
+.theme-option.selected{border-color:var(--accent);box-shadow:inset 3px 0 var(--accent)}
+:root.theme-crystaliumLight,:root.theme-sakuraDay,:root.theme-warmPaper,:root.theme-lavenderSoft,:root.theme-arcticSoft,:root.theme-slateStudio,:root.theme-amberGlow,:root.theme-xp,:root.theme-paper,:root.theme-arctic,:root.theme-lavender,:root.theme-sakuraLite{color-scheme:light}
+:root.theme-crystaliumLight .start-page,:root.theme-sakuraDay .start-page,:root.theme-warmPaper .start-page,:root.theme-lavenderSoft .start-page,:root.theme-arcticSoft .start-page,:root.theme-slateStudio .start-page,:root.theme-amberGlow .start-page{background:linear-gradient(145deg,var(--theme-bg),var(--side))}
+:root.skin-majora .theme-art::after{background:repeating-conic-gradient(from 0deg at 80% 18%,transparent 0 12deg,color-mix(in srgb,var(--accent) 18%,transparent) 13deg 14deg,transparent 15deg 30deg);mask-image:radial-gradient(circle at 80% 18%,#000,transparent 38%)}
+:root.skin-kingdom-hearts .theme-art::before{background:repeating-linear-gradient(115deg,transparent 0 50px,#b5e5ff0c 70px,transparent 100px),radial-gradient(ellipse at 50% 100%,#237ab333,transparent 60%)}
+:root.skin-gamecube .theme-art::after{inset:18% 12%;border:1px solid #a98bff40;transform:rotate(45deg);box-shadow:0 0 45px #7657c522}
+:root.skin-ps5 .theme-art::after{background:radial-gradient(ellipse at 20% 20%,#247aff18,transparent 40%),repeating-linear-gradient(135deg,transparent 0 80px,#67baff12 81px 82px)}
+:root.skin-xbox360 .theme-art::after{background:repeating-radial-gradient(ellipse at 0% 0%,transparent 0 75px,#83df5b18 77px 79px,transparent 82px 130px)}
+:root.skin-sakura-day .theme-art::after{background-image:radial-gradient(#b65e8225 1px,transparent 1px);background-size:13px 13px;mask-image:linear-gradient(transparent,#000)}
+:root.skin-warm-paper .theme-art::after,:root.skin-light .theme-art::after{opacity:.06;background:repeating-linear-gradient(0deg,#8c6d5810 0 1px,transparent 1px 5px);mix-blend-mode:multiply}
+:root.skin-lavender-light .theme-art::before{background:radial-gradient(ellipse at 75% 12%,#a58cff30,transparent 50%)}
+:root.skin-arctic-light .theme-art::before{background:radial-gradient(ellipse at 75% 12%,#8eb6d526,transparent 48%)}
+:root.skin-slate-studio .theme-art::after{background:linear-gradient(135deg,transparent 45%,#536b8610 45% 46%,transparent 46%)}
+:root.skin-amber-light .theme-art::before{background:radial-gradient(ellipse at 80% 10%,#c79a3a30,transparent 52%)}
+@media(prefers-reduced-motion:reduce){.theme-art::before{animation:none!important}}
