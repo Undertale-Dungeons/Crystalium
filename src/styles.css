@@ -455,3 +455,18 @@ button,input,select,textarea{font-family:var(--font-ui,'DM Sans',sans-serif)}
 @media(max-width:520px){.theme-color-grid,.theme-gradient-grid{grid-template-columns:1fr}}
 
 .update-controls{display:grid;gap:8px}.update-controls strong{font-size:13px}.update-controls .panel-copy{margin:0;line-height:1.5;overflow-wrap:anywhere}.update-controls button:disabled{opacity:.65;cursor:wait}
+
+/* Make private browsing discoverable and unmistakable. */
+.private-toolbar-button{width:auto!important;padding:0 10px!important;white-space:nowrap;font-size:11px!important;font-weight:800;letter-spacing:.2px;border-color:#7654a8!important;color:#d9bdff!important;background:linear-gradient(135deg,#211637,#11162a)!important}
+.private-toolbar-button:hover{border-color:#b68cff!important;box-shadow:0 0 14px #9b6cff30}
+.incognito-rail{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;height:45px!important;color:#d0b0ff!important;border-color:#463264!important;background:#171127!important;font-size:17px!important}
+.incognito-rail span{font-size:8px;font-weight:800;letter-spacing:.2px}
+.private-mode-badge{padding:4px 7px;border-radius:6px;background:#35204d;border:1px solid #8d60bb;color:#ead9ff;font-size:9px;font-weight:900;letter-spacing:1px;white-space:nowrap}
+.private-mode-badge[hidden]{display:none}
+.private-mode .private-toolbar-button{background:linear-gradient(135deg,#5a367f,#2c1a45)!important;box-shadow:0 0 12px #b18bff25}
+.theme-abyssal .start-page{background:radial-gradient(ellipse at 78% 38%,#0c6570 0,transparent 28%),linear-gradient(180deg,#03151f,#061d36)!important}
+.theme-prismCore .start-page{background:conic-gradient(from 210deg at 78% 35%,#1a1640,#27346b,#144958,#1a1640)!important}
+.theme-bloodMoon .start-page{background:radial-gradient(circle at 78% 24%,#a32143 0, #421329 12%,transparent 38%),linear-gradient(145deg,#19070f,#09060c)!important}
+.theme-dreamGarden .start-page{background:radial-gradient(ellipse at 75% 35%,#285c5a 0,transparent 35%),linear-gradient(145deg,#101b25,#17202f)!important}
+.theme-voidSignal .start-page{background:radial-gradient(ellipse at 80% 22%,#49306f 0,transparent 32%),repeating-linear-gradient(0deg,#070713 0 3px,#0b0b1d 4px 5px)!important}
+.theme-goldenArchive .start-page{background:radial-gradient(ellipse at 78% 24%,#72501e 0,transparent 34%),linear-gradient(145deg,#20180b,#0f0c08)!important}
