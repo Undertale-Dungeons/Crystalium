@@ -11,7 +11,7 @@ const load = (k,d) => { try { return JSON.parse(localStorage.getItem('crystalium
 const save = (k,v) => localStorage.setItem('crystalium.'+k,JSON.stringify(v));
 const bookmarks = load('bookmarks', []);
 const historyItems = load('history', []);
-const settings = { blockTrackers:true, warnInsecure:true, restoreTabs:true, reduceMotion:false, showShortcuts:true, showMusicControls:true, confirmCloseTabs:false, treeEggEnabled:true, showTabDots:true, compactTabs:false, showAddressIcon:true, gameEggs:true, showFeatureCards:true, ...load('settings', {}) };
+const settings = { blockTrackers:true, warnInsecure:true, restoreTabs:true, reduceMotion:false, showShortcuts:true, showMusicControls:true, confirmCloseTabs:false, treeEggEnabled:true, showTabDots:true, compactTabs:false, showAddressIcon:true, gameEggs:true, showFeatureCards:true, ...load('settings', {}), ...(load('treeEggEnabled', null) === null ? {} : {treeEggEnabled:load('treeEggEnabled', true)}) };
 const shortcuts = load('shortcuts', []);
 const theme = load('theme', {accent:'#54bdff', preset:'midnight'});
 const voiceStyle = load('voiceStyle','normal');
@@ -148,12 +148,25 @@ function render(next) {
 api.onState(render);
 api.onError(message => toast(message));
 api.getState().then(render);
+// Rehydrate preferences from the durable main-process state file as well as localStorage.
+api.getSavedState().then(saved => {
+  if (saved?.settings && typeof saved.settings === 'object') {
+    Object.assign(settings, saved.settings);
+    save('settings', settings);
+    applySettings();
+  }
+}).catch(() => {});
 applyLanguage(uiLanguage);
 applySettings();
 const languageObserver=new MutationObserver(records=>{if(records.some(r=>r.addedNodes.length))applyLanguage(uiLanguage);});
 languageObserver.observe(document.body,{childList:true,subtree:true});
 api.onNotice(message => toast(message));
 window.addEventListener('resize', updateLayout);
+api.onFullscreen(active => {
+  window.__crystaliumFullscreen = !!active;
+  document.documentElement.classList.toggle('hide-chrome', !!active);
+  requestAnimationFrame(updateLayout);
+});
 $('newTab').onclick = () => api.newTab();
 $('back').onclick = () => api.back();
 $('forward').onclick = () => api.forward();
@@ -256,8 +269,27 @@ function applySettings(){
   document.documentElement.classList.toggle('hide-tab-dots',settings.showTabDots===false);
   document.documentElement.classList.toggle('hide-address-icon',settings.showAddressIcon===false);
   $('musicToggle').style.display=settings.showMusicControls===false?'none':'';
+  document.documentElement.classList.toggle('hide-chrome', !!window.__crystaliumFullscreen);
 }
-function addToggle(label,key,description) { const box=document.createElement('div'); box.className='panel-card'; const row=document.createElement('label'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.gap='8px'; const name=document.createElement('strong'); name.textContent=label; const input=document.createElement('input'); input.type='checkbox'; input.checked=!!settings[key]; input.onchange=()=>{settings[key]=input.checked;save('settings',settings);api.updateSaved({settings});if(key==='reduceMotion')document.documentElement.classList.toggle('reduce-motion',input.checked);if(key==='showShortcuts')document.documentElement.classList.toggle('hide-shortcuts',!input.checked);applySettings();toast('Setting saved.');}; row.append(name,input); const small=document.createElement('small'); small.textContent=description; box.append(row,small); $('panelBody').append(box); }
+function addToggle(label,key,description) {
+  const box=document.createElement('div'); box.className='panel-card';
+  const row=document.createElement('label'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.gap='8px';
+  const name=document.createElement('strong'); name.textContent=label;
+  const input=document.createElement('input'); input.type='checkbox'; input.checked=!!settings[key];
+  input.onchange=async()=>{
+    settings[key]=input.checked;
+    save('settings',settings);
+    if(key==='treeEggEnabled') save('treeEggEnabled',input.checked);
+    if(key==='reduceMotion') document.documentElement.classList.toggle('reduce-motion',input.checked);
+    if(key==='showShortcuts') document.documentElement.classList.toggle('hide-shortcuts',!input.checked);
+    applySettings();
+    try { await api.updateSaved({settings}); toast('Setting saved.'); }
+    catch { toast('Saved locally; device settings sync failed.'); }
+  };
+  row.append(name,input);
+  const small=document.createElement('small'); small.textContent=description;
+  box.append(row,small); $('panelBody').append(box);
+}
 function addPanelText(text) { const p = document.createElement('p'); p.className = 'panel-copy'; p.textContent = text; $('panelBody').append(p); }
 function addPanelCard(title, subtitle, action) {
   const card = document.createElement('button'); card.className = 'panel-card'; card.style.width = '100%'; card.style.textAlign = 'left';
