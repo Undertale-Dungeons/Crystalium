@@ -231,7 +231,7 @@ ipcMain.handle('browser:saved-update', (_e, patch) => {
   const file = path.join(app.getPath('userData'), 'crystalium-state.json');
   let data = {};
   try { data = JSON.parse(fs.readFileSync(file, 'utf8')); } catch {}
-  for (const key of ['tabs', 'bookmarks', 'history', 'shortcuts', 'settings']) if (patch && patch[key] !== undefined) data[key] = patch[key];
+  for (const key of ['tabs', 'bookmarks', 'history', 'shortcuts', 'settings', 'theme', 'themeCategory']) if (patch && patch[key] !== undefined) data[key] = patch[key];
   if (patch?.settings && typeof patch.settings.blockTrackers === 'boolean') blockTrackers = patch.settings.blockTrackers;
   try { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, JSON.stringify(data, null, 2)); } catch {}
   return data;
