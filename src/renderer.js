@@ -124,6 +124,18 @@ function applyTheme(next){
  const root=document.documentElement;const systemMode=next.preset==='system';
  if(systemMode){const dark=window.matchMedia?.('(prefers-color-scheme: dark)').matches??true;next={...next,preset:dark?'crystaliumDark':'crystaliumLight'};root.dataset.systemTheme=dark?'dark':'light';}else delete root.dataset.systemTheme;
  const p=themePresets[next.preset]||themePresets.midnight;
+ const themeArt={
+  minecraft:'https://techraptor.net/sites/default/files/2022-12/Minecraft%20End%20Poem%20Public%20Domain%20Main.jpg',
+  minecraftNight:'https://techraptor.net/sites/default/files/2022-12/Minecraft%20End%20Poem%20Public%20Domain%20Main.jpg',
+  undertale:'https://storymuseum.s3-assets.com/_1023x682_crop_center-center_80_none/1001_Undertale.png',
+  undertaleGold:'https://storymuseum.s3-assets.com/_1023x682_crop_center-center_80_none/1001_Undertale.png',
+  majora:'https://www.zeldadungeon.net/wp-content/uploads/2025/02/majoras-mask-original-art-crop.png',
+  zelda:'https://www.zeldadungeon.net/wp-content/uploads/2025/02/majoras-mask-original-art-crop.png',
+  ps2:'https://www.copetti.org/images/consoles/ps2/bios/game_splash.f251c2bbc47957aaa37328f26590eee36c7cc48aca5f484b712aee77bf2bbfad.jpg',
+  ps2Silver:'https://www.copetti.org/images/consoles/ps2/bios/game_splash.f251c2bbc47957aaa37328f26590eee36c7cc48aca5f484b712aee77bf2bbfad.jpg'
+ };
+ const art=themeArt[next.preset];
+ root.style.setProperty('--theme-art',art?'url("'+art+'")':'none');
  for(const [key,value] of Object.entries({ '--bg':p.bg,'--side':p.side,'--panel':p.panel,'--line':p.line,'--blue':next.accent||p.accent,'--cyan':next.accent||p.accent,'--text':p.text,'--accent':next.accent||p.accent,'--muted':p.text+'aa','--panel-soft':p.panel,'--theme-border':p.line,'--theme-bg':p.bg})) root.style.setProperty(key,value);
  root.classList.remove(...Array.from(root.classList).filter(c=>c.startsWith('theme-')||c.startsWith('skin-')));
  root.classList.add('theme-'+next.preset); if(p.skin)root.classList.add('skin-'+p.skin);
@@ -597,9 +609,18 @@ function addPanelCard(title, subtitle, action) {
   card.append(strong, small); if (action) card.onclick = action; $('panelBody').append(card);
 }
 function renderMusic() {
-  const soundtrackThemes={minecraft:'Minecraft soundtrack',undertale:'Undertale official soundtrack',deltarune:'DELTARUNE soundtrack',ps2:'PlayStation 2 startup and menu music',ps3:'PlayStation 3 XMB music',majora:'The Legend of Zelda Majora’s Mask soundtrack',zelda:'The Legend of Zelda soundtrack',sonic:'Sonic the Hedgehog soundtrack',pokemon:'Pokémon game soundtrack',stardew:'Stardew Valley soundtrack',terraria:'Terraria soundtrack',hollowKnight:'Hollow Knight soundtrack',celeste:'Celeste soundtrack',portal:'Portal soundtrack',kingdomHearts:'Kingdom Hearts soundtrack',mgrr:'Metal Gear Rising soundtrack'};
+  const soundtrackThemes={minecraft:'Minecraft soundtrack',minecraftNight:'Minecraft ambient music',undertale:'Undertale official soundtrack',undertaleGold:'Undertale soundtrack',deltarune:'DELTARUNE soundtrack',ps2:'PlayStation 2 startup and menu music',ps2Silver:'PlayStation 2 startup ambience',ps3:'PlayStation 3 XMB music',ps3Violet:'PlayStation 3 menu ambience',majora:'The Legend of Zelda Majora’s Mask soundtrack',zelda:'The Legend of Zelda soundtrack',sonic:'Sonic the Hedgehog soundtrack',pokemon:'Pokémon game soundtrack',stardew:'Stardew Valley soundtrack',terraria:'Terraria soundtrack',hollowKnight:'Hollow Knight soundtrack',celeste:'Celeste soundtrack',portal:'Portal soundtrack',kingdomHearts:'Kingdom Hearts soundtrack',mgrr:'Metal Gear Rising soundtrack',gamecube:'Nintendo GameCube menu music',dreamcast:'Sega Dreamcast startup music',metroid:'Metroid ambient soundtrack',firewatch:'Firewatch soundtrack',nightCity:'Cyberpunk neon ambient music',gba:'Game Boy Advance game music',n64:'Nintendo 64 menu music'};
   const soundtrackQuery=soundtrackThemes[theme.preset];
-  if(soundtrackQuery){addPanelText('For the '+theme.preset+' theme, explore the soundtrack here:');addPanelCard('Find '+soundtrackQuery,'Opens a YouTube search in a new tab; playback and rights stay with the source.',()=>api.newTab('https://www.youtube.com/results?search_query='+encodeURIComponent(soundtrackQuery+' official soundtrack')));}
+  if(soundtrackQuery){addPanelText('Soundtrack for the '+theme.preset+' theme:');addPanelCard('Search YouTube · '+soundtrackQuery,'Opens YouTube results. Pick a video there, then paste its URL below to play it in this panel.',()=>api.newTab('https://www.youtube.com/results?search_query='+encodeURIComponent(soundtrackQuery+' official')));}
+  const ytWrap=document.createElement('div');ytWrap.className='youtube-ambience';
+  const ytLabel=document.createElement('label');ytLabel.textContent='Play a YouTube ambience/video here';
+  const ytRow=document.createElement('div');ytRow.className='youtube-ambience-row';
+  const ytInput=document.createElement('input');ytInput.type='url';ytInput.placeholder='Paste a YouTube video URL';ytInput.setAttribute('aria-label','YouTube video URL');
+  const ytButton=document.createElement('button');ytButton.textContent='Load';
+  const ytFrame=document.createElement('iframe');ytFrame.title='YouTube ambience player';ytFrame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';ytFrame.allowFullscreen=true;ytFrame.referrerPolicy='strict-origin-when-cross-origin';ytFrame.hidden=true;
+  const loadYoutube=()=>{let videoId='';try{const u=new URL(ytInput.value.trim());if(u.hostname==='youtu.be')videoId=u.pathname.split('/').filter(Boolean)[0]||'';else if(/(^|\\.)youtube\\.com$/.test(u.hostname)){videoId=u.searchParams.get('v')||((u.pathname.match(/\\/(?:embed|shorts)\\/([^/?]+)/)||[])[1]||'');}}catch{}if(!/^[a-zA-Z0-9_-]{11}$/.test(videoId)){toast('Paste a valid YouTube video URL.');return;}ytFrame.src='https://www.youtube-nocookie.com/embed/'+videoId+'?autoplay=1&playsinline=1';ytFrame.hidden=false;};
+  ytButton.onclick=loadYoutube;ytInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();loadYoutube();}});
+  ytRow.append(ytInput,ytButton);ytWrap.append(ytLabel,ytRow,ytFrame);$('panelBody').append(ytWrap);
   addPanelText('Music source hub: save music websites here, open them in tabs, and control audio on the active tab. Crystalium does not copy or extract protected streams; playback depends on each site’s own player and permissions.');
   const active=currentTab();
   if(active?.url && /^https?:/i.test(active.url)) addPanelCard('＋ Save active website as a music source',active.title||active.url,()=>{
