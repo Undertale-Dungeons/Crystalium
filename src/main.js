@@ -162,6 +162,26 @@ ipcMain.handle('browser:media-control', async (_e, action) => {
     return await t.view.webContents.executeJavaScript(script, true);
   } catch { return {ok:false}; }
 });
+ipcMain.handle('browser:picture-in-picture', async () => {
+  const t = activeTab();
+  if (!t || t.view.webContents.isDestroyed()) return { ok:false, message:'Open a page with a video first.' };
+  try {
+    const result = await t.view.webContents.executeJavaScript(`(async()=>{
+      const videos=[...document.querySelectorAll('video')].filter(v=>v.readyState>=1 && v.videoWidth>0 && v.videoHeight>0);
+      const video=videos.find(v=>!v.paused && !v.ended) || videos[0];
+      if(!video) return {ok:false,message:'No video is available on this page.'};
+      if(!document.pictureInPictureEnabled || !video.requestPictureInPicture) return {ok:false,message:'This page does not support Picture-in-Picture.'};
+      try { if(document.pictureInPictureElement===video) await document.exitPictureInPicture(); else await video.requestPictureInPicture(); return {ok:true}; }
+      catch(e) { return {ok:false,message:e && e.message ? 'Picture-in-Picture was blocked: '+e.message : 'The page blocked Picture-in-Picture. Try the video player’s own PiP control.'}; }
+    })()`, true);
+    if (result && !result.ok && win && !win.isDestroyed()) win.webContents.send('browser:notice', result.message);
+    return result;
+  } catch (e) {
+    const result={ok:false,message:'Could not open Picture-in-Picture for this page.'};
+    if(win&&!win.isDestroyed())win.webContents.send('browser:notice',result.message);
+    return result;
+  }
+});
 ipcMain.handle('browser:external', (_e, url) => {
   try { const parsed = new URL(url); if (['https:', 'http:'].includes(parsed.protocol)) shell.openExternal(parsed.toString()); } catch {}
 });
