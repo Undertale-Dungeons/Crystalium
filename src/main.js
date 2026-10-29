@@ -202,6 +202,23 @@ ipcMain.handle('browser:media-control', async (_e, action) => {
     return await t.view.webContents.executeJavaScript(script, true);
   } catch { return {ok:false}; }
 });
+ipcMain.handle('browser:find-in-page', (_e, query) => {
+  const t=activeTab(); const text=String(query||'').trim();
+  if(!t||!text)return {ok:false,message:'Enter text and open a webpage first.'};
+  try { t.view.webContents.stopFindInPage('clearSelection'); t.view.webContents.findInPage(text); return {ok:true}; }
+  catch { return {ok:false,message:'Could not search this page.'}; }
+});
+ipcMain.handle('browser:print-page', () => new Promise(resolve => {
+  const t=activeTab(); if(!t||t.view.webContents.isDestroyed())return resolve({ok:false,message:'Open a webpage first.'});
+  t.view.webContents.print({silent:false,printBackground:true},(success,failureReason)=>resolve(success?{ok:true}:{ok:false,message:failureReason||'Printing was cancelled.'}));
+}));
+ipcMain.handle('browser:save-page-pdf', async () => {
+  const t=activeTab(); if(!t||t.view.webContents.isDestroyed())return {ok:false,message:'Open a webpage first.'};
+  const picked=await dialog.showSaveDialog(win,{title:'Save webpage as PDF',defaultPath:'crystalium-page.pdf',filters:[{name:'PDF document',extensions:['pdf']}]});
+  if(picked.canceled||!picked.filePath)return {ok:false,message:'PDF export cancelled.'};
+  try { const data=await t.view.webContents.printToPDF({printBackground:true,preferCSSPageSize:true}); fs.writeFileSync(picked.filePath,data); return {ok:true}; }
+  catch(error){return {ok:false,message:String(error?.message||'PDF export failed.').slice(0,180)};}
+});
 ipcMain.handle('browser:picture-in-picture', async () => {
   const t = activeTab();
   if (!t || t.view.webContents.isDestroyed()) return { ok:false, message:'Open a page with a video first.' };
