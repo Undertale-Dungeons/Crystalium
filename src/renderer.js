@@ -275,7 +275,15 @@ function drawThemeFrame(now){
  } else if(['minecraft','terraria','gameboy','retro'].includes(id)){
    const cell=id==='gameboy'?22:30;themeCtx.globalAlpha=.14;
    for(let y=0;y<h;y+=cell){for(let x=0;x<w;x+=cell){const wave=Math.sin(x*.018+now*.00035)+Math.cos(y*.02-now*.0002);if(wave>.65){themeCtx.fillStyle=((x/cell+y/cell)%2)?colors[0]:colors[1];themeCtx.fillRect(x,y,cell-2,cell-2);}}}
- } else if(['portal','ps2','ps3','gamecube'].includes(id)){
+ } else if(id==='ps2'){
+   // PS2: slow violet orbit rings and a shifting silver-blue startup orb.
+   const cx=w*.72,cy=h*.48,pulse=.5+.5*Math.sin(now*.0011);
+   const orb=themeCtx.createRadialGradient(cx-w*.018,cy-h*.02,2,cx,cy,Math.min(w,h)*.19);
+   orb.addColorStop(0,'#f0f2ff');orb.addColorStop(.18,colors[0]);orb.addColorStop(.7,colors[1]+'88');orb.addColorStop(1,colors[1]+'00');
+   themeCtx.globalAlpha=.65;themeCtx.fillStyle=orb;themeCtx.beginPath();themeCtx.arc(cx,cy,Math.min(w,h)*(.11+.012*pulse),0,Math.PI*2);themeCtx.fill();
+   themeCtx.globalAlpha=.28;themeCtx.lineWidth=2;
+   for(let i=0;i<7;i++){themeCtx.beginPath();themeCtx.ellipse(cx,cy,35+i*23,18+i*15,now*.00012*(i%2?1:-1),0,Math.PI*2);themeCtx.strokeStyle=i%2?colors[0]:colors[1];themeCtx.stroke();}
+ } else if(['portal','gamecube'].includes(id)){
    themeCtx.globalAlpha=.28;themeCtx.lineWidth=3;
    for(let i=0;i<4;i++){const rx=45+i*34+Math.sin(now*.0006+i)*8;themeCtx.beginPath();themeCtx.ellipse(w*.78,h*.55,rx,rx*1.45,now*.00012*(i%2?1:-1),0,Math.PI*2);themeCtx.strokeStyle=i%2?colors[0]:colors[1];themeCtx.stroke();}
  } else if(['zelda','stardew','pokemon','undertale','deltarune','kingdomHearts','majora'].includes(id)){
