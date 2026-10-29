@@ -503,11 +503,19 @@ languageObserver.observe(document.body,{childList:true,subtree:true});
 api.onNotice(message => toast(message));
 api.onUpdateStatus(status => paintUpdateControls(status));
 window.addEventListener('resize', updateLayout);
-api.onFullscreen(active => {
+function syncFullscreenChrome(active) {
   window.__crystaliumFullscreen = !!active;
   document.documentElement.classList.toggle('hide-chrome', !!active);
-  requestAnimationFrame(() => requestAnimationFrame(updateLayout));
-});
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    updateLayout();
+    // Force a second layout after the chrome has been shown/hidden so the
+    // embedded page gets the correct bounds without restarting the app.
+    if (!window.__crystaliumFullscreen) api.layout({x:0,y:0,width:window.innerWidth,height:window.innerHeight});
+  }));
+}
+api.onFullscreen(syncFullscreenChrome);
+window.addEventListener('focus', () => api.windowAction('sync-fullscreen'));
+document.addEventListener('visibilitychange', () => { if (!document.hidden) api.windowAction('sync-fullscreen'); });
 $('newTab').onclick = () => api.newTab();
 $('pictureInPicture').onclick = async () => {
   const result = await api.pictureInPicture();
@@ -803,6 +811,8 @@ document.querySelectorAll('.window-actions button').forEach(button => {
 });
 api.onNotice(message => toast(message));
 api.onState(next => {
+  // Tab switches can race fullscreen exit events; reconcile the chrome with Electron's live state.
+  api.windowAction('sync-fullscreen');
   localStorage.setItem('crystalium.openTabs', JSON.stringify(next.tabs.filter(t=>!t.incognito).map(t=>t.url).filter(Boolean)));
   const t = next.tabs.find(x => x.id === next.activeId);
   if (t && !t.incognito && t.url && /^https?:/i.test(t.url) && !historyItems.some(h => h.url === t.url)) { historyItems.push({ title: t.title, url: t.url }); save('history',historyItems); persistSaved({history:historyItems}); }
