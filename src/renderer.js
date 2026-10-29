@@ -173,6 +173,49 @@ function paletteForTheme(id){
  const palettes={matrix:['#39ff75','#8cffad'],sakura:['#ff9fc8','#ffc5df'],sakuraDay:['#ba6689','#e0a0b6'],majora:['#e9a85f','#c17cff'],kingdomHearts:['#b5e5ff','#7ebeff'],gamecube:['#a98bff','#7657c5'],ps5:['#67baff','#b4ddff'],xbox360:['#83df5b','#b5f58a'],darkFountain:['#b94cff','#6f6cff'],solar:['#ffb04d','#ff6a3d'],oceanic:['#53c8ff','#9eeaff'],aurora:['#7fffd4','#a58cff'],vapor:['#ff76df','#28f0ff'],synthwave:['#ffb36b','#28f0ff'],ps2:['#77baff','#9d8cff'],ps3:['#52d6ff','#b69aff'],undertale:['#e8f0ff','#ff405c'],hollowKnight:['#8fc8ff','#c6d8ff'],zelda:['#d8c36b','#8fe3a0'],sonic:['#4bb7ff','#ffdf55'],pokemon:['#ffcb62','#ff6b6b'],stardew:['#e8c879','#8fcf8b'],terraria:['#8fe3a0','#54c8ff'],celeste:['#ff9cbe','#8edcff'],portal:['#ff9b5e','#65cfff'],skyrim:['#c6c5a2','#8fa8a5']};
  return palettes[id]||(['crystaliumLight','sakuraDay','warmPaper','lavenderSoft','arcticSoft','slateStudio','amberGlow','xp','paper','arctic','lavender','sakuraLite'].includes(id)?['#788ca4','#b09aaa']:['#54bdff','#9ce8ff']);
 }
+
+/* Original generated theme ambience. It never plays on top of a website. */
+let homeMusicContext=null,homeMusicTimer=0,homeMusicOn=false,homeMusicStep=0,homeMusicNodes=[];
+const homeMusicButton=document.createElement('button');
+homeMusicButton.id='homeThemeMusic';homeMusicButton.className='home-theme-music';homeMusicButton.type='button';
+homeMusicButton.innerHTML='<span aria-hidden="true">♫</span> Play home ambience';
+homeMusicButton.title='Play original generated ambience for this theme';
+startPage.append(homeMusicButton);
+function homeMusicPattern(){
+ const id=theme.preset;
+ if(['ps3','ps5','gamecube','kingdomHearts'].includes(id))return {notes:[0,7,12,19,14,7,12,5],base:220,wave:'sine',duration:1.45};
+ if(['majora','zelda','undertale','deltarune'].includes(id))return {notes:[0,3,7,10,7,3,12,10],base:164.81,wave:'triangle',duration:1.2};
+ if(['sakura','sakuraDay','stardew','oceanic','aurora'].includes(id))return {notes:[0,4,7,11,7,4,2,7],base:196,wave:'sine',duration:1.65};
+ if(['mgrr','metalGear'].includes(id))return {notes:[0,7,3,10,12,10,3,7],base:110,wave:'sawtooth',duration:.7};
+ return {notes:[0,5,9,12,9,5,7,2],base:174.61,wave:'triangle',duration:1.35};
+}
+function stopHomeMusic(){
+ homeMusicOn=false;if(homeMusicTimer){clearTimeout(homeMusicTimer);homeMusicTimer=0;}
+ for(const node of homeMusicNodes){try{node.stop?.();node.disconnect?.();}catch{}}
+ homeMusicNodes=[];
+ if(homeMusicContext){homeMusicContext.close().catch(()=>{});homeMusicContext=null;}
+ homeMusicButton.innerHTML='<span aria-hidden="true">♫</span> Play home ambience';
+ homeMusicButton.classList.remove('playing');
+}
+function scheduleHomeMusic(){
+ if(!homeMusicOn||!homeMusicContext||!isHome())return;
+ const p=homeMusicPattern(),now=homeMusicContext.currentTime,semi=p.notes[homeMusicStep%p.notes.length];
+ const osc=homeMusicContext.createOscillator(),gain=homeMusicContext.createGain(),filter=homeMusicContext.createBiquadFilter();
+ osc.type=p.wave;osc.frequency.value=p.base*Math.pow(2,semi/12);filter.type='lowpass';filter.frequency.value=850;
+ gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.026,now+.06);gain.gain.exponentialRampToValueAtTime(.0001,now+p.duration*.88);
+ osc.connect(filter);filter.connect(gain);gain.connect(homeMusicContext.destination);osc.start(now);osc.stop(now+p.duration);
+ homeMusicNodes.push(osc);osc.onended=()=>{try{osc.disconnect();filter.disconnect();gain.disconnect();}catch{}homeMusicNodes=homeMusicNodes.filter(n=>n!==osc);};
+ if(homeMusicStep%4===0){const pad=homeMusicContext.createOscillator(),pg=homeMusicContext.createGain();pad.type='sine';pad.frequency.value=p.base/2*Math.pow(2,semi/12);pg.gain.setValueAtTime(.0001,now);pg.gain.exponentialRampToValueAtTime(.009,now+.22);pg.gain.exponentialRampToValueAtTime(.0001,now+p.duration*1.6);pad.connect(pg);pg.connect(homeMusicContext.destination);pad.start(now);pad.stop(now+p.duration*1.65);homeMusicNodes.push(pad);pad.onended=()=>{try{pad.disconnect();pg.disconnect();}catch{}homeMusicNodes=homeMusicNodes.filter(n=>n!==pad);};}
+ homeMusicStep++;homeMusicTimer=setTimeout(scheduleHomeMusic,p.duration*1000);
+}
+homeMusicButton.addEventListener('click',async()=>{
+ if(homeMusicOn){stopHomeMusic();return;}
+ if(!isHome()){toast('Theme ambience only plays on the home page.');return;}
+ const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+ if(!AudioContextClass){toast('Audio is not supported in this window.');return;}
+ try{homeMusicContext=new AudioContextClass();await homeMusicContext.resume();homeMusicOn=true;homeMusicStep=0;homeMusicButton.innerHTML='<span aria-hidden="true">Ⅱ</span> Stop home ambience';homeMusicButton.classList.add('playing');scheduleHomeMusic();}
+ catch{stopHomeMusic();toast('Could not start theme ambience.');}
+});
 function drawThemeFrame(now){
  if(document.hidden||!document.documentElement.isConnected){themeFrame=0;return;}
  if(now-themeLast<32){themeFrame=requestAnimationFrame(drawThemeFrame);return;}themeLast=now;
@@ -302,6 +345,8 @@ window.addEventListener('resize',resizeThemeCanvas);
 
 function render(next) {
   state = next;
+  if(!isHome()&&homeMusicOn)stopHomeMusic();
+
   strip.replaceChildren();
   for (const tab of state.tabs) {
     const node = document.createElement('div');
