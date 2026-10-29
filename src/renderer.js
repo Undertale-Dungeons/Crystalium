@@ -386,8 +386,8 @@ function addToggle(label,key,description) {
     if(key==='reduceMotion') document.documentElement.classList.toggle('reduce-motion',input.checked);
     if(key==='showShortcuts') document.documentElement.classList.toggle('hide-shortcuts',!input.checked);
     applySettings();
-    try { await persistSaved({settings}); toast('Setting saved.'); }
-    catch { toast('Saved locally; device settings sync failed.'); }
+    try { const synced=await persistSaved({settings}); toast(synced?'Setting saved.':'Saved locally; device sync failed.'); }
+    catch { toast('Saved locally; device sync failed.'); }
   };
   row.append(name,input);
   const small=document.createElement('small'); small.textContent=description;
