@@ -411,3 +411,8 @@ button,input,select,textarea{font-family:var(--font-ui,'DM Sans',sans-serif)}
 .rail-button[data-panel="tools"]{font-size:17px}
 #panelBody .panel-card{transition:border-color .15s,background .15s}
 #panelBody .panel-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Private browsing indicator */
+.tab.incognito-tab{border-color:#8c78cf;background:color-mix(in srgb,#8c78cf 12%,var(--panel))}
+.tab.incognito-tab .tab-dot{background:#b6a1ff}
+#incognitoToggle{color:#c5b3ff;font-size:17px}
