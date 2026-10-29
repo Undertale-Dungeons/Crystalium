@@ -270,7 +270,20 @@ function drawThemeFrame(now){
  // Distinct animated scenes for game presets (not just a shared ring overlay).
  themeCtx.save();
 
- if(id==='mgrr'||id==='metalGearRising'){
+
+ if(id==='ps3'){
+   // Original XMB-inspired blue wave ribbons and floating glass bubbles.
+   for(let band=0;band<7;band++){themeCtx.globalAlpha=.12+(band%3)*.035;themeCtx.strokeStyle=band%2?'#5bd5ff':'#d5f6ff';themeCtx.lineWidth=2+(band%2);themeCtx.beginPath();for(let x=-20;x<=w+20;x+=8){const y=h*(.22+band*.085)+Math.sin(x*.004+now*.00032+band*.72)*h*.035+Math.sin(x*.009-now*.0002)*12;if(x===-20)themeCtx.moveTo(x,y);else themeCtx.lineTo(x,y);}themeCtx.stroke();}
+   for(let i=0;i<18;i++){const x=(i*113+now*.012*(i%3+1))%(w+60)-30,y=h*(.18+(i*31%65)/100)+Math.sin(now*.0005+i)*14,r=5+(i%4)*4;themeCtx.globalAlpha=.12+(i%3)*.04;themeCtx.fillStyle=i%2?'#b6f1ff':'#368dff';themeCtx.beginPath();themeCtx.arc(x,y,r,0,Math.PI*2);themeCtx.fill();themeCtx.strokeStyle='#e4faff';themeCtx.lineWidth=1;themeCtx.stroke();}
+ } else if(id==='majora'){
+   // A stylized original horned mask silhouette, slowly rotating in twilight.
+   const cx=w*.75,cy=h*.39,rot=Math.sin(now*.00042)*.16;
+   themeCtx.save();themeCtx.translate(cx,cy);themeCtx.rotate(rot);const sc=Math.min(w,h)/470;themeCtx.scale(sc,sc);
+   const aura=themeCtx.createRadialGradient(0,0,20,0,0,180);aura.addColorStop(0,'#c17cff33');aura.addColorStop(1,'#c17cff00');themeCtx.fillStyle=aura;themeCtx.fillRect(-190,-190,380,380);
+   themeCtx.fillStyle='#30233f';themeCtx.strokeStyle='#e9a85f';themeCtx.lineWidth=4;themeCtx.beginPath();themeCtx.moveTo(-65,-35);themeCtx.lineTo(-112,-126);themeCtx.lineTo(-42,-83);themeCtx.lineTo(-12,-105);themeCtx.lineTo(0,-78);themeCtx.lineTo(25,-106);themeCtx.lineTo(52,-82);themeCtx.lineTo(113,-127);themeCtx.lineTo(73,-28);themeCtx.lineTo(65,50);themeCtx.lineTo(25,98);themeCtx.lineTo(0,112);themeCtx.lineTo(-28,94);themeCtx.lineTo(-64,48);themeCtx.closePath();themeCtx.fill();themeCtx.stroke();
+   for(let i=0;i<9;i++){const a=i*Math.PI*2/9+now*.0008;themeCtx.globalAlpha=.8;themeCtx.fillStyle=i%2?'#ff6d8b':'#ffd36c';themeCtx.beginPath();themeCtx.arc(Math.cos(a)*80,Math.sin(a)*62,3.5,0,Math.PI*2);themeCtx.fill();}
+   themeCtx.fillStyle='#ff6b83';themeCtx.beginPath();themeCtx.ellipse(-28,4,15,8,-.18,0,Math.PI*2);themeCtx.ellipse(28,4,15,8,.18,0,Math.PI*2);themeCtx.fill();themeCtx.fillStyle='#fff0b8';themeCtx.beginPath();themeCtx.arc(-28,4,3,0,Math.PI*2);themeCtx.arc(28,4,3,0,Math.PI*2);themeCtx.fill();themeCtx.restore();
+ } else if(id==='mgrr'||id==='metalGearRising'){
    // Stylized high-frequency blade silhouette, wrapped in a pulsing red energy aura.
    const cx=w*.73,cy=h*.43,angle=-.56+Math.sin(now*.0012)*.025;
    themeCtx.save();themeCtx.translate(cx,cy);themeCtx.rotate(angle);
