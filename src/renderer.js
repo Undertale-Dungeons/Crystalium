@@ -138,7 +138,7 @@ function applyTheme(next){
   hollowKnight:'https://www.nintendo.com/eu/media/images/10_share_images/games_15/wiiu_download_software_5/H2x1_WiiUDS_HollowKnight_image1600w.jpg',
   stardew:'https://media.springernature.com/lw1200/springer-static/image/art%3A10.1007%2Fs10460-020-10121-w/MediaObjects/10460_2020_10121_Fig1_HTML.jpg'
  };
- const art=themeArt[next.preset] || ({
+ const defaultArt=themeArt[next.preset] || ({
    dreamcast:themeArt.ps2,gamecube:themeArt.ps2,n64:themeArt.ps2,ps5:themeArt.ps3,xbox360:themeArt.ps3,
    gameboy:themeArt.minecraft,gba:themeArt.minecraft,retro:themeArt.minecraft,sonic:themeArt.minecraft,pokemon:themeArt.minecraft,terraria:themeArt.minecraft,
    deltarune:themeArt.undertale,cardCastle:themeArt.undertale,cyberCity:themeArt.ps3,roaringKnight:themeArt.majora,titan:themeArt.majora,gerson:themeArt.majora,darkFountain:themeArt.undertale,queenCyber:themeArt.ps3,
@@ -148,7 +148,10 @@ function applyTheme(next){
    sakuraDay:themeArt.stardew,warmPaper:themeArt.stardew,lavenderSoft:themeArt.stardew,arcticSoft:themeArt.ps3,slateStudio:themeArt.ps3,amberGlow:themeArt.stardew,
    forest:themeArt.stardew,rose:themeArt.stardew,violet:themeArt.ps3,ember:themeArt.majora,mono:themeArt.ps2,ocean:themeArt.stardew,crimson:themeArt.undertale,paper:themeArt.stardew,arctic:themeArt.ps3,lavender:themeArt.stardew,sakuraLite:themeArt.stardew,amber:themeArt.stardew,xp:themeArt.ps2
  })[next.preset];
- root.style.setProperty('--theme-art',art?'url("'+art+'")':'none');
+ const customArtwork=load('themeArtwork',{});
+ const art=customArtwork[next.preset] || defaultArt;
+ root.style.setProperty('--theme-art',art?'url("'+String(art).replace(/["\\]/g,'\\ })[next.preset];
+ root.style.setProperty('--theme-art',art?'url("'+art+'")':'none');')+'")':'none');
  for(const [key,value] of Object.entries({ '--bg':p.bg,'--side':p.side,'--panel':p.panel,'--line':p.line,'--blue':next.accent||p.accent,'--cyan':next.accent||p.accent,'--text':p.text,'--accent':next.accent||p.accent,'--muted':p.text+'aa','--panel-soft':p.panel,'--theme-border':p.line,'--theme-bg':p.bg})) root.style.setProperty(key,value);
  root.classList.remove(...Array.from(root.classList).filter(c=>c.startsWith('theme-')||c.startsWith('skin-')));
  root.classList.add('theme-'+next.preset); if(p.skin)root.classList.add('skin-'+p.skin);
@@ -640,16 +643,32 @@ function renderMusic() {
   const soundtrackQuery=soundtrackThemes[theme.preset] || ((catalogEntry?.[1]||theme.preset).replace(/[·:]/g,' ').trim()+' theme ambience soundtrack');
   if(soundtrackQuery){addPanelText('Soundtrack and ambience for '+(catalogEntry?.[1]||theme.preset)+':');addPanelCard('Search YouTube · '+soundtrackQuery,'Browse results, then paste a video URL into the player below. Each theme has its own search query.',()=>api.newTab('https://www.youtube.com/results?search_query='+encodeURIComponent(soundtrackQuery+' official ambience')));}
   const ytWrap=document.createElement('div');ytWrap.className='youtube-ambience';
-  const ytLabel=document.createElement('label');ytLabel.textContent='Play a YouTube ambience/video here';
+  const customMusic=load('themeMusic',{});const savedVideo=customMusic[theme.preset]||'';
+  const ytLabel=document.createElement('label');ytLabel.textContent='YouTube music / ambience for this theme';
   const ytRow=document.createElement('div');ytRow.className='youtube-ambience-row';
-  const ytInput=document.createElement('input');ytInput.type='url';ytInput.placeholder='Paste a YouTube video URL';ytInput.setAttribute('aria-label','YouTube video URL');
-  const ytButton=document.createElement('button');ytButton.textContent='Load';
+  const ytInput=document.createElement('input');ytInput.type='url';ytInput.placeholder='Paste YouTube video URL';ytInput.value=savedVideo;ytInput.setAttribute('aria-label','YouTube video URL');
+  const ytButton=document.createElement('button');ytButton.textContent='Save & play';
   const ytFrame=document.createElement('iframe');ytFrame.title='YouTube ambience player';ytFrame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';ytFrame.allowFullscreen=true;ytFrame.referrerPolicy='strict-origin-when-cross-origin';ytFrame.hidden=true;
-  const loadYoutube=()=>{let videoId='';try{const u=new URL(ytInput.value.trim());if(u.hostname==='youtu.be')videoId=u.pathname.split('/').filter(Boolean)[0]||'';else if(['youtube.com','www.youtube.com','m.youtube.com','youtube-nocookie.com','www.youtube-nocookie.com'].includes(u.hostname)){videoId=u.searchParams.get('v')||u.pathname.split('/').filter(Boolean).reduce((found,part,index,parts)=>found||(['embed','shorts'].includes(part)?parts[index+1]||'':''),'');}}catch{}if(!/^[a-zA-Z0-9_-]{11}$/.test(videoId)){toast('Paste a valid YouTube video URL.');return;}ytFrame.src='https://www.youtube-nocookie.com/embed/'+videoId+'?autoplay=1&playsinline=1';ytFrame.hidden=false;};
+  const loadYoutube=()=>{let videoId='',playlistId='';try{const u=new URL(ytInput.value.trim());if(u.hostname==='youtu.be')videoId=u.pathname.split('/').filter(Boolean)[0]||'';else if(['youtube.com','www.youtube.com','m.youtube.com','youtube-nocookie.com','www.youtube-nocookie.com'].includes(u.hostname)){videoId=u.searchParams.get('v')||u.pathname.split('/').filter(Boolean).reduce((found,part,index,parts)=>found||(['embed','shorts','live'].includes(part)?parts[index+1]||'':''),'');playlistId=u.searchParams.get('list')||'';}}catch{}if(!/^[a-zA-Z0-9_-]{11}$/.test(videoId)&&!/^[a-zA-Z0-9_-]{10,}$/.test(playlistId)){toast('Paste a YouTube video or playlist URL.');return;}const saved=load('themeMusic',{});saved[theme.preset]=ytInput.value.trim();save('themeMusic',saved);ytFrame.src=videoId?'https://www.youtube-nocookie.com/embed/'+videoId+'?autoplay=1&playsinline=1'+(playlistId?'&list='+encodeURIComponent(playlistId):''):'https://www.youtube-nocookie.com/embed/videoseries?list='+encodeURIComponent(playlistId)+'&autoplay=1';ytFrame.hidden=false;toast('Saved music for this theme.');};
   const curatedAmbience={minecraft:'Dg0IjOzopYU',minecraftNight:'Dg0IjOzopYU',undertale:'1HIKNbnV8nw',undertaleGold:'1HIKNbnV8nw',ps2:'Ta7MT_4lSLI',ps2Silver:'Ta7MT_4lSLI'};
   if(curatedAmbience[theme.preset]){ytInput.value='https://www.youtube.com/watch?v='+curatedAmbience[theme.preset];loadYoutube();}
   ytButton.onclick=loadYoutube;ytInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();loadYoutube();}});
-  ytRow.append(ytInput,ytButton);ytWrap.append(ytLabel,ytRow,ytFrame);$('panelBody').append(ytWrap);
+  const clearMusic=document.createElement('button');clearMusic.textContent='Clear saved music';clearMusic.onclick=()=>{const saved=load('themeMusic',{});delete saved[theme.preset];save('themeMusic',saved);ytInput.value='';ytFrame.removeAttribute('src');ytFrame.hidden=true;toast('Saved music cleared for this theme.');};
+  ytRow.append(ytInput,ytButton,clearMusic);ytWrap.append(ytLabel,ytRow,ytFrame);
+  const artWrap=document.createElement('div');artWrap.className='youtube-ambience theme-art-editor';
+  const artLabel=document.createElement('label');artLabel.textContent='Theme background image / GIF URL';
+  const artRow=document.createElement('div');artRow.className='youtube-ambience-row';
+  const artInput=document.createElement('input');artInput.type='url';artInput.placeholder='Paste direct image or .gif URL';artInput.setAttribute('aria-label','Theme background image or GIF URL');artInput.value=load('themeArtwork',{})[theme.preset]||'';
+  const artSave=document.createElement('button');artSave.textContent='Save background';
+  const artClear=document.createElement('button');artClear.textContent='Use default';
+  const artPreview=document.createElement('img');artPreview.className='theme-art-preview';artPreview.alt='Custom theme background preview';artPreview.hidden=true;
+  const updateArtPreview=()=>{const url=artInput.value.trim();artPreview.hidden=!url;if(url)artPreview.src=url;};
+  updateArtPreview();
+  artSave.onclick=()=>{const url=artInput.value.trim();if(url){try{const parsed=new URL(url);if(!['http:','https:','file:','data:'].includes(parsed.protocol))throw new Error();}catch{toast('Paste a valid image URL.');return;}}const saved=load('themeArtwork',{});if(url)saved[theme.preset]=url;else delete saved[theme.preset];save('themeArtwork',saved);applyTheme(theme);updateArtPreview();toast('Background saved for this theme.');};
+  artClear.onclick=()=>{const saved=load('themeArtwork',{});delete saved[theme.preset];save('themeArtwork',saved);artInput.value='';artPreview.removeAttribute('src');artPreview.hidden=true;applyTheme(theme);toast('Default background restored.');};
+  artInput.addEventListener('input',updateArtPreview);
+  artRow.append(artInput,artSave,artClear);artWrap.append(artLabel,artRow,artPreview);
+  $('panelBody').append(ytWrap,artWrap);
   addPanelText('Music source hub: save music websites here, open them in tabs, and control audio on the active tab. Crystalium does not copy or extract protected streams; playback depends on each site’s own player and permissions.');
   const active=currentTab();
   if(active?.url && /^https?:/i.test(active.url)) addPanelCard('＋ Save active website as a music source',active.title||active.url,()=>{
