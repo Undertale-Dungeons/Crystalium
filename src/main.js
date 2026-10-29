@@ -57,6 +57,19 @@ function addTab(url = '') {
     try { addTab(safeUrl(url)); } catch { /* reject unsafe schemes */ }
     return { action: 'deny' };
   });
+  view.webContents.on('enter-html-full-screen', () => {
+    if (win && !win.isDestroyed()) {
+      // Native video/player fullscreen should also remove Crystalium's own chrome.
+      win.setFullScreen(true);
+      win.webContents.send('browser:fullscreen', true);
+    }
+  });
+  view.webContents.on('leave-html-full-screen', () => {
+    if (win && !win.isDestroyed()) {
+      win.setFullScreen(false);
+      win.webContents.send('browser:fullscreen', false);
+    }
+  });
   view.webContents.on('page-title-updated', () => { saveSession(); sendState(); });
   view.webContents.on('did-navigate', () => { saveSession(); sendState(); });
   view.webContents.on('did-navigate-in-page', () => { saveSession(); sendState(); });
@@ -96,6 +109,12 @@ function createWindow() {
     }
   });
   win.loadFile(path.join(__dirname, 'index.html'));
+  const notifyFullscreen = active => {
+    if (win && !win.isDestroyed()) win.webContents.send('browser:fullscreen', !!active);
+    if (win && !win.isDestroyed()) setTimeout(() => { layoutViews(); win.webContents.send('browser:fullscreen', !!active); }, 80);
+  };
+  win.on('enter-full-screen', () => notifyFullscreen(true));
+  win.on('leave-full-screen', () => notifyFullscreen(false));
   win.on('resize', () => { layoutViews(); });
   win.on('closed', () => { tabs = []; win = null; });
   win.webContents.on('did-finish-load', () => { if (!tabs.length) { if (savedTabs.length) { savedTabs.forEach(u => addTab(u)); activeId = tabs[Math.min(savedActiveIndex, tabs.length-1)]?.id ?? activeId; layoutViews(); sendState(); } else addTab(''); } });
@@ -194,6 +213,13 @@ ipcMain.handle('browser:chrome-transfer', async () => {
 });
 
 ipcMain.handle('browser:state', () => ({ tabs: tabs.map(publicTab), activeId }));
+ipcMain.handle('browser:saved-state', () => {
+  try {
+    const file = path.join(app.getPath('userData'), 'crystalium-state.json');
+    const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+    return { settings: data.settings && typeof data.settings === 'object' ? data.settings : {} };
+  } catch { return { settings: {} }; }
+});
 ipcMain.handle('browser:window', (_e, action) => {
   if (!win) return;
   if (action === 'minimize') win.minimize();
