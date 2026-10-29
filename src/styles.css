@@ -309,3 +309,12 @@ button,input,select,textarea{font-family:var(--font-ui,'DM Sans',sans-serif)}
 .start-page>.ambient{z-index:0}
 #pictureInPicture{font-size:15px;line-height:1;color:var(--text);border-color:var(--theme-border);background:color-mix(in srgb,var(--panel) 88%,transparent)}
 #pictureInPicture:hover{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 15%,transparent)}
+
+/* Additional game-inspired palettes: restrained accents with gentle motion. */
+.theme-undertale .brand-mark,.theme-hollowKnight .brand-mark,.theme-zelda .brand-mark,.theme-sonic .brand-mark,.theme-pokemon .brand-mark,.theme-stardew .brand-mark,.theme-terraria .brand-mark,.theme-celeste .brand-mark,.theme-portal .brand-mark,.theme-skyrim .brand-mark{filter:drop-shadow(0 0 7px color-mix(in srgb,var(--accent) 55%,transparent))}
+.theme-undertale .ambient-a,.theme-celeste .ambient-a{background:radial-gradient(ellipse,color-mix(in srgb,var(--accent) 19%,transparent),transparent 70%)}
+.theme-hollowKnight .ambient-b,.theme-skyrim .ambient-b{background:radial-gradient(ellipse,color-mix(in srgb,var(--accent) 15%,transparent),transparent 72%)}
+.theme-zelda .ambient-a,.theme-stardew .ambient-a,.theme-terraria .ambient-a{background:radial-gradient(ellipse,color-mix(in srgb,var(--accent) 17%,transparent),transparent 70%)}
+.theme-sonic .brand-mark,.theme-pokemon .brand-mark,.theme-portal .brand-mark{animation:crystaliumThemePulse 3.2s ease-in-out infinite}
+@keyframes crystaliumThemePulse{0%,100%{transform:translateY(0);filter:drop-shadow(0 0 2px color-mix(in srgb,var(--accent) 20%,transparent))}50%{transform:translateY(-2px);filter:drop-shadow(0 0 9px color-mix(in srgb,var(--accent) 60%,transparent))}}
+.reduce-motion .theme-sonic .brand-mark,.reduce-motion .theme-pokemon .brand-mark,.reduce-motion .theme-portal .brand-mark{animation:none}
