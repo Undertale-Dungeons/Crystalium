@@ -772,6 +772,7 @@ function renderMusic() {
 $('bookmarksToggle').onclick = () => showPanel('bookmarks');
 $('musicToggle').onclick = () => showPanel('music');
 $('incognitoToggle').onclick = () => { api.newIncognitoTab(); toast('Opened a private tab. Its URL will not be saved to Crystalium history or session restore.'); };
+$('privateToolbar').onclick = () => { api.newIncognitoTab(); toast('Private tab opened. It will not be saved to history or session restore.'); };
 $('menuToggle').onclick = () => togglePanel('settings');
 $('panelClose').onclick = hidePanel;
 document.querySelectorAll('.rail-button').forEach(button => button.addEventListener('click', () => {
