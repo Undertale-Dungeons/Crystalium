@@ -156,6 +156,10 @@ const themeArt = document.createElement('div'); themeArt.className = 'theme-art'
 const themeCanvas=document.createElement('canvas');themeCanvas.className='theme-canvas';themeCanvas.setAttribute('aria-hidden','true');themeArt.append(themeCanvas);startPage.prepend(themeArt);
 let themeFrame=0,themeLast=0,themeParticles=[],themeCtx=themeCanvas.getContext('2d');
 function resizeThemeCanvas(){const dpr=Math.min(window.devicePixelRatio||1,1.5),r=startPage.getBoundingClientRect();themeCanvas.width=Math.max(1,Math.floor(r.width*dpr));themeCanvas.height=Math.max(1,Math.floor(r.height*dpr));themeCanvas.style.width=r.width+'px';themeCanvas.style.height=r.height+'px';themeCtx?.setTransform(dpr,0,0,dpr,0,0);themeParticles=[];}
+function paletteForTheme(id){
+ const palettes={matrix:['#39ff75','#8cffad'],sakura:['#ff9fc8','#ffc5df'],sakuraDay:['#ba6689','#e0a0b6'],majora:['#e9a85f','#c17cff'],kingdomHearts:['#b5e5ff','#7ebeff'],gamecube:['#a98bff','#7657c5'],ps5:['#67baff','#b4ddff'],xbox360:['#83df5b','#b5f58a'],darkFountain:['#b94cff','#6f6cff'],solar:['#ffb04d','#ff6a3d'],oceanic:['#53c8ff','#9eeaff'],aurora:['#7fffd4','#a58cff'],vapor:['#ff76df','#28f0ff'],synthwave:['#ffb36b','#28f0ff'],ps2:['#77baff','#9d8cff'],ps3:['#52d6ff','#b69aff']};
+ return palettes[id]||(['crystaliumLight','sakuraDay','warmPaper','lavenderSoft','arcticSoft','slateStudio','amberGlow','xp','paper','arctic','lavender','sakuraLite'].includes(id)?['#788ca4','#b09aaa']:['#54bdff','#9ce8ff']);
+}
 function drawThemeFrame(now){
  if(document.hidden||!document.documentElement.isConnected){themeFrame=0;return;}
  if(now-themeLast<32){themeFrame=requestAnimationFrame(drawThemeFrame);return;}themeLast=now;
@@ -163,7 +167,21 @@ function drawThemeFrame(now){
  const id=theme.preset==='system'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'crystaliumDark':'crystaliumLight'):theme.preset;
  const light=['crystaliumLight','sakuraDay','warmPaper','lavenderSoft','arcticSoft','slateStudio','amberGlow','xp','paper','arctic','lavender','sakuraLite'].includes(id);
  themeCtx.clearRect(0,0,w,h);
- const count=id==='matrix'?44:['sakura','sakuraDay'].includes(id)?22:['majora','darkFountain','solar'].includes(id)?26:['kingdomHearts','oceanic'].includes(id)?20:14;
+ // Give every theme a visible animated signature instead of only changing surface colors.
+ const pulse=.5+.5*Math.sin(now*.00065);
+ const glow=paletteForTheme(id);
+ themeCtx.save();
+ themeCtx.globalAlpha=light ? 0.17 : 0.22;
+ for(let ring=0;ring<5;ring++){
+   const radius=(.12+ring*.105+pulse*.018)*Math.min(w,h);
+   themeCtx.beginPath();
+   themeCtx.arc(w*(.78+Math.sin(now*.00012)*.035),h*(.28+Math.cos(now*.00016)*.035),radius,0,Math.PI*2);
+   themeCtx.strokeStyle=glow[ring%2];themeCtx.lineWidth=1.2+(ring%2);themeCtx.stroke();
+ }
+ const orb=themeCtx.createRadialGradient(w*.78,h*.28,2,w*.78,h*.28,Math.max(60,Math.min(w,h)*.23));
+ orb.addColorStop(0,glow[0]+'55');orb.addColorStop(1,glow[0]+'00');
+ themeCtx.globalAlpha=light ? 0.36 : 0.48;themeCtx.fillStyle=orb;themeCtx.fillRect(0,0,w,h);themeCtx.restore();
+ const count=id==='matrix'?70:['sakura','sakuraDay'].includes(id)?38:['majora','darkFountain','solar'].includes(id)?42:['kingdomHearts','oceanic'].includes(id)?34:28;
  if(themeParticles.length!==count)themeParticles=Array.from({length:count},()=>({x:Math.random()*w,y:Math.random()*h,r:1+Math.random()*2.4,v:.18+Math.random()*.7,phase:Math.random()*Math.PI*2,kind:Math.random()}));
  const palette={matrix:['#39ff75','#8cffad'],sakura:['#ff9fc8','#ffc5df'],sakuraDay:['#ba6689','#e0a0b6'],majora:['#e9a85f','#c17cff'],kingdomHearts:['#b5e5ff','#7ebeff'],gamecube:['#a98bff','#7657c5'],ps5:['#67baff','#b4ddff'],xbox360:['#83df5b','#b5f58a'],darkFountain:['#b94cff','#6f6cff'],solar:['#ffb04d','#ff6a3d'],oceanic:['#53c8ff','#9eeaff'],aurora:['#7fffd4','#a58cff'],vapor:['#ff76df','#28f0ff'],synthwave:['#ffb36b','#28f0ff'],default:light?['#8c9bad','#b5a9a0']:['#54bdff','#9ce8ff']}[id]||['#54bdff','#9ce8ff'];
  if(id==='ps3'){themeCtx.globalAlpha=.3;themeCtx.lineWidth=1.4;for(let ribbon=0;ribbon<7;ribbon++){themeCtx.beginPath();for(let x=0;x<=w;x+=8){const y=h*.22+ribbon*24+Math.sin(x*.008+now*.00045+ribbon*.7)*18+Math.sin(x*.003-now*.0002)*13;if(x===0)themeCtx.moveTo(x,y);else themeCtx.lineTo(x,y);}themeCtx.strokeStyle=ribbon%2?'#52d6ff':'#b69aff';themeCtx.stroke();}themeCtx.globalAlpha=1;}
@@ -173,7 +191,7 @@ function drawThemeFrame(now){
  for(const p of themeParticles){p.y+=(id==='matrix'?p.v*2:p.v);p.x+=Math.sin(now*.0003+p.phase)*.22;if(p.y>h+8){p.y=-8;p.x=Math.random()*w;}if(p.x>w+8)p.x=-8;themeCtx.globalAlpha=.18+p.kind*.36;themeCtx.fillStyle=palette[p.kind>.5?1:0];if(id==='matrix'){themeCtx.font='12px monospace';themeCtx.fillText(['ｱ','ﾊ','ﾐ','0','1','∑'][Math.floor(p.phase*10)%6],p.x,p.y);}else if(['sakura','sakuraDay'].includes(id)){themeCtx.save();themeCtx.translate(p.x,p.y);themeCtx.rotate(now*.0003+p.phase);themeCtx.fillRect(-p.r,-p.r/2,p.r*2,p.r);themeCtx.restore();}else{themeCtx.beginPath();themeCtx.arc(p.x,p.y,p.r,0,Math.PI*2);themeCtx.fill();}}
  themeCtx.globalAlpha=1;themeFrame=requestAnimationFrame(drawThemeFrame);
 }
-function startThemeAnimation(){if(themeFrame||document.hidden||settings.reduceMotion)return;resizeThemeCanvas();themeFrame=requestAnimationFrame(drawThemeFrame);}
+function startThemeAnimation(){if(themeFrame||document.hidden||settings.reduceMotion)return;resizeThemeCanvas();themeLast=0;themeFrame=requestAnimationFrame(drawThemeFrame);}
 function stopThemeAnimation(){if(themeFrame)cancelAnimationFrame(themeFrame);themeFrame=0;}
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stopThemeAnimation();document.querySelectorAll('video').forEach(v=>{if(!v.paused)v.pause();});}else startThemeAnimation();});
 window.addEventListener('resize',resizeThemeCanvas);
@@ -225,6 +243,11 @@ api.onFullscreen(active => {
   requestAnimationFrame(updateLayout);
 });
 $('newTab').onclick = () => api.newTab();
+$('pictureInPicture').onclick = async () => {
+  const result = await api.pictureInPicture();
+  if (result?.ok) toast('Picture-in-Picture opened. It can stay above other windows.');
+  else if (result?.message) toast(result.message);
+};
 $('back').onclick = () => api.back();
 $('forward').onclick = () => api.forward();
 $('reload').onclick = () => api.reload();
