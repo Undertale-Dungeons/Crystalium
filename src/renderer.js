@@ -636,7 +636,7 @@ function renderMusic() {
   const ytButton=document.createElement('button');ytButton.textContent='Load';
   const ytFrame=document.createElement('iframe');ytFrame.title='YouTube ambience player';ytFrame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';ytFrame.allowFullscreen=true;ytFrame.referrerPolicy='strict-origin-when-cross-origin';ytFrame.hidden=true;
   const loadYoutube=()=>{let videoId='';try{const u=new URL(ytInput.value.trim());if(u.hostname==='youtu.be')videoId=u.pathname.split('/').filter(Boolean)[0]||'';else if(['youtube.com','www.youtube.com','m.youtube.com','youtube-nocookie.com','www.youtube-nocookie.com'].includes(u.hostname)){videoId=u.searchParams.get('v')||u.pathname.split('/').filter(Boolean).reduce((found,part,index,parts)=>found||(['embed','shorts'].includes(part)?parts[index+1]||'':''),'');}}catch{}if(!/^[a-zA-Z0-9_-]{11}$/.test(videoId)){toast('Paste a valid YouTube video URL.');return;}ytFrame.src='https://www.youtube-nocookie.com/embed/'+videoId+'?autoplay=1&playsinline=1';ytFrame.hidden=false;};
-  const curatedAmbience={minecraft:'Dg0IjOzopYU',minecraftNight:'Dg0IjOzopYU',undertale:'1HIKNbnV8nw',undertaleGold:'1HIKNbnV8nw'};
+  const curatedAmbience={minecraft:'Dg0IjOzopYU',minecraftNight:'Dg0IjOzopYU',undertale:'1HIKNbnV8nw',undertaleGold:'1HIKNbnV8nw',ps2:'Ta7MT_4lSLI',ps2Silver:'Ta7MT_4lSLI'};
   if(curatedAmbience[theme.preset]){ytInput.value='https://www.youtube.com/watch?v='+curatedAmbience[theme.preset];loadYoutube();}
   ytButton.onclick=loadYoutube;ytInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();loadYoutube();}});
   ytRow.append(ytInput,ytButton);ytWrap.append(ytLabel,ytRow,ytFrame);$('panelBody').append(ytWrap);
