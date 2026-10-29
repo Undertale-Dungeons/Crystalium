@@ -318,3 +318,21 @@ button,input,select,textarea{font-family:var(--font-ui,'DM Sans',sans-serif)}
 .theme-sonic .brand-mark,.theme-pokemon .brand-mark,.theme-portal .brand-mark{animation:crystaliumThemePulse 3.2s ease-in-out infinite}
 @keyframes crystaliumThemePulse{0%,100%{transform:translateY(0);filter:drop-shadow(0 0 2px color-mix(in srgb,var(--accent) 20%,transparent))}50%{transform:translateY(-2px);filter:drop-shadow(0 0 9px color-mix(in srgb,var(--accent) 60%,transparent))}}
 .reduce-motion .theme-sonic .brand-mark,.reduce-motion .theme-pokemon .brand-mark,.reduce-motion .theme-portal .brand-mark{animation:none}
+
+
+/* Crystalium theme visibility and animation reliability patch */
+.workspace{min-width:0;min-height:0}
+.start-page,#startPage{left:52px!important;right:0!important;width:auto!important;max-width:none!important;min-width:0}
+.start-page{isolation:isolate;contain:paint}
+.start-page::before,.start-page::after{content:"";position:absolute;inset:-18%;pointer-events:none;z-index:0;opacity:.55}
+.start-page::before{background:radial-gradient(circle at 18% 22%,color-mix(in srgb,var(--accent,#54bdff) 20%,transparent),transparent 34%),radial-gradient(circle at 82% 72%,color-mix(in srgb,var(--accent,#54bdff) 12%,transparent),transparent 38%);animation:crystaliumAmbientDrift 24s ease-in-out infinite alternate}
+.start-page::after{inset:0;background:repeating-linear-gradient(135deg,transparent 0 90px,color-mix(in srgb,var(--accent,#54bdff) 5%,transparent) 91px 92px,transparent 93px 180px);animation:crystaliumAmbientSweep 42s linear infinite}
+.start-page>.theme-art{inset:0!important;z-index:1!important;pointer-events:none}
+.start-page>.theme-art>.theme-canvas{inset:0!important;width:100%!important;height:100%!important;opacity:.85}
+.start-page>.start-content{z-index:2;max-width:940px;width:100%;margin-inline:auto}
+@keyframes crystaliumAmbientDrift{from{transform:translate3d(-2%,0,0) scale(1)}to{transform:translate3d(2%,2%,0) scale(1.08)}}
+@keyframes crystaliumAmbientSweep{from{background-position:0 0}to{background-position:360px 360px}}
+/* Each preset inherits the same subtle animated atmosphere; reduce-motion is respected. */
+:root.reduce-motion .start-page::before,:root.reduce-motion .start-page::after{animation:none!important}
+@media(prefers-reduced-motion:reduce){.start-page::before,.start-page::after{animation:none!important}}
+@media(max-width:700px){.start-page,#startPage{left:52px!important}.start-page>.start-content{padding-inline:20px}}
