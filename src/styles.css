@@ -428,3 +428,10 @@ button,input,select,textarea{font-family:var(--font-ui,'DM Sans',sans-serif)}
 .tab.incognito-tab{border-color:#8c78cf;background:color-mix(in srgb,#8c78cf 12%,var(--panel))}
 .tab.incognito-tab .tab-dot{background:#b6a1ff}
 #incognitoToggle{color:#c5b3ff;font-size:17px}
+
+.theme-art-editor{margin-top:10px}
+.theme-art-preview{display:block;width:100%;max-height:180px;object-fit:cover;border-radius:9px;border:1px solid var(--line);background:var(--bg)}
+.theme-art-preview[hidden]{display:none}
+.youtube-ambience-row{flex-wrap:wrap}
+.youtube-ambience-row button{min-height:34px;cursor:pointer}
+@media(max-width:520px){.youtube-ambience-row{flex-direction:column}.youtube-ambience-row button{padding:10px}}
