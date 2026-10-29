@@ -1,6 +1,23 @@
 const { app, BrowserWindow, WebContentsView, ipcMain, shell, dialog } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
+let autoUpdater = null;
+try { ({ autoUpdater } = require('electron-updater')); } catch { /* Dependency is installed during packaging. */ }
+let updateStatus = { status: 'idle', message: 'Updates have not been checked yet.' };
+function publishUpdateStatus(status, message, extra = {}) {
+  updateStatus = { status, message, ...extra };
+  if (win && !win.isDestroyed()) win.webContents.send('browser:update-status', updateStatus);
+}
+if (autoUpdater) {
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
+  autoUpdater.on('checking-for-update', () => publishUpdateStatus('checking', 'Checking for updates…'));
+  autoUpdater.on('update-available', info => publishUpdateStatus('available', 'Version ' + info.version + ' is available. Downloading in the background…', { version: info.version }));
+  autoUpdater.on('update-not-available', info => publishUpdateStatus('current', 'You are using the latest version' + (info.version ? ' (' + info.version + ')' : '') + '.', { version: info.version }));
+  autoUpdater.on('download-progress', progress => publishUpdateStatus('downloading', 'Downloading update… ' + Math.round(progress.percent || 0) + '%', { percent: Math.round(progress.percent || 0) }));
+  autoUpdater.on('update-downloaded', info => publishUpdateStatus('downloaded', 'Version ' + info.version + ' is ready to install. Restart Crystalium to finish updating.', { version: info.version }));
+  autoUpdater.on('error', error => publishUpdateStatus('error', 'Update check failed: ' + String(error?.message || error).slice(0, 220)));
+}
 let savedTabs = []; let savedActiveIndex = 0; let blockTrackers = true;
 function loadSession() { try { const d=JSON.parse(fs.readFileSync(path.join(app.getPath('userData'),'crystalium-state.json'),'utf8')); savedTabs=d.settings?.restoreTabs === false ? [] : (Array.isArray(d.tabs)?d.tabs:[]); savedActiveIndex=d.activeIndex||0; blockTrackers=d.settings?.blockTrackers !== false; } catch {} }
 function saveSession() { try { const file=path.join(app.getPath('userData'),'crystalium-state.json'); fs.mkdirSync(path.dirname(file),{recursive:true}); let data={}; try{data=JSON.parse(fs.readFileSync(file,'utf8'));}catch{} const regularTabs=tabs.filter(t=>!t.incognito); data.tabs=regularTabs.map(t=>t.view.webContents.getURL()).filter(u=>/^https?:/i.test(u)); data.activeIndex=Math.max(0,regularTabs.findIndex(t=>t.id===activeId)); fs.writeFileSync(file,JSON.stringify(data,null,2)); } catch {} }
@@ -256,6 +273,19 @@ ipcMain.handle('browser:chrome-transfer', async () => {
   return { ok:true, bookmarks:unique, cookies:cookieCount, files:picked.filePaths.length };
 });
 
+ipcMain.handle('browser:update-status', () => ({ ...updateStatus, supported: !!autoUpdater && app.isPackaged }));
+ipcMain.handle('browser:check-updates', async () => {
+  if (!autoUpdater || !app.isPackaged) {
+    publishUpdateStatus('unsupported', 'Automatic updates are available in the installed release build, not when running from source.');
+    return { ...updateStatus, supported: false };
+  }
+  try { await autoUpdater.checkForUpdates(); return { ...updateStatus, supported: true }; }
+  catch (error) { publishUpdateStatus('error', 'Update check failed: ' + String(error?.message || error).slice(0, 220)); return { ...updateStatus, supported: true }; }
+});
+ipcMain.handle('browser:install-update', () => {
+  if (autoUpdater && updateStatus.status === 'downloaded') { autoUpdater.quitAndInstall(false, true); return true; }
+  return false;
+});
 ipcMain.handle('browser:state', () => ({ tabs: tabs.map(publicTab), activeId }));
 ipcMain.handle('browser:saved-state', () => {
   try {
@@ -297,6 +327,7 @@ app.whenReady().then(() => {
   loadSession();
   app.setAppUserModelId('dev.crystalium.browser');
   createWindow();
+  if (autoUpdater && app.isPackaged) setTimeout(() => { autoUpdater.checkForUpdates().catch(error => publishUpdateStatus('error', 'Update check failed: ' + String(error?.message || error).slice(0, 220))); }, 5000);
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 });
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
