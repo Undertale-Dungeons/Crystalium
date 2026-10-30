@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DELTARUNE: SHELTER</title>
+<style>
+:root{color-scheme:dark;--white:#f5f5f5;--muted:#a8a8b5;--line:#777783;--panel:#090a10}
+*{box-sizing:border-box}
+body{margin:0;background:#050609;color:var(--white);font-family:Georgia,"Times New Roman",serif;min-height:100vh;display:grid;place-items:center}
+#game{width:min(100%,1050px);min-height:680px;padding:22px;display:flex;flex-direction:column;gap:14px}
+header{display:flex;justify-content:space-between;align-items:center;color:#aaa;font:12px Arial,sans-serif;letter-spacing:2px}
+#screen{border:2px solid #dedee8;min-height:450px;padding:28px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;background:radial-gradient(ellipse at center,#15151d 0%,#08090d 68%)}
+#sceneTag{font:11px Arial,sans-serif;letter-spacing:3px;color:#9c9cae;margin-bottom:22px}
+#title{font-family:Wingdings,Webdings,sans-serif;font-size:clamp(38px,8vw,76px);letter-spacing:4px;text-align:center;line-height:1.35;margin:10px auto 12px;max-width:800px}
+#subtitle{text-align:center;color:#aaa;font:13px Arial,sans-serif;letter-spacing:5px;margin-bottom:42px}
+#story{font-size:clamp(19px,2.6vw,25px);line-height:1.55;max-width:800px;white-space:pre-line;margin:0 auto 22px;width:100%;min-height:120px}
+#speaker{color:#fff;font: bold 15px Arial,sans-serif;letter-spacing:2px;margin:0 auto 8px;width:100%;max-width:800px}
+#controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+button{background:#08090d;color:white;border:2px solid #eee;padding:12px 20px;font:16px Georgia,serif;cursor:pointer;min-width:120px}
+button:hover,button:focus-visible{background:#fff;color:#050609;outline:none}
+button:disabled{opacity:.35;cursor:not-allowed}
+#hud{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;font:12px Arial,sans-serif;color:#ccc}
+.stat{border:1px solid #555;padding:8px 11px;min-width:110px}
+.stat strong{display:block;color:#fff;font-size:14px;margin-bottom:3px}
+#inventory{color:#aaa;font:12px Arial,sans-serif;text-align:center;min-height:16px}
+#battleBox{width:100%;max-width:800px;margin:0 auto 18px}
+#enemyName{text-align:center;font:bold 18px Arial,sans-serif;letter-spacing:3px;margin-bottom:9px}
+#bar{height:10px;border:1px solid #eee;background:#222;margin-bottom:8px}
+#barFill{height:100%;background:#eee;width:100%;transition:width .2s}
+#battleText{font-size:17px;line-height:1.5;min-height:52px;text-align:center;color:#ddd}
+#arena{height:110px;border:1px solid #777;margin:12px auto;max-width:360px;position:relative;display:grid;place-items:center}
+#soul{width:15px;height:15px;background:#f33;transform:rotate(45deg);box-shadow:0 0 12px #f33}
+.small{font:12px Arial,sans-serif;color:#999;text-align:center}
+.hidden{display:none!important}
+.mirror{position:absolute;inset:0;pointer-events:none;opacity:.22;background:linear-gradient(90deg,transparent 48%,#c7c7d8 49%,transparent 50%),linear-gradient(0deg,transparent 48%,#c7c7d8 49%,transparent 50%)}
+@media(max-width:650px){#game{padding:10px;min-height:100vh}#screen{padding:18px;min-height:470px}.stat{flex:1}header{font-size:10px}}
+</style>
+</head>
+<body>
+<main id="game">
+<header><span>AN UNOFFICIAL FAN PROJECT</span><span>CHAPTER 6</span></header>
+<section id="screen">
+<div id="sceneTag">A DELTARUNE FAN CHAPTER</div>
+<div id="title">DELTARUNE: SHELTER</div>
+<div id="subtitle">A PLACE THAT REMEMBERS</div>
+<div id="story" class="hidden"></div>
+<div id="speaker" class="hidden"></div>
+<div id="battleBox" class="hidden">
+  <div id="enemyName"></div>
+  <div id="bar"><div id="barFill"></div></div>
+  <div id="battleText"></div>
+  <div id="arena"><div id="soul"></div></div>
+  <div class="small" id="arenaHint">PATIENCE: parry the next attack</div>
+</div>
+<div id="controls"><button id="start">START</button></div>
+<div class="mirror hidden" id="mirror"></div>
+</section>
+<section id="hud" class="hidden">
+  <div class="stat"><strong>KRIS</strong><span id="krisHp">290 / 290 HP</span></div>
+  <div class="stat"><strong>SUSIE</strong><span id="susieHp">340 / 340 HP</span></div>
+  <div class="stat"><strong>RALSEI</strong><span id="ralseiHp">240 / 240 HP</span></div>
+</section>
+<div id="inventory">No items</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const party={kris:{hp:290,max:290},susie:{hp:340,max:340},ralsei:{hp:240,max:240}};
+let items=[],scene=0,boss=null,acts=0,parry=false,burn=0,turn=0,secondBoss=false,gameOver=false;
+function updateHud(){
+  $('krisHp').textContent=party.kris.hp+' / 290 HP';
+  $('susieHp').textContent=party.susie.hp+' / 340 HP';
+  $('ralseiHp').textContent=party.ralsei.hp+' / 240 HP';
+  $('inventory').textContent=items.length?'KEY ITEMS: '+items.join('  •  '):'No items';
+}
+function say(speaker,text,tag='HOMETOWN'){
+  $('sceneTag').textContent=tag;
+  $('speaker').textContent=speaker||'';
+  $('speaker').classList.toggle('hidden',!speaker);
+  $('story').textContent=text;
+  $('story').classList.remove('hidden');
+  $('title').classList.add('hidden');
+  $('subtitle').classList.add('hidden');
+  $('battleBox').classList.add('hidden');
+  $('mirror').classList.toggle('hidden',tag!=='THE MIRROR PLACE');
+  $('controls').innerHTML='<button id="next">CONTINUE</button>';
+  $('next').onclick=nextScene;
+}
+const opening=[
+  ['KRIS & SUSIE','The path to the bottom of Hometown is quiet. Kris and Susie walk side by side, heading toward the bunker.','HOMETOWN'],
+  ['SUSIE','So... this is the place everyone keeps talking about?','HOMETOWN'],
+  ['SUSIE','There. Those doors. Help me get them open.','THE BUNKER'],
+  ['SUSIE','Here. Take this metal bar. I got the other side.','THE BUNKER'],
+  ['KRIS & SUSIE','They brace themselves and slam into the heavy bunker doors. The metal groans. They push again.','THE BUNKER'],
+  ['','CRASH! The doors break open. Dark smoke rolls out into the entrance.','THE BUNKER'],
+  ['SUSIE','...Did you see that?! Something just ran past us!','THE BUNKER'],
+  ['','A black silhouette disappears into the smoke. The screen fades to black.','DARKNESS'],
+  ['','Kris opens their eyes. Mirrors reflect mirrors in every direction. There is no clear way back.','THE MIRROR PLACE'],
+  ['RALSEI','Kris? Susie? I found you. I think this place pulled me in too.','THE MIRROR PLACE'],
+  ['','A book lies on the floor. Its cover reads ENTRY 1.','THE MIRROR PLACE']
+];
+function nextScene(){
+  if(scene<opening.length){const [sp,tx,tag]=opening[scene++];say(sp,tx,tag);if(scene===opening.length){$('next').textContent='TAKE THE BOOK';$('next').onclick=()=>{items.push('ENTRY 1');updateHud();startBossOne();};}return;}
+}
+function startBossOne(){
+  $('hud').classList.remove('hidden');updateHud();
+  boss={name:'YOU',hp:160,max:160,damage:24};
+  acts=0;parry=false;burn=0;turn=0;gameOver=false;
+  showBattle('YOU','A familiar shape stands ahead. It looks like the vessel Kris left behind.');
+}
+function showBattle(name,text){
+  $('sceneTag').textContent='BATTLE';
+  $('title').classList.add('hidden');$('subtitle').classList.add('hidden');
+  $('story').classList.add('hidden');$('speaker').classList.add('hidden');$('mirror').classList.add('hidden');
+  $('battleBox').classList.remove('hidden');$('enemyName').textContent=name;
+  $('battleText').textContent=text;$('barFill').style.width=(boss.hp/boss.max*100)+'%';
+  $('controls').innerHTML='';
+  const actions=secondBoss?[
+    ['ACT · LISTEN',()=>act('listen')],['ACT · REMEMBER',()=>act('remember')],['FIGHT',fight],['PATIENCE',guard]
+  ]:[
+    ['ACT · LISTEN',()=>act('listen')],['ACT · REMEMBER',()=>act('remember')],['ACT · COMFORT',()=>act('comfort')],['FIGHT',fight],['FIRESHOCK',fireShock],['PATIENCE',guard]
+  ];
+  for(const [label,fn] of actions){const b=document.createElement('button');b.textContent=label;b.onclick=fn;$('controls').appendChild(b);}
+}
+function damageParty(amount){
+  if(parry){amount=Math.max(0,Math.floor(amount*.2));parry=false;$('battleText').textContent='PATIENCE! Kris parries the attack and reduces its impact.';}
+  party.kris.hp=Math.max(0,party.kris.hp-amount);updateHud();
+  if(party.kris.hp===0){endGame(false);return false;}return true;
+}
+function enemyTurn(message){
+  turn++;
+  if(burn>0){boss.hp=Math.max(0,boss.hp-8);burn--;message+=' The burn continues.';}
+  $('barFill').style.width=(boss.hp/boss.max*100)+'%';
+  if(boss.hp<=0){if(secondBoss)endGame(true);else winFirstBoss();return;}
+  const amount= boss.damage + (turn%3===0?6:0);
+  if(!damageParty(amount))return;
+  showBattle(boss.name,message+' The enemy attacks. Kris takes '+(parry?'reduced ':'')+'damage.');
+}
+function act(kind){
+  acts++;
+  const lines={listen:'You listen. Something in the vessel hesitates.',remember:'You remind it of the life it was meant to have.',comfort:'You tell it that being discarded does not make it worthless.'};
+  boss.hp=Math.max(0,boss.hp- (secondBoss?7:4));
+  $('barFill').style.width=(boss.hp/boss.max*100)+'%';
+  if(!secondBoss&&acts>=3) $('battleText').textContent=lines[kind]+' YOU seems weaker. Its guard is starting to fall.';
+  else $('battleText').textContent=lines[kind];
+  if(boss.hp<=0){if(secondBoss)endGame(true);else winFirstBoss();return;}
+  enemyTurn(lines[kind]);
+}
+function fight(){
+  if(!secondBoss&&acts<3){$('battleText').textContent='YOU blocks the attack. The force rebounds. Kris is hurt.';if(!damageParty(30))return;enemyTurn('The vessel refuses to let you through.');return;}
+  boss.hp=Math.max(0,boss.hp-(secondBoss?34:42));
+  $('barFill').style.width=(boss.hp/boss.max*100)+'%';
+  if(boss.hp<=0){if(secondBoss)endGame(true);else winFirstBoss();return;}
+  enemyTurn('Kris strikes '+boss.name+'.');
+}
+function fireShock(){
+  $('battleText').textContent='Ralsei casts FIRESHOCK. YOU blocks the spell, but the lingering heat still burns.';
+  burn=3;enemyTurn('The vessel blocks FIRESHOCK, but the burn remains.');
+}
+function guard(){parry=true;enemyTurn('Kris waits carefully, ready to parry with PATIENCE.');}
+function winFirstBoss(){
+  items.push("VESSEL'S SWORD");updateHud();
+  boss=null;
+  $('sceneTag').textContent='BATTLE END';
+  $('battleBox').classList.add('hidden');
+  $('story').classList.remove('hidden');$('speaker').classList.remove('hidden');
+  $('speaker').textContent='YOU';
+  $('story').textContent='Atleast your strong enough, take my sword. Theres the Knight donning its black knife. You should take it down before they do anything.';
+  $('controls').innerHTML='<button id="nextBoss">CONTINUE</button>';
+  $('nextBoss').onclick=startSecondBoss;
+}
+function startSecondBoss(){
+  secondBoss=true;boss={name:'AMALGAMATE UNDYNE AND ASGORE',hp:230,max:230,damage:32};acts=0;turn=0;parry=false;burn=0;
+  showBattle(boss.name,'Two familiar presences twist together into one towering shape. The second battle begins.');
+}
+function endGame(won){
+  gameOver=true;$('battleBox').classList.add('hidden');$('story').classList.remove('hidden');$('speaker').classList.remove('hidden');
+  $('sceneTag').textContent=won?'CHAPTER DEMO COMPLETE':'BATTLE LOST';
+  $('speaker').textContent=won?'KRIS':'';
+  $('story').textContent=won?'The amalgamate falls back into the darkness. The mirrors begin to move. END OF CURRENT DEMO.':'Kris is overwhelmed. In this route, the vessel wins the clash and Kris is left with a serious injury. Their sword is broken, and they cannot FIGHT normally while the temporary BLEED effect lasts.';
+  $('controls').innerHTML='<button id="again">RETURN TO TITLE</button>';
+  $('again').onclick=()=>location.reload();
+}
+$('start').onclick=()=>{scene=0;$('controls').innerHTML='';$('hud').classList.remove('hidden');nextScene();};
+</script>
+</body>
+</html>
