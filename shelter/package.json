@@ -1,0 +1,43 @@
+{
+  "name": "deltarune-shelter",
+  "version": "1.0.0",
+  "description": "A fan-made standalone DELTARUNE: SHELTER chapter prototype",
+  "main": "main.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win nsis --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "^35.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "fan.shelter.chapter",
+    "productName": "DELTARUNE SHELTER",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "package.json"
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "DELTARUNE-SHELTER-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}
