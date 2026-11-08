@@ -26,6 +26,7 @@ let win;
 let tabs = [];
 let activeId = null;
 let nextId = 1;
+let htmlFullscreenTabId = null;
 let bounds = { x: 0, y: 118, width: 1000, height: 600 };
 
 function safeUrl(raw) {
@@ -88,16 +89,20 @@ function addTab(url = '', options = {}) {
     }
   });
   view.webContents.on('enter-html-full-screen', () => {
+    // Website/player fullscreen is separate from the BrowserWindow's F11 fullscreen.
+    // Do not call win.setFullScreen() here: doing so races Chromium's own fullscreen
+    // lifecycle (notably YouTube) and can leave the app stuck after exiting the player.
+    htmlFullscreenTabId = tab.id;
     if (win && !win.isDestroyed()) {
-      // Native video/player fullscreen should also remove Crystalium's own chrome.
-      win.setFullScreen(true);
       win.webContents.send('browser:fullscreen', true);
+      layoutViews();
     }
   });
   view.webContents.on('leave-html-full-screen', () => {
+    if (htmlFullscreenTabId === tab.id) htmlFullscreenTabId = null;
     if (win && !win.isDestroyed()) {
-      win.setFullScreen(false);
-      win.webContents.send('browser:fullscreen', false);
+      win.webContents.send('browser:fullscreen', win.isFullScreen());
+      layoutViews();
     }
   });
   view.webContents.on('page-title-updated', () => { if (!tab.incognito) saveSession(); sendState(); });
@@ -119,6 +124,7 @@ function closeTab(id) {
   const index = tabs.findIndex(t => t.id === id);
   if (index < 0) return;
   const [tab] = tabs.splice(index, 1);
+  if (htmlFullscreenTabId === tab.id) htmlFullscreenTabId = null;
   tab.view.webContents.close();
   win.contentView.removeChildView(tab.view);
   if (activeId === id) {
@@ -144,7 +150,7 @@ function createWindow() {
     // an old event value after a quick enter/exit sequence.
     const sync = () => {
       if (!win || win.isDestroyed()) return;
-      const active = win.isFullScreen();
+      const active = win.isFullScreen() || htmlFullscreenTabId !== null;
       win.webContents.send('browser:fullscreen', active);
       layoutViews();
     };
@@ -323,7 +329,7 @@ ipcMain.handle('browser:saved-state', () => {
 ipcMain.handle('browser:window', (_e, action) => {
   if (!win) return;
   if (action === 'sync-fullscreen') {
-    const active = win.isFullScreen();
+    const active = win.isFullScreen() || htmlFullscreenTabId !== null;
     win.webContents.send('browser:fullscreen', active);
     layoutViews();
     return active;
@@ -332,7 +338,7 @@ ipcMain.handle('browser:window', (_e, action) => {
   if (action === 'maximize') win.isMaximized() ? win.unmaximize() : win.maximize();
   if (action === 'close') win.close();
   if (action === 'toggle-fullscreen') win.setFullScreen(!win.isFullScreen());
-  if (action === 'exit-fullscreen') win.setFullScreen(false);
+  if (action === 'exit-fullscreen') { const t=activeTab(); if(t&&!t.view.webContents.isDestroyed())t.view.webContents.executeJavaScript('if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});').catch(()=>{}); win.setFullScreen(false); }
   if (action === 'devtools') { const view=activeTab()?.view; if(view&&!view.webContents.isDestroyed()) view.webContents.isDevToolsOpened()?view.webContents.closeDevTools():view.webContents.openDevTools({mode:'detach'}); }
   if (['zoom-in','zoom-out','zoom-reset'].includes(action)) { const wc=activeTab()?.view.webContents; if(wc&&!wc.isDestroyed()){const z=wc.getZoomFactor();wc.setZoomFactor(action==='zoom-reset'?1:Math.max(0.5,Math.min(2,z+(action==='zoom-in'?0.1:-0.1))));} }
 });
