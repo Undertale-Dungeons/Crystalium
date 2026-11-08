@@ -297,7 +297,19 @@ ipcMain.handle('browser:picture-in-picture', async () => {
         // where the media/site supports them. Preserve the page's original controls state.
         const originalControls=video.controls;
         video.controls=true;
-        video.addEventListener('leavepictureinpicture',()=>{video.controls=originalControls;},{once:true});
+        const mediaSession=navigator.mediaSession;
+        const mediaActions=['play','pause','seekbackward','seekforward','seekto'];
+        const clearMediaActions=()=>{if(!mediaSession?.setActionHandler)return;for(const action of mediaActions){try{mediaSession.setActionHandler(action,null);}catch{}}};
+        if(mediaSession?.setActionHandler){
+          try{
+            mediaSession.setActionHandler('play',()=>video.play().catch(()=>{}));
+            mediaSession.setActionHandler('pause',()=>video.pause());
+            mediaSession.setActionHandler('seekbackward',details=>{video.currentTime=Math.max(0,video.currentTime-(details.seekOffset||10));});
+            mediaSession.setActionHandler('seekforward',details=>{video.currentTime=Math.min(video.duration||Infinity,video.currentTime+(details.seekOffset||10));});
+            mediaSession.setActionHandler('seekto',details=>{if(Number.isFinite(details.seekTime))video.currentTime=Math.max(0,Math.min(video.duration||Infinity,details.seekTime));});
+          }catch{}
+        }
+        video.addEventListener('leavepictureinpicture',()=>{video.controls=originalControls;clearMediaActions();},{once:true});
         await video.requestPictureInPicture();
         return {ok:true,title:document.title,duration:Number.isFinite(video.duration)?video.duration:0,currentTime:video.currentTime};
       } catch(e) { return {ok:false,message:e&&e.message?'Picture-in-Picture was blocked: '+e.message:'The page blocked Picture-in-Picture. Try the video player’s own PiP control.'}; }
