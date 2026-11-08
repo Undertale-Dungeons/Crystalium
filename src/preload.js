@@ -22,6 +22,7 @@ contextBridge.exposeInMainWorld('crystalium', {
   windowAction: action => ipcRenderer.invoke('browser:window', action),
   updateSaved: patch => ipcRenderer.invoke('browser:saved-update', patch),
   checkForUpdates: () => ipcRenderer.invoke('browser:check-updates'),
+  scanRepoAndUpdate: () => ipcRenderer.invoke('browser:scan-repo-update'),
   getUpdateStatus: () => ipcRenderer.invoke('browser:update-status'),
   installUpdate: () => ipcRenderer.invoke('browser:install-update'),
   onUpdateStatus: callback => ipcRenderer.on('browser:update-status', (_event, status) => callback(status)),
