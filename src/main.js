@@ -231,11 +231,19 @@ ipcMain.handle('browser:picture-in-picture', async () => {
   try {
     const result = await t.view.webContents.executeJavaScript(`(async()=>{
       const videos=[...document.querySelectorAll('video')].filter(v=>v.readyState>=1 && v.videoWidth>0 && v.videoHeight>0);
-      const video=videos.find(v=>!v.paused && !v.ended) || videos[0];
-      if(!video) return {ok:false,message:'No video is available on this page.'};
+      if(!videos.length) return {ok:false,message:'No video is available on this page.'};
+      const video=videos.find(v=>!v.paused&&!v.ended)||videos.sort((a,b)=>(b.videoWidth*b.videoHeight)-(a.videoWidth*a.videoHeight))[0];
       if(!document.pictureInPictureEnabled || !video.requestPictureInPicture) return {ok:false,message:'This page does not support Picture-in-Picture.'};
-      try { if(document.pictureInPictureElement===video) await document.exitPictureInPicture(); else await video.requestPictureInPicture(); return {ok:true}; }
-      catch(e) { return {ok:false,message:e && e.message ? 'Picture-in-Picture was blocked: '+e.message : 'The page blocked Picture-in-Picture. Try the video player’s own PiP control.'}; }
+      try {
+        if(document.pictureInPictureElement===video){await document.exitPictureInPicture();return {ok:true,closed:true};}
+        // Chromium's native PiP controls expose playback, a seek bar and skip controls
+        // where the media/site supports them. Preserve the page's original controls state.
+        const originalControls=video.controls;
+        video.controls=true;
+        video.addEventListener('leavepictureinpicture',()=>{video.controls=originalControls;},{once:true});
+        await video.requestPictureInPicture();
+        return {ok:true,title:document.title,duration:Number.isFinite(video.duration)?video.duration:0,currentTime:video.currentTime};
+      } catch(e) { return {ok:false,message:e&&e.message?'Picture-in-Picture was blocked: '+e.message:'The page blocked Picture-in-Picture. Try the video player’s own PiP control.'}; }
     })()`, true);
     if (result && !result.ok && win && !win.isDestroyed()) win.webContents.send('browser:notice', result.message);
     return result;
