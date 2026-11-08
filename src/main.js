@@ -80,7 +80,7 @@ function addTab(url = '', options = {}) {
     if (input.type !== 'keyDown') return;
     const key = String(input.key || '').toLowerCase();
     if (key === 'f11') { event.preventDefault(); if (win && !win.isDestroyed()) win.setFullScreen(!win.isFullScreen()); return; }
-    if (key === 'escape' && win && !win.isDestroyed() && win.isFullScreen()) { event.preventDefault(); win.setFullScreen(false); return; }
+    // Let Escape reach the website/player so HTML fullscreen can exit cleanly.
     if (key === 'f12') { event.preventDefault(); if (view.webContents.isDevToolsOpened()) view.webContents.closeDevTools(); else view.webContents.openDevTools({mode:'detach'}); return; }
     if ((input.control || input.meta) && ['+', '=', '-', '0'].includes(key)) {
       event.preventDefault(); const current=view.webContents.getZoomFactor();
@@ -150,7 +150,7 @@ function createWindow() {
     // an old event value after a quick enter/exit sequence.
     const sync = () => {
       if (!win || win.isDestroyed()) return;
-      const active = win.isFullScreen() || htmlFullscreenTabId !== null;
+      const active = win.isFullScreen() || htmlFullscreenTabId === activeId;
       win.webContents.send('browser:fullscreen', active);
       layoutViews();
     };
