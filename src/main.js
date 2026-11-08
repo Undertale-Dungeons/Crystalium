@@ -1,6 +1,8 @@
 const { app, BrowserWindow, WebContentsView, ipcMain, shell, dialog } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
+const https = require('node:https');
+let autoInstallAfterGreenRelease = false;
 let autoUpdater = null;
 try { ({ autoUpdater } = require('electron-updater')); } catch { /* Dependency is installed during packaging. */ }
 let updateStatus = { status: 'idle', message: 'Updates have not been checked yet.' };
@@ -15,7 +17,7 @@ if (autoUpdater) {
   autoUpdater.on('update-available', info => publishUpdateStatus('available', 'Version ' + info.version + ' is available. Downloading in the background…', { version: info.version }));
   autoUpdater.on('update-not-available', info => publishUpdateStatus('current', 'You are using the latest version' + (info.version ? ' (' + info.version + ')' : '') + '.', { version: info.version }));
   autoUpdater.on('download-progress', progress => publishUpdateStatus('downloading', 'Downloading update… ' + Math.round(progress.percent || 0) + '%', { percent: Math.round(progress.percent || 0) }));
-  autoUpdater.on('update-downloaded', info => publishUpdateStatus('downloaded', 'Version ' + info.version + ' is ready to install. Restart Crystalium to finish updating.', { version: info.version }));
+  autoUpdater.on('update-downloaded', info => { publishUpdateStatus('downloaded', 'Version ' + info.version + ' is ready. Installing the verified release…', { version: info.version }); if (autoInstallAfterGreenRelease) { autoInstallAfterGreenRelease = false; setTimeout(() => autoUpdater.quitAndInstall(false, true), 1200); } });
   autoUpdater.on('error', error => publishUpdateStatus('error', 'Update check failed: ' + String(error?.message || error).slice(0, 220)));
 }
 let savedTabs = []; let savedActiveIndex = 0; let blockTrackers = true;
@@ -390,6 +392,50 @@ ipcMain.handle('browser:check-updates', async () => {
   }
   try { await autoUpdater.checkForUpdates(); return { ...updateStatus, supported: true }; }
   catch (error) { publishUpdateStatus('error', 'Update check failed: ' + String(error?.message || error).slice(0, 220)); return { ...updateStatus, supported: true }; }
+});
+ipcMain.handle('browser:scan-repo-update', async () => {
+  if (!app.isPackaged || !autoUpdater) {
+    publishUpdateStatus('unsupported', 'Repository scanning and automatic installation require the installed Crystalium release build.');
+    return { ...updateStatus, supported:false };
+  }
+  publishUpdateStatus('checking', 'Scanning Undertale-Dungeons/Crystalium for a green build…');
+  const requestJson = url => new Promise((resolve, reject) => {
+    const req = https.get(url, { headers:{'User-Agent':'Crystalium-Updater','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'} }, response => {
+      let body='';
+      response.setEncoding('utf8');
+      response.on('data', chunk => { body += chunk; if (body.length > 1024*1024) req.destroy(new Error('GitHub response too large')); });
+      response.on('end', () => {
+        if (response.statusCode !== 200) return reject(new Error('GitHub API returned HTTP ' + response.statusCode));
+        try { resolve(JSON.parse(body)); } catch { reject(new Error('GitHub returned invalid JSON')); }
+      });
+    });
+    req.setTimeout(12000, () => req.destroy(new Error('GitHub request timed out')));
+    req.on('error', reject);
+  });
+  try {
+    const repoInfo = await requestJson('https://api.github.com/repos/Undertale-Dungeons/Crystalium');
+    if (repoInfo.full_name !== 'Undertale-Dungeons/Crystalium' || repoInfo.archived) throw new Error('Crystalium repository could not be verified.');
+    const workflow = await requestJson('https://api.github.com/repos/Undertale-Dungeons/Crystalium/actions/workflows/build.yml/runs?per_page=1');
+    const run = workflow.workflow_runs?.[0];
+    if (!run || run.status !== 'completed' || run.conclusion !== 'success') {
+      autoInstallAfterGreenRelease = false;
+      const state = run?.status === 'completed' ? 'not green (' + (run.conclusion || 'unknown') + ')' : 'still running or has no completed run';
+      publishUpdateStatus('error', 'Crystalium build is ' + state + '. No update was installed.');
+      return { ...updateStatus, supported:true, green:false };
+    }
+    autoInstallAfterGreenRelease = true;
+    publishUpdateStatus('checking', 'Green check verified for build #' + run.run_number + '. Checking the published release…', { green:true, runNumber:run.run_number });
+    const result = await autoUpdater.checkForUpdates();
+    if (!result?.updateInfo || result.updateInfo.version === app.getVersion()) {
+      autoInstallAfterGreenRelease = false;
+      publishUpdateStatus('current', 'Build is green, but there is no newer published Crystalium release.', { green:true, version:app.getVersion() });
+    }
+    return { ...updateStatus, supported:true, green:true };
+  } catch (error) {
+    autoInstallAfterGreenRelease = false;
+    publishUpdateStatus('error', 'Repository scan failed: ' + String(error?.message || error).slice(0,200));
+    return { ...updateStatus, supported:true, green:false };
+  }
 });
 ipcMain.handle('browser:install-update', () => {
   if (autoUpdater && updateStatus.status === 'downloaded') { autoUpdater.quitAndInstall(false, true); return true; }
