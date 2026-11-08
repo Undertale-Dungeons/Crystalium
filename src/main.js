@@ -415,16 +415,18 @@ ipcMain.handle('browser:scan-repo-update', async () => {
   try {
     const repoInfo = await requestJson('https://api.github.com/repos/Undertale-Dungeons/Crystalium');
     if (repoInfo.full_name !== 'Undertale-Dungeons/Crystalium' || repoInfo.archived) throw new Error('Crystalium repository could not be verified.');
-    const workflow = await requestJson('https://api.github.com/repos/Undertale-Dungeons/Crystalium/actions/workflows/build.yml/runs?per_page=1');
-    const run = workflow.workflow_runs?.[0];
+    const release = await requestJson('https://api.github.com/repos/Undertale-Dungeons/Crystalium/releases/latest');
+    if (!release.tag_name) throw new Error('No published Crystalium release was found.');
+    const workflow = await requestJson('https://api.github.com/repos/Undertale-Dungeons/Crystalium/actions/workflows/build.yml/runs?per_page=20');
+    const run = workflow.workflow_runs?.find(item => item.head_branch === release.tag_name);
     if (!run || run.status !== 'completed' || run.conclusion !== 'success') {
       autoInstallAfterGreenRelease = false;
-      const state = run?.status === 'completed' ? 'not green (' + (run.conclusion || 'unknown') + ')' : 'still running or has no completed run';
-      publishUpdateStatus('error', 'Crystalium build is ' + state + '. No update was installed.');
+      const state = !run ? 'has no build run for release ' + release.tag_name : run.status !== 'completed' ? 'is still running for release ' + release.tag_name : 'failed for release ' + release.tag_name;
+      publishUpdateStatus('error', 'Crystalium release build ' + state + '. No update was installed.');
       return { ...updateStatus, supported:true, green:false };
     }
     autoInstallAfterGreenRelease = true;
-    publishUpdateStatus('checking', 'Green check verified for build #' + run.run_number + '. Checking the published release…', { green:true, runNumber:run.run_number });
+    publishUpdateStatus('checking', 'Green check verified for release ' + release.tag_name + ' (build #' + run.run_number + '). Checking the installer…', { green:true, runNumber:run.run_number, releaseTag:release.tag_name });
     const result = await autoUpdater.checkForUpdates();
     if (!result?.updateInfo || result.updateInfo.version === app.getVersion()) {
       autoInstallAfterGreenRelease = false;
