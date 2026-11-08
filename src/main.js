@@ -79,8 +79,41 @@ function addTab(url = '', options = {}) {
   view.webContents.on('before-input-event', (event, input) => {
     if (input.type !== 'keyDown') return;
     const key = String(input.key || '').toLowerCase();
-    if (key === 'f11') { event.preventDefault(); if (win && !win.isDestroyed()) win.setFullScreen(!win.isFullScreen()); return; }
-    // Let Escape reach the website/player so HTML fullscreen can exit cleanly.
+    if (key === 'f11') {
+      event.preventDefault();
+      if (htmlFullscreenTabId === tab.id) {
+        view.webContents.executeJavaScript('if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(()=>{});').catch(()=>{});
+      } else if (win && !win.isDestroyed()) {
+        win.setFullScreen(!win.isFullScreen());
+      }
+      return;
+    }
+    if (key === 'escape' && htmlFullscreenTabId === tab.id) {
+      event.preventDefault();
+      view.webContents.executeJavaScript('if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(()=>{});').catch(()=>{});
+      return;
+    }
+    // Global media keys work even when focus is outside the video element.
+    // Do not steal Space/K from editable fields or page controls.
+    if (!input.control && !input.meta && !input.alt && (key === ' ' || key === 'space' || key === 'k')) {
+      const mediaKey = key === ' ' || key === 'space' ? 'space' : 'k';
+      view.webContents.executeJavaScript(`(() => {
+        const el = document.activeElement;
+        const tag = (el && el.tagName || '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea' || tag === 'select' || el?.isContentEditable) return false;
+        const videos = [...document.querySelectorAll('video')].filter(v => v.readyState >= 1);
+        if (!videos.length) return false;
+        const video = videos.find(v => !v.paused && !v.ended) || videos.find(v => v.currentTime > 0) || videos[0];
+        if (!video) return false;
+        if (${JSON.stringify(mediaKey)} === 'space' || ${JSON.stringify(mediaKey)} === 'k') {
+          if (video.paused || video.ended) video.play().catch(() => {});
+          else video.pause();
+          return true;
+        }
+        return false;
+      })()`).then(handled => { if (handled) event.preventDefault(); }).catch(()=>{});
+      return;
+    }
     if (key === 'f12') { event.preventDefault(); if (view.webContents.isDevToolsOpened()) view.webContents.closeDevTools(); else view.webContents.openDevTools({mode:'detach'}); return; }
     if ((input.control || input.meta) && ['+', '=', '-', '0'].includes(key)) {
       event.preventDefault(); const current=view.webContents.getZoomFactor();
@@ -88,6 +121,29 @@ function addTab(url = '', options = {}) {
       else view.webContents.setZoomFactor(Math.max(0.5,Math.min(2,current+(key==='-'?-0.1:0.1))));
     }
   });
+  // Grant the standard fullscreen permission to embedded players where the
+  // embedding page allows it. This does not bypass a frame's sandbox policy.
+  const grantIframeFullscreen = () => {
+    view.webContents.executeJavaScript(`(() => {
+      const grant = frame => {
+        const allow = (frame.getAttribute('allow') || '').split(';').map(x => x.trim()).filter(Boolean);
+        if (!allow.some(x => /^fullscreen(?:\\s|$)/i.test(x))) allow.push('fullscreen');
+        frame.setAttribute('allow', allow.join('; '));
+        frame.setAttribute('allowfullscreen', '');
+      };
+      document.querySelectorAll('iframe').forEach(grant);
+      if (!window.__crystaliumIframeFullscreenObserver) {
+        const observer = new MutationObserver(records => records.forEach(record => record.addedNodes.forEach(node => {
+          if (node.nodeType !== 1) return;
+          if (node.matches?.('iframe')) grant(node);
+          node.querySelectorAll?.('iframe').forEach(grant);
+        })));
+        observer.observe(document.documentElement, {childList:true,subtree:true});
+        window.__crystaliumIframeFullscreenObserver = observer;
+      }
+    })()`).catch(()=>{});
+  };
+  view.webContents.on('dom-ready', grantIframeFullscreen);
   view.webContents.on('enter-html-full-screen', () => {
     // Website/player fullscreen is separate from the BrowserWindow's F11 fullscreen.
     // Do not call win.setFullScreen() here: doing so races Chromium's own fullscreen
