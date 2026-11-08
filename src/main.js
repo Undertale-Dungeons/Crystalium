@@ -96,6 +96,7 @@ function addTab(url = '', options = {}) {
     // Global media keys work even when focus is outside the video element.
     // Do not steal Space/K from editable fields or page controls.
     if (!input.control && !input.meta && !input.alt && (key === ' ' || key === 'space' || key === 'k')) {
+      event.preventDefault();
       const mediaKey = key === ' ' || key === 'space' ? 'space' : 'k';
       view.webContents.executeJavaScript(`(() => {
         const el = document.activeElement;
@@ -111,7 +112,7 @@ function addTab(url = '', options = {}) {
           return true;
         }
         return false;
-      })()`).then(handled => { if (handled) event.preventDefault(); }).catch(()=>{});
+      })()`).catch(()=>{});
       return;
     }
     if (key === 'f12') { event.preventDefault(); if (view.webContents.isDevToolsOpened()) view.webContents.closeDevTools(); else view.webContents.openDevTools({mode:'detach'}); return; }
